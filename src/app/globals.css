@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ✅ 커스텀 글로벌 스타일 추가 */
+html,
+body {
+  @apply bg-gray-100 text-gray-800;
+  font-family: 'Inter', sans-serif;
+}
+
+a {
+  @apply text-blue-600 hover:underline;
+}
+
+button {
+  @apply cursor-pointer;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0%);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out forwards;
+}
