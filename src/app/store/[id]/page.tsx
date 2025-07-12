@@ -7,9 +7,10 @@ import { use } from 'react'; // ✅ 필요
 
 export default function StoreDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params); // ✅ unwrap params
+  const router = useRouter();
+  
   const store = mockStores.find((s) => s.id === id);
   if (!store) return notFound();
-  const router = useRouter();
 
   return (
     <div className="max-w-md mx-auto pb-10">
