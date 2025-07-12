@@ -5,12 +5,9 @@ import { useEffect, useState } from 'react';
 import { Map, CustomOverlayMap } from 'react-kakao-maps-sdk';
 import { mockStores } from '@/constants/mockStores';
 import { Store } from "@/types/store";
-import BottomStoreBar from './BottomStoreBar';
-import { AnimatePresence } from 'framer-motion';
 
 export default function MapView({ onSelectStore }: { onSelectStore: (store: Store | null) => void }) {
   const [loaded, setLoaded] = useState(false);
-  const [selectedStoreId, setSelectedStoreId] = useState<string | null>(null);
   const [mapInstance, setMapInstance] = useState<kakao.maps.Map | null>(null);
 
   useEffect(() => {
@@ -20,10 +17,7 @@ export default function MapView({ onSelectStore }: { onSelectStore: (store: Stor
     });
   }, []);
 
-  const selectedStore = mockStores.find((store) => store.id === selectedStoreId);
-
   const handleMarkerClick = (storeId: string, position: { lat: number; lng: number }) => {
-    setSelectedStoreId(storeId);
     const store = mockStores.find((s) => s.id === storeId);
     if (store) onSelectStore(store);
     if (!mapInstance) return;
