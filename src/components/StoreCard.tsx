@@ -2,22 +2,48 @@
 
 import { Store } from "@/types/store";
 import { useRouter } from 'next/navigation';
+import clsx from 'clsx'; // 조건부 class를 쉽게 쓰기 위해 사용
+
 interface Props {
   store: Store;
+  isSelected?: boolean; // ✅ 외부에서 강조 여부 받음
+  onClick?: () => void; // ✅ 클릭 이벤트 외부 전달
 }
 
-export default function StoreCard({ store }: Props) {
+export default function StoreCard({ store, isSelected, onClick }: Props) {
   const router = useRouter();
+  const handleClick = () => {
+    onClick?.(); // 외부에 클릭 알림
+    router.push(`/store/${store.id}`);
+  };
+
   return (
-    <div className="border rounded-lg p-4 shadow-sm mb-4 bg-white" onClick={() => router.push(`/store/${store.id}`)}>
-      <h2 className="text-lg font-semibold">{store.name}</h2>
-      <p className="text-sm text-gray-600">메뉴: {store.menu.join(", ")}</p>
-      <p className="mt-2 font-bold">
-        남은 수량:{" "}
-        <span className={store.remain === 0 ? "text-red-500" : "text-green-600"}>
+    <div
+      onClick={handleClick}
+      className={clsx(
+        "flex items-center justify-between gap-4 p-4 mb-4 rounded-2xl shadow-lg cursor-pointer transition-all duration-200 border",
+        isSelected ? "border-orange-400 bg-orange-50" : "border-gray-200 bg-white"
+      )}
+    >
+      {/* 좌측: 이미지 자리 */}
+      <div className="w-12 h-12 rounded-lg bg-gray-200 flex-shrink-0" />
+
+      {/* 중앙: 텍스트 정보 */}
+      <div className="flex-1">
+        <h2 className="text-base font-semibold">{store.name}</h2>
+        <p className="text-sm text-gray-600">{store.menu.join(", ")}</p>
+      </div>
+
+      {/* 우측: 수량 표시 */}
+      <div className="text-right">
+        <div className={clsx(
+          "text-base font-bold",
+          store.remain === 0 ? "text-red-500" : "text-orange-500"
+        )}>
           {store.remain}개
-        </span>
-      </p>
+        </div>
+        <div className="text-sm text-gray-500">남았어요!</div>
+      </div>
     </div>
   );
 }

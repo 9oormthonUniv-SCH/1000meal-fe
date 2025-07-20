@@ -1,30 +1,24 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Map, CustomOverlayMap } from 'react-kakao-maps-sdk';
 import { mockStores } from '@/constants/mockStores';
-import { Store } from "@/types/store";
+import { Store } from '@/types/store';
+import MapStoreCard from './MapStoreCard';
 import { useRouter } from 'next/navigation';
-import { Plus } from 'lucide-react'; // 아이콘 라이브러리 사용
+import { AnimatePresence, motion } from 'framer-motion';
 
-export default function MapView({ onSelectStore }: { onSelectStore: (store: Store | null) => void }) {
-  const [loaded, setLoaded] = useState(false);
+export default function MapDetail() {
+  const [selectedStore, setSelectedStore] = useState<Store | null>(null);
   const [mapInstance, setMapInstance] = useState<kakao.maps.Map | null>(null);
   const router = useRouter();
 
-  useEffect(() => {
-    if (!window.kakao?.maps) return;
-    window.kakao.maps.load(() => {
-      setLoaded(true);
-    });
-  }, []);
-
   const handleMarkerClick = (storeId: string, position: { lat: number; lng: number }) => {
     const store = mockStores.find((s) => s.id === storeId);
-    if (store) onSelectStore(store);
-    if (!mapInstance) return;
+    if (!mapInstance || !store) return;
+    setSelectedStore(store);
 
-    const latLng = new kakao.maps.LatLng(position.lat, position.lng);
+    const latLng = new kakao.maps.LatLng(position.lat - 0.003, position.lng);
     const currentCenter = mapInstance.getCenter();
 
     const isSameCenter =
@@ -38,34 +32,30 @@ export default function MapView({ onSelectStore }: { onSelectStore: (store: Stor
     }
   };
 
-  if (!loaded) return <div className="h-[400px] bg-gray-200 rounded-xl">지도를 불러오는 중...</div>;
-
   return (
-    <div className="relative w-full max-w-[430px] mx-auto rounded-xl overflow-hidden shadow-sm">
-      {/* 우측 상단 + 버튼 */}
-      <button
-        onClick={() => router.push('/map')}
-        className="absolute top-2 right-2 z-10 bg-white rounded-full p-2 shadow hover:bg-gray-100 transition"
-      >
-        <Plus className="w-5 h-5 text-orange-500" />
-      </button>
+    <div className="relative w-full h-full rounded-xl shadow-sm">
+      {/* 헤더 */}
+      <div className="absolute top-0 left-0 w-full z-10 h-[56px] bg-white shadow flex items-center justify-center relative">
+        <button
+          onClick={() => router.back()}
+          className="absolute left-4 text-2xl text-gray-700"
+        >
+          ←
+        </button>
+        <span className="text-xl font-semibold text-gray-900">지도로 보기</span>
+      </div>
 
+      {/* 지도 */}
       <Map
         center={{ lat: 36.7720, lng: 126.9324 }}
-        style={{ width: '100%', height: '400px', borderRadius: '12px' }}
+        style={{ width: '100%', height: '100%' }}
         level={4}
         onCreate={(map) => setMapInstance(map)}
-        onClick={(_target, mouseEvent) => {
-          const lat = mouseEvent.latLng.getLat();
-          const lng = mouseEvent.latLng.getLng();
-          console.log('📍 클릭한 위치:', { lat, lng });
-        }}
       >
         {mockStores.map((store) => (
           <CustomOverlayMap
             key={store.id}
             position={store.position}
-            clickable={true}
             yAnchor={1}
             xAnchor={0.5}
           >
@@ -87,6 +77,28 @@ export default function MapView({ onSelectStore }: { onSelectStore: (store: Stor
           </CustomOverlayMap>
         ))}
       </Map>
+
+      {/* 슬라이드 카드 */}
+      <AnimatePresence>
+        {selectedStore && (
+          <motion.div
+            className="absolute bottom-0 w-full z-10 bg-white rounded-t-xl shadow-lg"
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            onDragEnd={(event, info) => {
+              if (info.offset.y > 100) {
+                setSelectedStore(null); // 아래로 충분히 끌었으면 닫기
+              }
+            }}
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', stiffness: 400, damping: 40 }}
+          >
+            <MapStoreCard store={selectedStore} />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
