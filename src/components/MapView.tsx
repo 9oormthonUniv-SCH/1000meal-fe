@@ -38,10 +38,10 @@ export default function MapView({ onSelectStore }: { onSelectStore: (store: Stor
     }
   };
 
-  if (!loaded) return <div className="h-[400px] bg-gray-200 rounded-xl">지도를 불러오는 중...</div>;
+  if (!loaded) return <div className="h-[300px] bg-gray-200 rounded-xl">지도를 불러오는 중...</div>;
 
   return (
-    <div className="relative w-full max-w-[430px] mx-auto rounded-xl overflow-hidden shadow-sm">
+    <div className="relative w-full max-w-[430px] h-[300px] mx-auto rounded-xl overflow-hidden shadow-sm">
       {/* 우측 상단 + 버튼 */}
       <button
         onClick={() => router.push('/map')}

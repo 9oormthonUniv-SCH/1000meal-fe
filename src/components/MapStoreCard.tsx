@@ -1,9 +1,16 @@
 import { Store } from "@/types/store";
 import { isStoreOpen } from "@/utils/isStoreOpen";
+import { useRouter } from 'next/navigation';
 
 export default function MapStoreCard({ store }: { store: Store }) {
+  const router = useRouter();
+
+  const handleClick = () => {
+    router.push(`/store/${store.id}`);
+  };
   return (
-    <div className="w-full bg-white rounded-t-2xl shadow-[0_-4px_4px_rgba(0,0,0,0.2)] pt-3 min-h-[220px]">
+    <div className="w-full bg-white rounded-t-2xl shadow-[0_-4px_4px_rgba(0,0,0,0.2)] pt-3 min-h-[220px]"
+    onClick={handleClick}>
       {/* 드래그 핸들 */}
       <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-3" />
 
