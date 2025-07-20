@@ -23,7 +23,7 @@ export default function RootLayout({
       <body className="bg-gray-200">
         <div className="flex justify-center">
           <div
-            className="w-full max-w-md bg-white"
+            className="w-full max-w-md min-h-screen-dvh bg-white"
             style={{ minHeight: '100dvh' }}
           >
             {children}
