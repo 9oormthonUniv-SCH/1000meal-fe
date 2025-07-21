@@ -1,6 +1,6 @@
 'use client';
 
-import MapDetail from '@/components/MapDetail';
+import MapDetail from '@/components/map/MapDetail';
 
 export default function MapPage() {
   return (

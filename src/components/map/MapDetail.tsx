@@ -7,6 +7,7 @@ import { Store } from '@/types/store';
 import MapStoreCard from './MapStoreCard';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
+import Header from '../common/Header';
 
 export default function MapDetail() {
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
@@ -34,16 +35,7 @@ export default function MapDetail() {
 
   return (
     <div className="relative w-full h-full rounded-xl shadow-sm">
-      {/* 헤더 */}
-      <div className="absolute top-0 left-0 w-full z-10 h-[56px] bg-white shadow flex items-center justify-center relative">
-        <button
-          onClick={() => router.back()}
-          className="absolute left-4 text-2xl text-gray-700"
-        >
-          ←
-        </button>
-        <span className="text-xl font-semibold text-gray-900">지도로 보기</span>
-      </div>
+      <Header title="지도로 보기"/>
 
       {/* 지도 */}
       <Map
