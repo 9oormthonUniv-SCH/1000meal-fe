@@ -5,14 +5,12 @@ import { Map, CustomOverlayMap } from 'react-kakao-maps-sdk';
 import { mockStores } from '@/constants/mockStores';
 import { Store } from '@/types/store';
 import MapStoreCard from './MapStoreCard';
-import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import Header from '../common/Header';
 
 export default function MapDetail() {
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
   const [mapInstance, setMapInstance] = useState<kakao.maps.Map | null>(null);
-  const router = useRouter();
 
   const handleMarkerClick = (storeId: string, position: { lat: number; lng: number }) => {
     const store = mockStores.find((s) => s.id === storeId);

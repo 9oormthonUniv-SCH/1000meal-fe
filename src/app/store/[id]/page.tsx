@@ -1,7 +1,7 @@
 'use client'
 
 import { mockStores } from "@/constants/mockStores";
-import { notFound, useRouter } from "next/navigation";
+import { notFound } from "next/navigation";
 import { use } from 'react';
 import Header from "@/components/common/Header";
 import StoreInfo from "@/components/common/StoreInfo";
@@ -10,7 +10,6 @@ import WeeklyMenu from "@/components/store/WeeklyMenu";
 
 export default function StoreDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params); // ✅ unwrap params
-  const router = useRouter();
   
   const store = mockStores.find((s) => s.id === id);
   if (!store) return notFound();
