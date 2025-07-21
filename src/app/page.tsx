@@ -2,9 +2,9 @@
 'use client';
 
 import { useState } from 'react';
-import StoreCard from "@/components/StoreCard";
+import StoreCard from "@/components/main/StoreCard";
 import { mockStores } from "@/constants/mockStores";
-import MapView from "@/components/MapView";
+import MapView from "@/components/main/MapView";
 import { Store } from "@/types/store";
 
 export default function HomePage() {
