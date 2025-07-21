@@ -22,7 +22,7 @@ export default function RootLayout({
       </head>
       <body className="bg-gray-200">
         <div className="flex justify-center">
-          <div className="w-full max-w-md min-screen-[100dvh] bg-white">
+          <div className="w-full max-w-md h-dvh bg-white">
             {children}
           </div>
         </div>
