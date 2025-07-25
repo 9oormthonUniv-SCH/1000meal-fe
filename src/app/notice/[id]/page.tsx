@@ -1,8 +1,13 @@
+'use client';
+
 import Header from '@/components/common/Header';
 import { notices } from '@/constants/mockStores';
+import { use } from 'react';
 
-export default function NoticeDetail({ params }: { params: { id: string } }) {
-  const notice = notices.find((n) => n.id === params.id);
+export default function NoticeDetail({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params); // ✅ 비동기 params 언래핑
+
+  const notice = notices.find((n) => n.id === id);
 
   if (!notice) return <div>공지사항을 찾을 수 없습니다.</div>;
 
