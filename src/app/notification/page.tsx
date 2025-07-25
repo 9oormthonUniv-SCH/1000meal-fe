@@ -1,11 +1,9 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { mockNotifications } from '@/constants/mockStores';
 import Header from '@/components/common/Header';
 
 export default function NotificationPage() {
-  const router = useRouter();
 
   return (
     <div className="w-full max-w-md mx-auto min-h-dvh bg-white">
