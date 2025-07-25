@@ -6,6 +6,8 @@ import StoreCard from "@/components/main/StoreCard";
 import { mockStores } from "@/constants/mockStores";
 import MapView from "@/components/main/MapView";
 import { Store } from "@/types/store";
+import NoticePreview from '@/components/main/NoticePreview';
+import { notices } from '@/constants/mockStores'; // notices도 같이 정의돼있다고 가정
 
 export default function HomePage() {
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
@@ -15,7 +17,7 @@ export default function HomePage() {
         selectedStore ? 'pb-[180px]' : ''
       }`}
     >
-      <h1 className="text-2xl font-bold mb-5">천원의 아침밥 🍚</h1>
+      <h1 className="text-2xl font-bold mb-5">오늘 순밥</h1>
 
       <MapView onSelectStore={setSelectedStore} />
       <h1 className="text-xl font-bold mt-5">오늘의 천밥</h1>
@@ -30,6 +32,8 @@ export default function HomePage() {
           />
         ))}
       </div>
+      
+      <NoticePreview notices={notices} />
     </main>
   );
 }
