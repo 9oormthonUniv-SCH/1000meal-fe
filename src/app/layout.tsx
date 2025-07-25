@@ -1,3 +1,4 @@
+import Footer from "@/components/common/Footer";
 import "./globals.css";
 import type { Metadata } from "next";
 import Script from "next/script";
@@ -22,8 +23,12 @@ export default function RootLayout({
       </head>
       <body className="bg-gray-200">
         <div className="flex justify-center">
-          <div className="w-full max-w-md h-dvh bg-white">
-            {children}
+          <div className="w-full max-w-md h-dvh bg-white flex flex-col overflow-hidden">
+            {/* ✅ 내부 스크롤 영역 */}
+            <main className="overflow-y-auto flex-1 scrollbar-hide">
+              {children}
+              <Footer />
+            </main>
           </div>
         </div>
       </body>
