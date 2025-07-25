@@ -1,7 +1,7 @@
 import Header from '@/components/common/Header';
 import { notices } from '@/constants/mockStores';
 
-interface Props {
+type Props = {
   params: { id: string };
 }
 
