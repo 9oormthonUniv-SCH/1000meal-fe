@@ -3,13 +3,11 @@
 import { useEffect, useState } from 'react';
 import { Map, CustomOverlayMap } from 'react-kakao-maps-sdk';
 import { mockStores } from '@/constants/mockStores';
-import { Store } from "@/types/store";
+import { Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { Plus } from 'lucide-react'; // 아이콘 라이브러리 사용
 
-export default function MapView({ onSelectStore }: { onSelectStore: (store: Store | null) => void }) {
+export default function MapView() {
   const [loaded, setLoaded] = useState(false);
-  const [mapInstance, setMapInstance] = useState<kakao.maps.Map | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -19,29 +17,10 @@ export default function MapView({ onSelectStore }: { onSelectStore: (store: Stor
     });
   }, []);
 
-  const handleMarkerClick = (storeId: string, position: { lat: number; lng: number }) => {
-    const store = mockStores.find((s) => s.id === storeId);
-    if (store) onSelectStore(store);
-    if (!mapInstance) return;
-
-    const latLng = new kakao.maps.LatLng(position.lat, position.lng);
-    const currentCenter = mapInstance.getCenter();
-
-    const isSameCenter =
-      Math.abs(currentCenter.getLat() - position.lat) < 0.0001 &&
-      Math.abs(currentCenter.getLng() - position.lng) < 0.0001;
-
-    if (isSameCenter) {
-      mapInstance.setLevel(2);
-    } else {
-      mapInstance.panTo(latLng);
-    }
-  };
-
   if (!loaded) return <div className="h-[300px] bg-gray-200 rounded-xl">지도를 불러오는 중...</div>;
 
   return (
-    <div className="relative w-full max-w-[430px] h-[300px] mx-auto rounded-xl overflow-hidden shadow-sm">
+    <div className="relative w-full max-w-[430px] h-[400px] mx-auto rounded-xl overflow-hidden shadow-sm">
       {/* 우측 상단 + 버튼 */}
       <button
         onClick={() => router.push('/map')}
@@ -51,29 +30,26 @@ export default function MapView({ onSelectStore }: { onSelectStore: (store: Stor
       </button>
 
       <Map
-        center={{ lat: 36.7720, lng: 126.9324 }}
-        style={{ width: '100%', height: '400px', borderRadius: '12px' }}
+        center={{ lat: 36.7710, lng: 126.9324 }}
+        style={{ width: '100%', height: '500px', borderRadius: '12px' }}
         level={4}
-        onCreate={(map) => setMapInstance(map)}
-        onClick={(_target, mouseEvent) => {
-          const lat = mouseEvent.latLng.getLat();
-          const lng = mouseEvent.latLng.getLng();
-          console.log('📍 클릭한 위치:', { lat, lng });
-        }}
+        draggable={false}
+        zoomable={false}
+        scrollwheel={false}
+        disableDoubleClickZoom={true}
       >
         {mockStores.map((store) => (
           <CustomOverlayMap
             key={store.id}
-            position={store.position}
-            clickable={true}
+            position={{ lat: store.position.lat, lng: store.position.lng }}
+            clickable={false}
             yAnchor={1}
             xAnchor={0.5}
           >
             <div
-              onClick={() => handleMarkerClick(store.id, store.position)}
               className={`relative w-8 h-8 flex items-center justify-center rounded-full text-white text-sm font-bold ${
                 store.remain === 0 ? 'bg-red-500' : 'bg-green-500'
-              } shadow-md cursor-pointer`}
+              } shadow-md`}
             >
               {store.remain}
               <div
