@@ -1,6 +1,5 @@
 import { Store } from "@/types/store";
 import { useRouter } from 'next/navigation';
-import StoreInfo from "../common/StoreInfo";
 
 export default function MapStoreCard({ store }: { store: Store }) {
   const router = useRouter();
@@ -25,7 +24,7 @@ export default function MapStoreCard({ store }: { store: Store }) {
         <p className="text-sm mt-1">{store.address}</p>
         <a
           href={`tel:${store.phone}`}
-          className="text-sm text-blue-600 hover:underline block mt-1"
+          className="text-sm text-black-600 hover:underline block mt-1"
         >
           📞 {store.phone}
         </a>
