@@ -67,6 +67,23 @@ export default function MapDetail() {
           </CustomOverlayMap>
         ))}
       </Map>
+      {!selectedStore && (
+        <div className="absolute right-3 bottom-28 z-50 flex flex-col bg-white rounded-lg shadow">
+    
+            <button
+              className="p-2 border-b hover:bg-gray-100"
+              onClick={() => mapInstance?.setLevel(mapInstance.getLevel() - 1)} // 확대
+            >
+              +
+            </button>
+            <button
+              className="p-2 hover:bg-gray-100"
+              onClick={() => mapInstance?.setLevel(mapInstance.getLevel() + 1)} // 축소
+            >
+              −
+            </button>
+        </div>
+      )}
 
       {/* 슬라이드 카드 */}
       <AnimatePresence>
