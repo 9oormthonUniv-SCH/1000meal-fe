@@ -3,15 +3,11 @@
 import { PropsWithChildren, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 
-/**
- * 스크롤 컨테이너 + 상단으로 당기면 onReveal 호출
- * - 부모는 반드시 flex column이며, 이 컴포넌트에 `flex-1 min-h-0`을 주세요
- */
 type Props = PropsWithChildren<{
-  onReveal: () => void;                // 임계치 넘기고 손 떼면 호출
-  threshold?: number;                   // 기본 90
-  maxPull?: number;                     // 기본 140
-  className?: string;                   // 내부 스크롤 영역 클래스
+  onReveal: () => void;
+  threshold?: number;
+  maxPull?: number;
+  className?: string;
 }>;
 
 export default function PullToReveal({
@@ -30,27 +26,29 @@ export default function PullToReveal({
   const pullYRef = useRef(0);
   useEffect(() => { pullYRef.current = pullY; }, [pullY]);
 
-  // 네이티브 PTR 차단 + 제스처 처리
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
 
-    const onTouchStart = (e: TouchEvent) => {
+    // ✅ EventListener로 선언하고 내부에서 TouchEvent로 캐스팅
+    const onTouchStart: EventListener = (ev) => {
+      const e = ev as TouchEvent;
       startYRef.current = e.touches[0].clientY;
       atTopRef.current = el.scrollTop <= 0;
       draggingRef.current = atTopRef.current;
     };
 
-    const onTouchMove = (e: TouchEvent) => {
+    const onTouchMove: EventListener = (ev) => {
       if (!draggingRef.current || startYRef.current == null) return;
+      const e = ev as TouchEvent;
       const dy = e.touches[0].clientY - startYRef.current;
       if (dy > 0) {
-        if (atTopRef.current) e.preventDefault(); // passive:false 필수
+        if (atTopRef.current) e.preventDefault(); // passive:false여야 동작
         setPullY(Math.min(maxPull, dy * 0.6));
       }
     };
 
-    const onTouchEnd = () => {
+    const onTouchEnd: EventListener = () => {
       if (!draggingRef.current) return;
       draggingRef.current = false;
       startYRef.current = null;
@@ -64,9 +62,10 @@ export default function PullToReveal({
     el.addEventListener("touchend", onTouchEnd, { passive: true });
 
     return () => {
-      el.removeEventListener("touchstart", onTouchStart as any);
-      el.removeEventListener("touchmove", onTouchMove as any);
-      el.removeEventListener("touchend", onTouchEnd as any);
+      // ✅ 같은 레퍼런스로 제거 (any 캐스팅 불필요)
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
+      el.removeEventListener("touchend", onTouchEnd);
     };
   }, [onReveal, threshold, maxPull]);
 
@@ -76,7 +75,6 @@ export default function PullToReveal({
       className={`flex-1 min-h-0 overflow-y-auto ${className ?? ""}`}
       style={{ WebkitOverflowScrolling: "touch" }}
     >
-      {/* 풀다운 인디케이터 */}
       <motion.div
         initial={{ height: 0 }}
         animate={{ height: pullY }}
