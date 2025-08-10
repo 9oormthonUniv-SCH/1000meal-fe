@@ -13,7 +13,7 @@ export default function MenuCard({ date, day, items, selected = false }: MenuCar
   return (
     <div
       className={clsx(
-        "p-3 rounded-xl text-center w-full transition-all duration-200 shadow-md",
+        "p-3 m-3 rounded-xl text-center w-full transition-all duration-200 shadow-even",
         selected
           ? "border border-orange-500"
           : "border border-gray-200"

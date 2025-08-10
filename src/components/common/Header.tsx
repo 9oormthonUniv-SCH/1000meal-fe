@@ -12,7 +12,7 @@ export default function Header({ title, rightElement }: Props) {
   const router = useRouter();
 
   return (
-    <div className="sticky top-0 left-0 w-full z-10 h-[56px] bg-white shadow flex items-center justify-center relative">
+    <div className="sticky top-0 left-0 w-full z-10 h-[56px] bg-white flex items-center justify-center relative">
       <button
         onClick={() => router.back()}
         className="absolute left-4 text-2xl text-gray-700"

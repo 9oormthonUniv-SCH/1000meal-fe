@@ -21,7 +21,7 @@ export default function StoreCard({ store, isSelected, onClick }: Props) {
     <div
       onClick={handleClick}
       className={clsx(
-        "flex items-center justify-between gap-4 p-4 mb-4 rounded-2xl shadow-lg cursor-pointer transition-all duration-200 border",
+        "flex items-center justify-between gap-4 p-4 mb-4 rounded-2xl shadow-even cursor-pointer transition-all duration-200 border",
         isSelected ? "border-orange-400 bg-orange-50" : "border-gray-200 bg-white"
       )}
     >
