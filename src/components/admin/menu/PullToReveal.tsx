@@ -34,43 +34,60 @@ export default function PullToReveal({
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-
+  
+    const ACTIVATE_AFTER = 12; // 데드존(px)
+  
+    let startY = 0;
+    let pulling = false; // 풀다운 활성화 여부
+  
     const onTouchStart = (e: TouchEvent) => {
-      startYRef.current = e.touches[0].clientY;
-      atTopRef.current = el.scrollTop <= 0;     // 최상단에서만 제스처 시작
-      draggingRef.current = atTopRef.current;
+      startY = e.touches[0].clientY;
+      pulling = false; // 매 제스처 초기화
     };
-
+  
     const onTouchMove = (e: TouchEvent) => {
-      if (!draggingRef.current || startYRef.current == null) return;
-      const dy = e.touches[0].clientY - startYRef.current;
-
-      // 아래로 끌 때만 처리
-      if (dy > 0) {
-        // iOS 기본 PTR 방지: cancelable + 최상단일 때만 막기
-        if (atTopRef.current && e.cancelable) {
-          e.preventDefault(); // 반드시 touchmove 리스너를 passive:false로 등록해야 함
+      const dy = e.touches[0].clientY - startY;
+  
+      // 아직 풀다운 시작 전
+      if (!pulling) {
+        // 내용이 스크롤 중이면(>0) 그냥 통과
+        if (el.scrollTop > 0) return;
+  
+        // 최상단 + 충분히 아래로 당긴 경우에만 풀다운 활성화
+        if (dy > ACTIVATE_AFTER && el.scrollTop <= 0) {
+          pulling = true;
+        } else {
+          return; // 데드존 이전에는 아무것도 안 함(스크롤 방해 X)
         }
-        const eased = Math.min(maxPull, dy * 0.6);
-        setPullY(eased);
       }
+  
+      // 여기부터 풀다운 상태
+      if (dy <= 0) {
+        // 다시 위로 밀면(또는 손을 올리면) 풀다운 취소
+        pulling = false;
+        setPullY(0);
+        return;
+      }
+  
+      // 네이티브 PTR 방지: 풀다운 중일 때만 preventDefault
+      if (e.cancelable) e.preventDefault();
+  
+      const eased = Math.min(maxPull, dy * 0.6);
+      setPullY(eased);
     };
-
+  
     const onTouchEnd = () => {
-      if (!draggingRef.current) return;
-      draggingRef.current = false;
-      startYRef.current = null;
-
-      // 임계치 넘겼으면 콜백 실행
+      if (!pulling) return;
+      pulling = false;
+  
       if (pullYRef.current >= threshold) onReveal();
       setPullY(0);
     };
-
-    // passive 옵션 주의!
+  
     el.addEventListener('touchstart', onTouchStart, { passive: true });
     el.addEventListener('touchmove', onTouchMove, { passive: false });
     el.addEventListener('touchend', onTouchEnd, { passive: true });
-
+  
     return () => {
       el.removeEventListener('touchstart', onTouchStart);
       el.removeEventListener('touchmove', onTouchMove);
