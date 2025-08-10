@@ -7,6 +7,9 @@ const config: Config = {
       minHeight: {
         'screen-dvh': '100dvh',
       },
+      boxShadow: {
+        'even': '0px 0px 16px rgba(0,0,0,0.2)',
+      }
     },
   },
   plugins: [
