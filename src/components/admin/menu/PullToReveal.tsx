@@ -19,11 +19,6 @@ export default function PullToReveal({
 }: Props) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
-  // 제스처 상태
-  const startYRef = useRef<number | null>(null);
-  const draggingRef = useRef(false);
-  const atTopRef = useRef(false);
-
   // 풀다운 거리 (UI)
   const [pullY, setPullY] = useState(0);
   const pullYRef = useRef(0);
