@@ -8,6 +8,7 @@ body {
   @apply bg-gray-100 text-gray-800;
   font-family: 'Inter', sans-serif;
   height: 100dvh;
+  overflow: hidden;
 }
 
 a {
@@ -46,4 +47,11 @@ body {
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera */
+}
+
+.scroll-area {
+  height: 100dvh;             /* iOS 하단바 대응 */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* iOS 부드러운 스크롤 */
+  overscroll-behavior-y: contain;    /* 안드로이드 Chrome PTR 차단 */
 }
