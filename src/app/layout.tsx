@@ -25,9 +25,9 @@ export default function RootLayout({
         <div className="flex justify-center">
           <div className="w-full max-w-md h-dvh bg-white flex flex-col overflow-hidden">
             {/* ✅ 내부 스크롤 영역 */}
-            <main className="overflow-y-auto flex-1 scrollbar-hide">
+            <main id="app-main" className="overflow-y-auto flex-1 scrollbar-hide">
               {children}
-              <Footer />
+              <Footer />  {/* ← 스크롤에 같이 움직임. 고정 원하면 main 밖으로 이동 */}
             </main>
           </div>
         </div>

@@ -1,3 +1,4 @@
+// app/admin/menu/page.tsx
 'use client';
 
 import { useState } from "react";
@@ -5,14 +6,14 @@ import dayjs from "dayjs";
 import "dayjs/locale/ko";
 import Header from "@/components/common/Header";
 import ActionBar from "@/components/admin/menu/ActionBar";
-import PullToReveal from "@/components/admin/menu/PullToReveal";
 import PastWeeksSection from "@/components/admin/menu/PastWeeksSection";
 import MenuWeekEditor, { DayMenu } from "@/components/admin/menu/MenuWeekEditor";
+import PullToAddMenu from "@/components/admin/menu/PullToAddMenu";
 import { mondayOf } from "@/utils/week";
 import { Plus } from "lucide-react";
+import PullIndicator from "@/components/admin/menu/PullIndicator";
 dayjs.locale("ko");
 
-/** 월~금 5일 카드 생성 */
 function buildWeek(base: dayjs.Dayjs): DayMenu[] {
   const start = mondayOf(base);
   return Array.from({ length: 5 }).map((_, i) => {
@@ -27,7 +28,6 @@ function buildWeek(base: dayjs.Dayjs): DayMenu[] {
 }
 
 export default function AdminMenuPage() {
-  // 편집 중인 주들
   const [weeks, setWeeks] = useState<DayMenu[][]>([]);
   const addCurrentWeek = () => setWeeks(prev => [buildWeek(dayjs()), ...prev]);
   const updateWeek = (i: number, next: DayMenu[]) =>
@@ -35,7 +35,6 @@ export default function AdminMenuPage() {
   const removeWeek = (i: number) =>
     setWeeks(prev => prev.filter((_, idx) => idx !== i));
 
-  // 과거 주차 (풀다운으로 쌓임)
   const [pastWeeks, setPastWeeks] = useState<DayMenu[][]>([]);
   const prependPastWeek = () => {
     const baseMonday = pastWeeks.length
@@ -43,7 +42,7 @@ export default function AdminMenuPage() {
       : mondayOf(dayjs()).subtract(7, "day");
     const newWeek = buildWeek(baseMonday).map(d => ({
       ...d,
-      items: ["김치볶음밥", "계란후라이"], // 임시 데모
+      items: ["김치볶음밥", "계란후라이"],
     }));
     setPastWeeks(prev => [newWeek, ...prev]);
   };
@@ -51,14 +50,19 @@ export default function AdminMenuPage() {
   return (
     <div className="w-full min-h-dvh bg-[#F5F6F7] flex flex-col">
       <Header title="메뉴 관리" />
-      <ActionBar onClickFavorite={() => { /* TODO: 라우팅 */ }} />
+      <ActionBar onClickFavorite={() => { /* TODO */ }} />
 
-      <PullToReveal
-        onReveal={prependPastWeek}
-        className="px-0 pb-[calc(env(safe-area-inset-bottom)+96px)] space-y-6"
+      <PullToAddMenu
+        onRefresh={prependPastWeek}
+        rootId="app-main"
+        renderIndicator={({ progress, phase }) => (
+          <PullIndicator progress={progress} phase={phase} />
+        )}
       >
         {/* 과거 주차들 */}
-        <PastWeeksSection pastWeeks={pastWeeks} />
+        <div className="px-4 space-y-6">
+          <PastWeeksSection pastWeeks={pastWeeks} />
+        </div>
 
         {/* 비어있으면 중앙 + 버튼 */}
         {weeks.length === 0 && (
@@ -74,7 +78,7 @@ export default function AdminMenuPage() {
         )}
 
         {/* 편집 카드들 */}
-        <div className="px-4 space-y-6">
+        <div className="px-4 space-y-6 pb-[calc(env(safe-area-inset-bottom)+96px)]">
           {weeks.map((week, idx) => (
             <MenuWeekEditor
               key={week[0]?.id ?? idx}
@@ -82,11 +86,10 @@ export default function AdminMenuPage() {
               week={week}
               onChange={(next) => updateWeek(idx, next)}
               onRemove={() => removeWeek(idx)}
-              onAddWeekend={() => { /* 주말 추가 자리 */ }}
+              onAddWeekend={() => {}}
             />
           ))}
 
-          {/* 추가 + 버튼 */}
           {weeks.length > 0 && (
             <div className="py-2 flex justify-center">
               <button
@@ -99,7 +102,7 @@ export default function AdminMenuPage() {
             </div>
           )}
         </div>
-      </PullToReveal>
+      </PullToAddMenu>
     </div>
   );
 }
