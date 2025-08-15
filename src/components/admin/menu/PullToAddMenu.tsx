@@ -19,19 +19,15 @@ export default function PullToAddMenu({
   easeExp = 1,
   renderIndicator,
 }: Props) {
-  // 당김 px
   const [pullY, setPullY] = useState(0);
   const pullYRef = useRef(0);
   useEffect(() => { pullYRef.current = pullY; }, [pullY]);
 
-  // 단계
   const [phase, setPhase] = useState<PullPhase>('idle');
 
-  // 헤더+액션바 높이
   const [offsetTop, setOffsetTop] = useState(0);
 
-  // 인디케이터 실제 높이 측정
-  const [indicatorH, setIndicatorH] = useState(80); // 기본값, 실제 측정으로 갱신
+  const [indicatorH, setIndicatorH] = useState(80);
   const measureRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
@@ -46,8 +42,8 @@ export default function PullToAddMenu({
     updateTop();
 
     const roTop = new ResizeObserver(updateTop);
-    header && roTop.observe(header);
-    bar && roTop.observe(bar);
+    if (header) roTop.observe(header);            // ✅ if 문으로 변경
+    if (bar) roTop.observe(bar);                  // ✅ if 문으로 변경
     window.addEventListener('resize', updateTop);
 
     // 인디케이터 높이 측정
@@ -57,7 +53,7 @@ export default function PullToAddMenu({
     };
     updateH();
     const roH = new ResizeObserver(updateH);
-    measureRef.current && roH.observe(measureRef.current);
+    if (measureRef.current) roH.observe(measureRef.current); // ✅ if 문으로 변경
 
     return () => {
       roTop.disconnect();
@@ -78,13 +74,11 @@ export default function PullToAddMenu({
     rafRef.current = requestAnimationFrame(() => setPullY(v));
   };
 
-  // 스크롤 최상단?
   const atTop = () => {
     const root = document.getElementById(rootId);
     return !!root && root.scrollTop <= 0;
   };
 
-  // 문서 터치 이동 중 스크롤 차단
   useEffect(() => {
     const onDocTouchMove = (e: TouchEvent) => {
       if (isTouchRef.current && pulledRef.current && e.cancelable) e.preventDefault();
@@ -116,14 +110,13 @@ export default function PullToAddMenu({
     const dy = y - startYRef.current;
     if (dy <= 0) { reset(); return; }
 
-    // 헤더+액션바 구간 포함해 늘어나게 하고, 과도한 당김은 완만하게
-    const derivedMax = offsetTop + indicatorH + 60; // 여유 60px
+    const derivedMax = offsetTop + indicatorH + 60;
     const eased = Math.min(derivedMax, Math.pow(dy, easeExp));
     setPullRaf(eased);
 
     const rawPull = Math.max(0, eased - offsetTop);
-    const visible = Math.min(rawPull, indicatorH); // 실제로 화면에 드러난 높이
-    const isReady = visible >= indicatorH;         // 전부 드러났을 때 ready
+    const visible = Math.min(rawPull, indicatorH);
+    const isReady = visible >= indicatorH;
     readyRef.current = isReady;
     setPhase(isReady ? 'ready' : 'pull');
   };
@@ -151,22 +144,21 @@ export default function PullToAddMenu({
   const handleMouseMove  = (e: React.MouseEvent) => { if (!isTouchRef.current) onMove(e.clientY); };
   const handleMouseUp    = () => { if (!isTouchRef.current) onEnd(); };
 
-  // 화면에 보이는 높이/진행률
   const rawPull  = Math.max(0, pullY - offsetTop);
   const visible  = Math.min(rawPull, indicatorH);
   const progress = indicatorH > 0 ? Math.max(0, Math.min(1, visible / indicatorH)) : 0;
 
   return (
     <div className="relative w-full">
-      {/* (0) 인디케이터 실제 높이 측정용 히든 노드 */}
+      {/* 높이 측정용 히든 노드 */}
       <div ref={measureRef} className="absolute -top-[9999px] left-0 invisible" aria-hidden>
         {renderIndicator({ progress: 1, phase: 'pull' })}
       </div>
 
-      {/* (1) 레이아웃을 실제로 미는 스페이서 */}
+      {/* 레이아웃을 실제로 미는 스페이서 */}
       <div className="sticky top-0 z-20 bg-transparent">
         <div className="overflow-hidden" style={{ height: `${visible}px` }}>
-          {/* (2) 인디케이터 내용: 위에서 아래로 슬라이드 */}
+          {/* 인디케이터 내용: 위에서 아래로 슬라이드 */}
           <div style={{ transform: `translateY(${visible - indicatorH}px)` }}>
             {phase === 'loading'
               ? renderIndicator({ progress: 1, phase: 'loading' })
@@ -175,7 +167,7 @@ export default function PullToAddMenu({
         </div>
       </div>
 
-      {/* (3) 제스처 영역 */}
+      {/* 제스처 영역 */}
       <div
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
