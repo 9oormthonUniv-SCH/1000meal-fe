@@ -6,7 +6,7 @@ import { useApi } from '@/lib/hooks/useApi';
 import { StoreListItem } from '@/types/store';
 
 export default function MapPage() {
-  const { data: storeList = [], loading, error, reload } =
+  const { data: storeList = []} =
     useApi<StoreListItem[]>(getStoreList, []);
 
   console.log(storeList);
