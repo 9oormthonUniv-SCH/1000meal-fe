@@ -48,7 +48,7 @@ export default function AdminMenuPage() {
   };
 
   return (
-    <div className="w-full min-h-dvh bg-[#F5F6F7] flex flex-col">
+    <div className="w-full min-h-dvh bg-[#F5F6F7] flex flex-col pt-[56px]">
       <Header title="메뉴 관리" />
       <ActionBar onClickFavorite={() => { /* TODO */ }} />
 

@@ -1,7 +1,7 @@
-import { Store } from "@/types/store";
+import { StoreListItem } from "@/types/store";
 import { useRouter } from 'next/navigation';
 
-export default function MapStoreCard({ store }: { store: Store }) {
+export default function MapStoreCard({ store }: { store: StoreListItem }) {
   const router = useRouter();
 
   const handleNameClick = () => {
@@ -35,7 +35,7 @@ export default function MapStoreCard({ store }: { store: Store }) {
       <div className="mt-4 bg-orange-500 text-white px-4 py-3 flex justify-between items-center">
         <div>
           <p className="font-semibold text-lg">오늘의 천밥</p>
-          <p className="text-sm">{store.menu.flat().join(', ')}</p>
+          <p className="text-sm">{store.todayMenu?.menus.flat().join(', ')}</p>
         </div>
         <div className="text-right pr-3 font-bold text-lg whitespace-nowrap">
           {store.remain}개<br />

@@ -1,12 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Map, CustomOverlayMap } from 'react-kakao-maps-sdk';
-import { mockStores } from '@/constants/mockStores';
-import { Plus } from 'lucide-react';
+import { Loader2, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { StoreListItem } from '@/types/store';
 
-export default function MapView() {
+interface MapViewProps {
+  stores?: StoreListItem[]; // ← optional로 받고
+}
+
+export default function MapView({stores} : MapViewProps) {
   const [loaded, setLoaded] = useState(false);
   const router = useRouter();
 
@@ -17,7 +21,45 @@ export default function MapView() {
     });
   }, []);
 
-  if (!loaded) return <div className="h-[300px] bg-gray-200 rounded-xl">지도를 불러오는 중...</div>;
+  const markers = useMemo(
+    () =>
+      (stores ?? []).map((s) => ({
+        id: s.id,
+        name: s.name,
+        remain: s.remain,
+        lat: Number(s.lat),
+        lng: Number(s.lng),
+      })),
+    [stores]
+  );
+
+  if (!loaded) return (
+    <div className="relative w-full max-w-[430px] h-[400px] mx-auto rounded-xl overflow-hidden shadow-sm">
+      {/* 부드러운 그라데이션 배경 */}
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,#f7f7f7,rgba(255,255,255,0))]" />
+
+      {/* Shimmer */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="animate-[shimmer_1.8s_infinite] pointer-events-none absolute -inset-y-1 -left-1/2 right-1/2 bg-gradient-to-r from-transparent via-white/60 to-transparent rotate-6" />
+      </div>
+
+      {/* 중앙 스피너 + 텍스트 */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+        <div className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white/80 shadow">
+          <Loader2 className="w-4 h-4 animate-spin text-orange-500" />
+          <span className="text-sm text-gray-700">지도를 불러오는 중…</span>
+        </div>
+      </div>
+
+      {/* shimmer keyframes (Tailwind 없으면 globals.css에 추가해도 됨) */}
+      <style jsx>{`
+        @keyframes shimmer {
+          0% { transform: translateX(-50%); }
+          100% { transform: translateX(150%); }
+        }
+      `}</style>
+    </div>
+  );
 
   return (
     <div className="relative w-full max-w-[430px] h-[400px] mx-auto rounded-xl overflow-hidden shadow-sm">
@@ -38,10 +80,10 @@ export default function MapView() {
         scrollwheel={false}
         disableDoubleClickZoom={true}
       >
-        {mockStores.map((store) => (
+        {markers.map((store) => (
           <CustomOverlayMap
             key={store.id}
-            position={{ lat: store.position.lat, lng: store.position.lng }}
+            position={{ lat: store.lat, lng: store.lng }}
             clickable={false}
             yAnchor={1}
             xAnchor={0.5}

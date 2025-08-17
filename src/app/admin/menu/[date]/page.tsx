@@ -65,7 +65,7 @@ export default function AdminMenuEditPage() {
   );
 
   return (
-    <div className="w-full min-h-dvh bg-white">
+    <div className="w-full min-h-dvh bg-white pt-[56px]">
       <Header title="메뉴 수정" rightElement={rightEl} />
 
       {/* 주간 네비게이터 (월~일 + 주 이동) */}

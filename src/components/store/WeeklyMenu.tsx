@@ -1,25 +1,36 @@
 'use client';
 
 import MenuCard from "./MenuCard";
-import { Store } from "@/types/store";
+import type { StoreDetail, DayOfWeek } from "@/types/store";
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 
 interface WeeklyMenuProps {
-  store: Store;
+  store: StoreDetail;
 }
 
-const dayNames = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+const KOR_DAY_LABEL: Record<DayOfWeek, string> = {
+  MONDAY: "월요일",
+  TUESDAY: "화요일",
+  WEDNESDAY: "수요일",
+  THURSDAY: "목요일",
+  FRIDAY: "금요일",
+  SATURDAY: "토요일",
+  SUNDAY: "일요일",
+};
+
+const WEEKDAYS: DayOfWeek[] = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY"];
 
 export default function WeeklyMenu({ store }: WeeklyMenuProps) {
-  const today = new Date();
-  const todayIndex = today.getDay(); // 0(일) ~ 6(토)
-  const todayWeekday = dayNames[todayIndex];
-  const todayStr = `${String(today.getMonth() + 1).padStart(2, '0')}월 ${String(today.getDate()).padStart(2, '0')}일`;
+  const todayISO = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
 
+  // 1) 월~금만 골라 날짜 오름차순으로 정렬
   const weekdayMenus = useMemo(() => {
-    return store.weeklyMenu.slice(0, 5); // ✅ index 0~4 (월~금)
-  }, [store.weeklyMenu]);
+    const list = store?.weeklyMenuResponse?.dailyMenus ?? [];
+    return list
+      .filter(d => WEEKDAYS.includes(d.dayOfWeek))
+      .sort((a, b) => (a.date > b.date ? 1 : -1));
+  }, [store?.weeklyMenuResponse?.dailyMenus]);
 
   return (
     <div className="px-4 pt-4">
@@ -27,20 +38,20 @@ export default function WeeklyMenu({ store }: WeeklyMenuProps) {
 
       <motion.div className="overflow-x-auto scrollbar-hide">
         <div className="flex gap-x-5 w-max px-1">
-          {weekdayMenus.map((menu, index) => {
-            const date = new Date();
-            date.setDate(today.getDate() - (todayIndex - (index + 1)));
+          {weekdayMenus.map((d) => {
+            const isToday = d.date === todayISO;
+            const dateLabel = `${d.date.slice(5, 7)}월 ${d.date.slice(8, 10)}일`; // MM월 DD일
+            const dayLabel = KOR_DAY_LABEL[d.dayOfWeek];
 
-            const formattedDate = `${String(date.getMonth() + 1).padStart(2, '0')}월 ${String(date.getDate()).padStart(2, '0')}일`;
-            const day = dayNames[date.getDay()];
-            const isToday = formattedDate === todayStr && day === todayWeekday;
+            // 영업 안 하는 날 표시 커스터마이즈 가능
+            const items = d.open ? d.menus : ["휴무"];
 
             return (
-              <div key={index} className="flex-shrink-0 w-[140px]">
+              <div key={d.id} className="flex-shrink-0 w-[140px]">
                 <MenuCard
-                  date={formattedDate}
-                  day={day}
-                  items={menu}
+                  date={dateLabel}
+                  day={dayLabel}
+                  items={items}
                   selected={isToday}
                 />
               </div>
@@ -50,7 +61,7 @@ export default function WeeklyMenu({ store }: WeeklyMenuProps) {
       </motion.div>
 
       <div className="text-sm text-left mt-4 text-orange-500 font-medium">
-        남은 수량 : {store.remain}개
+        남은 수량 : {store?.remain ?? 0}개
       </div>
     </div>
   );

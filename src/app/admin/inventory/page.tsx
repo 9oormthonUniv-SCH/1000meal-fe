@@ -24,7 +24,7 @@ export default function InventoryPage() {
   };
 
   return (
-    <div className="w-full min-h-dvh bg-[#FAFAFA] relative">
+    <div className="w-full min-h-dvh bg-[#FAFAFA] relative pt-[56px]">
       <Header title="재고 관리" />
 
       {/* 날짜 바 */}

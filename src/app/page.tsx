@@ -1,23 +1,22 @@
+// app/page.tsx (또는 네가 쓰는 HomePage 경로)
 'use client';
 
 import { useState } from 'react';
 import StoreCard from "@/components/main/StoreCard";
-import { mockStores } from "@/constants/mockStores";
 import MapView from "@/components/main/MapView";
-import { Store } from "@/types/store";
 import NoticePreview from '@/components/main/NoticePreview';
-import { notices } from '@/constants/mockStores'; // notices도 같이 정의돼있다고 가정
 import HeaderButtons from '@/components/common/HeaderButtons';
-import { RefreshCcw } from 'lucide-react'; // 새로고침 아이콘
+import { RefreshCcw } from 'lucide-react';
+
+import type { StoreListItem } from "@/types/store";
+import { notices } from '@/constants/mockStores'; // 공지 목업 유지 시
+import { getStoreList } from '@/lib/api/stores/endpoints';
+import { useApi } from '@/lib/hooks/useApi';
 
 export default function HomePage() {
-  const [selectedStore, setSelectedStore] = useState<Store | null>(null);
-  const [storeList, setStoreList] = useState<Store[]>(mockStores); // ✅ 상태로 관리
-
-  const handleRefresh = () => {
-    // 실제로는 서버에서 다시 fetch 해야 하지만 지금은 mockStores 재할당
-    setStoreList([...mockStores]);
-  };
+  const [selectedStore, setSelectedStore] = useState<StoreListItem | null>(null);
+  const { data: storeList = [], loading, error, reload } =
+    useApi<StoreListItem[]>(getStoreList, []);
 
   return (
     <main
@@ -25,23 +24,40 @@ export default function HomePage() {
         selectedStore ? 'pb-[180px]' : ''
       }`}
     >
-      <HeaderButtons />
-      <h1 className="text-2xl font-bold mb-5">오늘 순밥</h1>
+      <div className="relative mb-12">
+        <HeaderButtons />
+        <img
+          src="/logo.png"
+          alt="오늘 순밥"
+          className="h-8 absolute top-0 left-0 object-contain"
+        />
+      </div>
 
-      <MapView />
+      <MapView stores={storeList ?? []}/>
 
-      {/* 제목 + 새로고침 버튼 */}
       <div className="flex justify-between items-center mt-5">
         <h1 className="text-xl font-bold">오늘의 천밥</h1>
         <button
-          onClick={handleRefresh}
+          onClick={reload}
           className="text-sm text-gray-600 hover:text-orange-500 transition flex items-center gap-1"
+          aria-label="새로고침"
+          disabled={loading}
+          title="새로고침"
         >
-          <RefreshCcw className="w-5 h-5 text-gray-400 hover:text-orange-500" />
+          <RefreshCcw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
         </button>
       </div>
 
-      {/* 스토어 리스트 */}
+      {/* 상태 표시 */}
+      {error && (
+        <div className="mt-4 text-sm text-red-600 border border-red-200 rounded-md p-3 bg-red-50">
+          {error}
+        </div>
+      )}
+      {loading && !storeList.length && (
+        <div className="mt-4 text-sm text-gray-500">불러오는 중…</div>
+      )}
+
       <div className="pt-5">
         {storeList.map((store) => (
           <StoreCard

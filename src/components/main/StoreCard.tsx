@@ -1,11 +1,11 @@
 'use client';
 
-import { Store } from "@/types/store";
+import { StoreListItem } from "@/types/store";
 import { useRouter } from 'next/navigation';
 import clsx from 'clsx'; // 조건부 class를 쉽게 쓰기 위해 사용
 
 interface Props {
-  store: Store;
+  store: StoreListItem;
   isSelected?: boolean; // ✅ 외부에서 강조 여부 받음
   onClick?: () => void; // ✅ 클릭 이벤트 외부 전달
 }
@@ -16,6 +16,13 @@ export default function StoreCard({ store, isSelected, onClick }: Props) {
     onClick?.(); // 외부에 클릭 알림
     router.push(`/store/${store.id}`);
   };
+
+  const menusText =
+    Array.isArray(store.todayMenu?.menus) && store.todayMenu.menus.length > 0
+      ? store.todayMenu.menus.join(', ')
+      : store.open
+        ? '메뉴 정보 없음'
+        : '오늘 휴무';
 
   return (
     <div
@@ -31,7 +38,7 @@ export default function StoreCard({ store, isSelected, onClick }: Props) {
       {/* 중앙: 텍스트 정보 */}
       <div className="flex-1">
         <h2 className="text-base font-semibold">{store.name}</h2>
-        <p className="text-sm text-gray-600">{store.menu.join(", ")}</p>
+        <p className="text-sm text-gray-600">{menusText}</p>
       </div>
 
       {/* 우측: 수량 표시 */}

@@ -17,7 +17,7 @@ export default function AdminMyPage() {
 
   return (
 
-    <div className="w-full h-dvh">
+    <div className="w-full h-dvh pt-[56px]">
       <Header title=""/>
       <div className="bg-white-100 px-4">
 

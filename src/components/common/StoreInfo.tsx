@@ -1,10 +1,10 @@
 'use client';
 
-import { Store } from "@/types/store";
+import { StoreDetail } from "@/types/store";
 import { isStoreOpen } from "@/utils/isStoreOpen";
 
 interface Props {
-  store: Store;
+  store: StoreDetail;
 }
 
 export default function StoreInfo({ store }: Props) {

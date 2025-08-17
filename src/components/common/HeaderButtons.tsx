@@ -17,7 +17,7 @@ export default function HeaderButtons() {
   };
 
   return (
-    <div className="absolute top-5 right-4 flex gap-3">
+    <div className="absolute top-0 right-0 flex gap-3">
       {/* 알림 버튼 */}
       <button
         onClick={() => router.push('/notification')}

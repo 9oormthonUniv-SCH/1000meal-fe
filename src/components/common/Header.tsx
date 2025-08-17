@@ -10,9 +10,14 @@ export default function Header({ title, rightElement }: Props) {
   return (
     <div
       id="app-header"
-      className="sticky top-0 left-0 w-full z-40 h-[56px] bg-white flex items-center justify-center relative border-b"
+      className="fixed top-0 left-0 w-full z-50 h-[56px] bg-white flex items-center justify-center border-b"
     >
-      <button onClick={() => router.back()} className="absolute left-4 text-2xl text-gray-700">←</button>
+      <button
+        onClick={() => router.back()}
+        className="absolute left-4 text-2xl text-gray-700"
+      >
+        ←
+      </button>
       <span className="text-xl font-semibold text-gray-900">{title}</span>
       {rightElement && <div className="absolute right-4">{rightElement}</div>}
     </div>
