@@ -29,7 +29,7 @@ export default function HeaderButtons() {
 
       {/* 마이페이지 버튼 */}
       <button
-        onClick={goToMyPage}
+        onClick={() => router.push('/login')}
         className="p-2 rounded-full bg-gray-100 hover:bg-gray-200"
         aria-label="마이페이지"
       >

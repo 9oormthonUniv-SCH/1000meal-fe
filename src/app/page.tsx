@@ -20,7 +20,7 @@ export default function HomePage() {
 
   return (
     <main
-      className={`relative max-w-md mx-auto px-4 py-6 transition-all ${
+      className={`relative max-w-md px-4 py-6 transition-all ${
         selectedStore ? 'pb-[180px]' : ''
       }`}
     >

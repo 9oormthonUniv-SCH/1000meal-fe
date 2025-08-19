@@ -6,7 +6,7 @@ import Header from '@/components/common/Header';
 export default function NotificationPage() {
 
   return (
-    <div className="w-full max-w-md mx-auto min-h-dvh bg-white">
+    <div className="w-full max-w-md mx-auto bg-white mt-[56px]">
       <Header title="알림"/>
 
       <ul className="divide-y">

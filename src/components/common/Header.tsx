@@ -10,7 +10,11 @@ export default function Header({ title, rightElement }: Props) {
   return (
     <div
       id="app-header"
-      className="fixed top-0 left-0 w-full z-50 h-[56px] bg-white flex items-center justify-center border-b"
+      className="
+        fixed top-0 left-1/2 -translate-x-1/2
+        w-full max-w-md z-50
+        h-[56px] bg-white flex items-center justify-center
+      "
     >
       <button
         onClick={() => router.back()}

@@ -1,0 +1,112 @@
+// app/signup/id/page.tsx
+'use client';
+
+import Header from '@/components/common/Header';
+import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+import { useSignupDraft } from '@/lib/hooks/useSignupDraft';
+import { CheckCircle2, AlertCircle } from 'lucide-react';
+
+export default function SignupIdPage() {
+  const router = useRouter();
+  const { get, set } = useSignupDraft();
+
+  const [id, setId] = useState('');
+  const [checking, setChecking] = useState(false);
+  const [ok, setOk] = useState<boolean | null>(null); // null=초기, true=사용가능, false=중복
+
+  // 기존 드래프트 표시
+  useEffect(() => {
+    const d = get();
+    if (d.id) setId(d.id);
+  }, [get]);
+
+  // 가짜 중복 체크 (debounce)
+  const debounceCheck = useMemo(() => {
+    let t: any;
+    return (value: string) => {
+      clearTimeout(t);
+      setChecking(true);
+      setOk(null);
+      t = setTimeout(() => {
+        // TODO: 실제 API로 교체
+        const taken = ['admin', 'test', 'cheonbab'].includes(value.toLowerCase());
+        setOk(!taken);
+        setChecking(false);
+      }, 450);
+    };
+  }, []);
+
+  const onChange = (v: string) => {
+    setId(v);
+    if (v.trim().length >= 4) debounceCheck(v.trim());
+    else {
+      setOk(null);
+      setChecking(false);
+    }
+  };
+
+  const canNext = ok === true && !checking;
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!canNext) return;
+    set({ id });
+    router.push('/signup/credentials');
+  };
+
+  return (
+    <div className="flex flex-col pt-[56px]">
+      <Header title="" />
+
+      <form onSubmit={onSubmit} className="px-5 space-y-8">
+        <div>
+          <h1 className="text-2xl font-bold leading-snug">
+            천밥에 오신 것을<br/>환영합니다!
+          </h1>
+          <p className="mt-2 text-xs text-gray-500">
+            <span className="text-orange-500 font-semibold">1분</span>이면 회원가입 가능해요
+          </p>
+        </div>
+
+        <div>
+          <label className="block text-sm text-gray-700 mb-2">
+            아이디<span className="text-orange-500">*</span>
+          </label>
+          <input
+            value={id}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-full border-b border-gray-300 outline-none py-2 focus:border-gray-900"
+            placeholder="4자 이상 입력해주세요"
+            autoCapitalize="none"
+            autoComplete="username"
+            required
+          />
+
+          {/* 상태 메시지 */}
+          {checking && (
+            <p className="mt-2 text-xs text-gray-500">중복 확인 중…</p>
+          )}
+          {ok === false && (
+            <p className="mt-2 text-xs text-red-600 flex items-center gap-1">
+              <AlertCircle className="w-4 h-4" /> 이미 사용 중인 아이디입니다
+            </p>
+          )}
+          {ok === true && (
+            <p className="mt-2 text-xs text-green-600 flex items-center gap-1">
+              <CheckCircle2 className="w-4 h-4" /> 사용가능한 아이디입니다
+            </p>
+          )}
+        </div>
+
+        <button
+          type="submit"
+          disabled={!canNext}
+          className="w-full h-12 rounded-xl bg-orange-500 text-white font-semibold disabled:opacity-40"
+        >
+          확인
+        </button>
+      </form>
+    </div>
+  );
+}
