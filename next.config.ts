@@ -1,8 +1,14 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   reactStrictMode: true,
-  turbopack: {},
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${process.env.NEXT_PUBLIC_API_URL}/api/:path*`, // BE 주소
+      },
+    ];
+  },
 };
 
-export default nextConfig;
+module.exports = nextConfig;

@@ -12,12 +12,16 @@ import type { StoreListItem } from "@/types/store";
 import { notices } from '@/constants/mockStores'; // 공지 목업 유지 시
 import { getStoreList } from '@/lib/api/stores/endpoints';
 import { useApi } from '@/lib/hooks/useApi';
+import { usePathname } from 'next/navigation';
+import ErrorMessage from '@/components/common/ErrorMessage';
 
 export default function HomePage() {
   const [selectedStore, setSelectedStore] = useState<StoreListItem | null>(null);
-  const { data: storeList = [], loading, error, reload } =
-    useApi<StoreListItem[]>(getStoreList, []);
+  const pathname = usePathname();
 
+  const { data: storeList = [], loading, error, reload } =
+    useApi<StoreListItem[]>(getStoreList, [pathname]);
+  console.log(storeList);
   return (
     <main
       className={`relative max-w-md px-4 py-6 transition-all ${
@@ -49,25 +53,31 @@ export default function HomePage() {
       </div>
 
       {/* 상태 표시 */}
-      {error && (
+      {error ? (
         <div className="mt-4 text-sm text-red-600 border border-red-200 rounded-md p-3 bg-red-50">
           {error}
         </div>
-      )}
-      {loading && !storeList.length && (
+      ) : loading && storeList.length === 0 ? (
         <div className="mt-4 text-sm text-gray-500">불러오는 중…</div>
+      ) : (
+        <>
+          <div className="pt-5">
+            {storeList.length === 0 ? (
+              <ErrorMessage msg={"표시할 매장이 없습니다."} />
+            ) : (
+              storeList.map((store) => (
+                <StoreCard
+                  key={store.id}
+                  store={store}
+                  isSelected={selectedStore?.id === store.id}
+                  onClick={() => setSelectedStore(store)}
+                />
+              ))
+            )}
+          </div>
+        </>
       )}
-
-      <div className="pt-5">
-        {storeList.map((store) => (
-          <StoreCard
-            key={store.id}
-            store={store}
-            isSelected={selectedStore?.id === store.id}
-            onClick={() => setSelectedStore(store)}
-          />
-        ))}
-      </div>
+      
 
       <NoticePreview notices={notices} />
     </main>

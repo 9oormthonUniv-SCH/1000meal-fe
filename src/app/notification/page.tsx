@@ -1,7 +1,7 @@
 'use client';
 
-import { mockNotifications } from '@/constants/mockStores';
 import Header from '@/components/common/Header';
+import { mockNotifications } from '@/constants/mockStores';
 
 export default function NotificationPage() {
 

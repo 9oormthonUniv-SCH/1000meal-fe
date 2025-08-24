@@ -5,28 +5,32 @@ import Header from "@/components/common/Header";
 import StoreInfo from "@/components/common/StoreInfo";
 import StoreImage from "@/components/common/StoreImage";
 import WeeklyMenu from "@/components/store/WeeklyMenu";
+import OtherStoresViewer from "@/components/store/OtherStoresViewer";
 
-import { getStoreDetail } from '@/lib/api/stores/endpoints';
-import type { StoreDetail } from "@/types/store";
+import { getStoreDetail, getStoreList } from '@/lib/api/stores/endpoints';
+import type { StoreDetail, StoreListItem } from "@/types/store";
 import { useApi, useApiWithParams } from "@/lib/hooks/useApi";
-import { use, useCallback } from "react"; // ⬅️ 포인트: React.use() 사용
+import { use } from "react";
 
 export default function StoreDetailPage(
-  { params }: { params: Promise<{ id: string }> } // ⬅️ Promise 타입으로 받기
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = use(params);                     // ⬅️ 언랩
+  const { id } = use(params);   // ⬅️ 여기서 언랩
   const storeId = Number(id);
 
   const { data: store, loading, error, reload } =
-  useApiWithParams<StoreDetail, number>(
-    getStoreDetail,
-    storeId,
-    { enabled: Number.isFinite(storeId) }
-  );
-  
+    useApiWithParams<StoreDetail, number>(
+      getStoreDetail,
+      storeId,
+      { enabled: Number.isFinite(storeId) }
+    );
+
+  const { data: storeList = [], loading: listLoading, error: listError, reload: reloadList } =
+    useApi<StoreListItem[]>(getStoreList, []);
+
   if (loading && !store) {
     return (
-      <div className="w-full h-dvh overflow-hidden pt-[56px]">
+      <div className="w-full h-dvh pt-[56px]">
         <Header title="매장 상세페이지" />
         <div className="p-4 text-sm text-gray-500">불러오는 중…</div>
       </div>
@@ -35,7 +39,7 @@ export default function StoreDetailPage(
 
   if (error) {
     return (
-      <div className="w-full h-dvh overflow-hidden pt-[56px]">
+      <div className="w-full h-dvh pt-[56px]">
         <Header title="매장 상세페이지" />
         <div className="p-4">
           <div className="mb-2 text-red-600 text-sm">상세 정보를 불러오지 못했습니다.</div>
@@ -52,20 +56,23 @@ export default function StoreDetailPage(
 
   if (!store) {
     return (
-      <div className="w-full h-dvh overflow-hidden pt-[56px]">
+      <div className="w-full h-dvh pt-[56px]">
         <Header title="매장 상세페이지" />
         <div className="p-4 text-sm text-gray-500">매장을 찾을 수 없습니다.</div>
       </div>
     );
   }
 
+  const otherStores = storeList.filter((s) => s.id !== storeId);
+
   return (
-    <div className="w-full h-dvh overflow-hidden pt-[56px]">
+    <div className="w-full pt-[56px]">
       <Header title="매장 상세페이지" />
       <StoreImage />
       <StoreInfo store={store} />
       <div className="h-3 bg-gray-200 mx-auto mb-3" />
       <WeeklyMenu store={store} />
+      <OtherStoresViewer stores={otherStores} />
     </div>
   );
 }

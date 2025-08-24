@@ -26,11 +26,10 @@ export default function RootLayout({
           <div className="w-full max-w-md h-dvh bg-white flex flex-col overflow-hidden">
             {/* ✅ 내부 스크롤 영역 */}
             <main id="app-main" className="overflow-y-auto flex-1 scrollbar-hide">
-              <div className="min-h-full flex flex-col">
-                {children}
-                <div className="mt-auto">
-                  <Footer />
-                </div>
+              
+              {children}
+              <div className="mt-auto">
+                <Footer />
               </div>
             </main>
           </div>
