@@ -23,7 +23,7 @@ export default function SignupIdPage() {
 
   // 가짜 중복 체크 (debounce)
   const debounceCheck = useMemo(() => {
-    let t: any;
+    let t: NodeJS.Timeout;
     return (value: string) => {
       clearTimeout(t);
       setChecking(true);

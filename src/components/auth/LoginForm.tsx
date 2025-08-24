@@ -3,6 +3,7 @@
 
 import clsx from 'clsx';
 import { Loader2 } from 'lucide-react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -62,7 +63,7 @@ export default function LoginForm({
       </h1>
 
       <div className="w-28 h-8 rounded mb-6 flex items-center justify-center">
-        <img src="/logo.png" alt="오늘 순밥" className="h-8 object-contain" />
+        <Image src="/logo.png" alt="오늘 순밥" className="h-8 object-contain" />
       </div>
 
       {/* 역할 토글 */}

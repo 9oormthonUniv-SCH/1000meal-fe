@@ -25,7 +25,7 @@ export default function StoreDetailPage(
       { enabled: Number.isFinite(storeId) }
     );
 
-  const { data: storeList = [], loading: listLoading, error: listError, reload: reloadList } =
+  const { data: storeList = []} =
     useApi<StoreListItem[]>(getStoreList, []);
 
   if (loading && !store) {

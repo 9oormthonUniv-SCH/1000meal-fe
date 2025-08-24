@@ -1,21 +1,11 @@
+// src/lib/api/errors.ts
 /** 서버/네트워크 에러를 정규화한 타입 */
 export class ApiError extends Error {
-  /** HTTP status code (ex. 400, 401, 500 ...) */
-  status?: number;
-
-  /** 서버에서 내려준 에러 코드 */
-  code?: string;
-
-  /** 서버에서 내려준 원본 응답 body */
+  status?: number; // HTTP status code
+  code?: string;   // 서버에서 내려준 에러 코드
   details?: unknown;
-
-  /** 네트워크/브라우저 단 절 (CORS, DNS 오류 등) */
   isNetwork?: boolean;
-
-  /** 타임아웃 여부 */
   isTimeout?: boolean;
-
-  /** AbortController 에 의한 취소 여부 */
   isAbort?: boolean;
 
   constructor(message: string, init?: Partial<ApiError>) {
@@ -50,14 +40,19 @@ export async function extractServerMessage(
   try {
     if (contentType.includes("application/json")) {
       const body = (await res.json()) as ServerErrorBody;
-      const code =
-        body?.code ??
-        (typeof body?.result === "object"
-          ? (body.result as any)?.code
-          : undefined);
+      const result = body?.result as { code?: string; message?: string } | undefined;
 
+      // ✅ code를 무조건 string | undefined 로 변환
+      const code =
+        typeof body?.code === "string"
+          ? body.code
+          : typeof result?.code === "string"
+          ? result.code
+          : undefined;
+
+      // ✅ message도 string으로만 제한
       const message =
-        (typeof body?.result === "object" && (body.result as any)?.message) ||
+        (typeof result?.message === "string" ? result.message : undefined) ||
         (typeof body?.message === "string" ? body.message : undefined) ||
         "요청 처리 중 오류가 발생했습니다.";
 

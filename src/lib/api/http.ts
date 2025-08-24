@@ -1,6 +1,6 @@
 // src/lib/api/http.ts
 import { DEFAULT_HEADERS, DEFAULT_TIMEOUT_MS } from "./config";
-import { ApiError } from "./errors";
+import { ApiError, extractServerMessage } from "./errors";
 
 export interface HttpInit extends RequestInit {
   timeoutMs?: number;
@@ -20,22 +20,20 @@ export async function http<T>(url: string, init: HttpInit = {}): Promise<T> {
 
   const controller = new AbortController();
   const timer = timeoutMs ? setTimeout(() => controller.abort(), timeoutMs) : null;
-
-  // 외부 signal이 있으면 그걸 우선, 없으면 내부 controller 사용
   const signal = externalSignal ?? controller.signal;
+
   try {
     const res = await fetch(url, {
       ...fetchInit,
       headers: { ...DEFAULT_HEADERS, ...(headers ?? {}) },
       signal,
       cache,
-      credentials: "include",
+      credentials: "include", // ✅ 세션 쿠키 포함
     });
 
-    const contentType = res.headers.get("content-type") ?? "";
-
-    // 공통 바디 파서
+    // 공통 body 파서
     const parseBody = async (): Promise<unknown> => {
+      const contentType = res.headers.get("content-type") ?? "";
       if (contentType.includes("application/json")) {
         try {
           return await res.json();
@@ -50,23 +48,13 @@ export async function http<T>(url: string, init: HttpInit = {}): Promise<T> {
       }
     };
 
-    // ⛔️ HTTP 에러
-    // http.ts
+    // ⛔️ HTTP 에러 처리
     if (!res.ok) {
-      const raw = await parseBody();
-
-      let message: string;
-      if (raw && typeof raw === "object" && "message" in (raw as any)) {
-        message = String((raw as any).message);
-      } else if (typeof raw === "string" && raw.trim()) {
-        message = raw; // 서버가 그냥 문자열로 내려줬을 때
-      } else {
-        message = `[${res.status}] ${res.statusText}`;
-      }
-
+      const { message, code, body } = await extractServerMessage(res);
       throw new ApiError(message, {
         status: res.status,
-        details: raw,
+        code,
+        details: body,
       });
     }
 
@@ -77,32 +65,27 @@ export async function http<T>(url: string, init: HttpInit = {}): Promise<T> {
 
     // ✅ 정상 응답
     const body = await parseBody();
+    const contentType = res.headers.get("content-type") ?? "";
 
     if (contentType.includes("application/json")) {
-      const json = body as any;
+      const json = body as Record<string, unknown>;
 
-      // 스웨거 스타일 래핑 자동 언랩
-      if (
-        unwrapData &&
-        json &&
-        typeof json === "object" &&
-        "data" in json
-      ) {
-        return (json.data as unknown) as T;
+      // 스웨거 스타일 { data } 언랩
+      if (unwrapData && json && typeof json === "object" && "data" in json) {
+        return json.data as T;
       }
 
       return json as T;
     }
 
-    // 그 외는 텍스트/바이너리 등 그대로 반환
-    return (body as unknown) as T;
+    // 그 외 텍스트/바이너리 그대로 반환
+    return body as T;
   } catch (e: unknown) {
     // 요청 취소
     if (e instanceof DOMException && e.name === "AbortError") {
-      // 그냥 요청 취소는 정상 플로우로 간주
       return undefined as unknown as T;
     }
-    // 네트워크 오류(fetch 자체 실패)
+    // 네트워크 오류
     if (e instanceof TypeError) {
       throw new ApiError("네트워크 오류", { isNetwork: true });
     }
