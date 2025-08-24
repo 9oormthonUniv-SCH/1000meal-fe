@@ -50,7 +50,7 @@ export function useApi<T>(
     void load();
     return () => abortRef.current?.abort();
     // deps는 바깥에서 주입받아 추적
-  }, [enabled, load, ...deps]);
+  }, [enabled, load, deps]);
 
   return { data, loading, error, reload: load };
 }
