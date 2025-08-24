@@ -8,8 +8,8 @@ import WeeklyMenu from "@/components/store/WeeklyMenu";
 
 import { getStoreDetail } from '@/lib/api/stores/endpoints';
 import type { StoreDetail } from "@/types/store";
-import { useApi } from "@/lib/hooks/useApi";
-import { use } from "react"; // ⬅️ 포인트: React.use() 사용
+import { useApi, useApiWithParams } from "@/lib/hooks/useApi";
+import { use, useCallback } from "react"; // ⬅️ 포인트: React.use() 사용
 
 export default function StoreDetailPage(
   { params }: { params: Promise<{ id: string }> } // ⬅️ Promise 타입으로 받기
@@ -18,8 +18,12 @@ export default function StoreDetailPage(
   const storeId = Number(id);
 
   const { data: store, loading, error, reload } =
-    useApi<StoreDetail>(() => getStoreDetail(storeId), [storeId]);
-
+  useApiWithParams<StoreDetail, number>(
+    getStoreDetail,
+    storeId,
+    { enabled: Number.isFinite(storeId) }
+  );
+  
   if (loading && !store) {
     return (
       <div className="w-full h-dvh overflow-hidden pt-[56px]">

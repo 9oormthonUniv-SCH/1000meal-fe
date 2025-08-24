@@ -12,7 +12,7 @@ export default function NoticeDetail({ params }: { params: Promise<{ id: string 
   if (!notice) return <div>공지사항을 찾을 수 없습니다.</div>;
 
   return (
-    <div className="w-full h-dvh overflow-hidden">
+    <div className="w-full overflow-hidden mt-[56px]">
       <Header title="공지사항" />
       <div className="max-w-md mx-auto p-4">
         <h1 className="text-xl font-bold mb-2">{notice.title}</h1>

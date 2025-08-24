@@ -24,24 +24,22 @@ export function useApi<T>(
   const abortRef = useRef<AbortController | null>(null);
 
   const load = useCallback(async () => {
-    // 이전 요청 취소
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
-
+  
     setLoading(true);
     setError(null);
-
+  
     try {
       const res = await fetcher(controller.signal);
       setData(res);
     } catch (err: unknown) {
-      // abort는 에러로 간주하지 않음
-      if (err instanceof DOMException && err.name === 'AbortError') return;
-
-      const message =
-        err instanceof Error ? err.message : '요청에 실패했습니다.';
-      setError(message);
+      // ✅ AbortError는 에러로 표시하지 않고, return 하지 않음 (finally가 실행되도록)
+      if (!(err instanceof DOMException && err.name === 'AbortError')) {
+        const message = err instanceof Error ? err.message : '요청에 실패했습니다.';
+        setError(message);
+      }
     } finally {
       setLoading(false);
     }
