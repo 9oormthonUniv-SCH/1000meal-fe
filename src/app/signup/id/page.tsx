@@ -2,10 +2,10 @@
 'use client';
 
 import Header from '@/components/common/Header';
+import { useSignupDraft } from '@/lib/hooks/useSignupDraft';
+import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import { useSignupDraft } from '@/lib/hooks/useSignupDraft';
-import { CheckCircle2, AlertCircle } from 'lucide-react';
 
 export default function SignupIdPage() {
   const router = useRouter();
