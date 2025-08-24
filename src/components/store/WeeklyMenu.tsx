@@ -1,9 +1,9 @@
 'use client';
 
-import MenuCard from "./MenuCard";
-import type { StoreDetail, DayOfWeek } from "@/types/store";
-import { useMemo } from "react";
+import type { DayOfWeek, StoreDetail } from "@/types/store";
 import { motion } from "framer-motion";
+import { useMemo } from "react";
+import MenuCard from "./MenuCard";
 
 interface WeeklyMenuProps {
   store: StoreDetail;

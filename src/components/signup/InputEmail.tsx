@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
 import {
+  getSignupEmailStatus,
   sendSignupEmail,
   verifySignupEmail,
-  getSignupEmailStatus,
 } from '@/lib/api/auth/endpoints';
 import { ApiError } from '@/lib/api/errors';
 import { AlertCircle, Loader2 } from 'lucide-react';
+import { useState } from 'react';
 
 interface Props {
   email: string;

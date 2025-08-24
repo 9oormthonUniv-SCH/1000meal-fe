@@ -2,14 +2,14 @@
 'use client';
 
 import Header from "@/components/common/Header";
-import StoreInfo from "@/components/common/StoreInfo";
 import StoreImage from "@/components/common/StoreImage";
-import WeeklyMenu from "@/components/store/WeeklyMenu";
+import StoreInfo from "@/components/common/StoreInfo";
 import OtherStoresViewer from "@/components/store/OtherStoresViewer";
+import WeeklyMenu from "@/components/store/WeeklyMenu";
 
 import { getStoreDetail, getStoreList } from '@/lib/api/stores/endpoints';
-import type { StoreDetail, StoreListItem } from "@/types/store";
 import { useApi, useApiWithParams } from "@/lib/hooks/useApi";
+import type { StoreDetail, StoreListItem } from "@/types/store";
 import { use } from "react";
 
 export default function StoreDetailPage(

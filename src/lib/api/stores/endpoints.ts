@@ -1,6 +1,6 @@
+import type { StoreDetail, StoreListItem } from "@/types/store";
 import { API_BASE } from "../config";
 import { http } from "../http";
-import type { StoreListItem, StoreDetail } from "@/types/store";
 
 /** GET /stores */
 export function getStoreList(signal?: AbortSignal) {

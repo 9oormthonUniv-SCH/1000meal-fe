@@ -1,7 +1,7 @@
 'use client';
 
-import StoreCard from "./StoreCard";
 import { motion } from "framer-motion";
+import StoreCard from "./StoreCard";
 
 interface Store {
   id: number;

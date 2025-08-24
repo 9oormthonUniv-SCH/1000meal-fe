@@ -1,8 +1,8 @@
 // src/components/common/LogoutButton.tsx
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { clearSession } from '@/lib/auth/session.client';
+import { useRouter } from 'next/navigation';
 
 export default function LogoutButton() {
   const router = useRouter();

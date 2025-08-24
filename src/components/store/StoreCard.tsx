@@ -2,6 +2,7 @@
 'use client';
 
 import clsx from 'clsx';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 interface StoreCardProps {
@@ -22,9 +23,11 @@ export default function StoreCard({ id, imageUrl, storeName, isOpen }: StoreCard
     className="m-3 rounded-xl shadow-md bg-white w-[140px] cursor-pointer">
       <div className="w-full h-24 rounded-lg overflow-hidden bg-gray-100 mb-2">
         {imageUrl ? (
-          <img
+          <Image
             src={imageUrl}
             alt={storeName}
+            width={140}
+            height={96}
             className="w-full h-full object-cover"
           />
         ) : (

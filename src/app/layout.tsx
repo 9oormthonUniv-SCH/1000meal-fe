@@ -1,7 +1,7 @@
 import Footer from "@/components/common/Footer";
-import "./globals.css";
 import type { Metadata } from "next";
 import Script from "next/script";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "천원의 아침밥",
@@ -26,10 +26,11 @@ export default function RootLayout({
           <div className="w-full max-w-md h-dvh bg-white flex flex-col overflow-hidden">
             {/* ✅ 내부 스크롤 영역 */}
             <main id="app-main" className="overflow-y-auto flex-1 scrollbar-hide">
-              
-              {children}
-              <div className="mt-auto">
-                <Footer />
+              <div className="min-h-full flex flex-col">
+                {children}
+                <div className="mt-auto">
+                  <Footer />
+                </div>
               </div>
             </main>
           </div>

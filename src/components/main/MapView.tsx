@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { Map, CustomOverlayMap } from 'react-kakao-maps-sdk';
+import { StoreListItem } from '@/types/store';
 import { Loader2, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { StoreListItem } from '@/types/store';
+import { useEffect, useMemo, useState } from 'react';
+import { CustomOverlayMap, Map } from 'react-kakao-maps-sdk';
 
 interface MapViewProps {
   stores?: StoreListItem[]; // ← optional로 받고

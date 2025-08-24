@@ -1,8 +1,8 @@
 'use client';
 
 import { StoreListItem } from "@/types/store";
-import { useRouter } from 'next/navigation';
 import clsx from 'clsx'; // 조건부 class를 쉽게 쓰기 위해 사용
+import { useRouter } from 'next/navigation';
 
 interface Props {
   store: StoreListItem;

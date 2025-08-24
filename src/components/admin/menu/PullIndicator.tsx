@@ -1,7 +1,7 @@
 'use client';
 
-import { Check, Loader2, ChevronDown } from 'lucide-react';
 import clsx from 'clsx';
+import { Check, ChevronDown, Loader2 } from 'lucide-react';
 
 export type PullPhase = 'idle' | 'pull' | 'ready' | 'loading';
 

@@ -60,3 +60,4 @@ export type StoreDetail = {
   };
   open: boolean;
 };
+

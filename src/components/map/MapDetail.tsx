@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Map, CustomOverlayMap } from 'react-kakao-maps-sdk';
+import type { StoreListItem } from '@/types/store';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
+import { CustomOverlayMap, Map } from 'react-kakao-maps-sdk';
 import Header from '../common/Header';
 import MapStoreCard from './MapStoreCard';
-import type { StoreListItem } from '@/types/store';
 
 interface MapViewProps {
   stores?: StoreListItem[]; // optional: 로딩 전 안전

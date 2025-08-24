@@ -1,8 +1,8 @@
 'use client';
 
+import clsx from 'clsx';
 import { Dayjs } from 'dayjs';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import clsx from 'clsx';
 
 type Props = {
   monday: Dayjs;                  // 주의 월요일

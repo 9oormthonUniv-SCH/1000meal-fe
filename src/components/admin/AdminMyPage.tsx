@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Settings, ChevronRight, LogOut } from 'lucide-react'; 
-import Header from '../common/Header';
-import clsx from 'clsx';
 import { clearSession } from '@/lib/auth/session.client';
+import clsx from 'clsx';
+import { ChevronRight, LogOut, Settings } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import Header from '../common/Header';
 
 export default function AdminMyPage() {
   const router = useRouter();

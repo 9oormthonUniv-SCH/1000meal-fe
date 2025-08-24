@@ -1,19 +1,19 @@
 // app/page.tsx (또는 네가 쓰는 HomePage 경로)
 'use client';
 
-import { useState } from 'react';
-import StoreCard from "@/components/main/StoreCard";
+import HeaderButtons from '@/components/common/HeaderButtons';
 import MapView from "@/components/main/MapView";
 import NoticePreview from '@/components/main/NoticePreview';
-import HeaderButtons from '@/components/common/HeaderButtons';
+import StoreCard from "@/components/main/StoreCard";
 import { RefreshCcw } from 'lucide-react';
+import { useState } from 'react';
 
-import type { StoreListItem } from "@/types/store";
+import ErrorMessage from '@/components/common/ErrorMessage';
 import { notices } from '@/constants/mockStores'; // 공지 목업 유지 시
 import { getStoreList } from '@/lib/api/stores/endpoints';
 import { useApi } from '@/lib/hooks/useApi';
+import type { StoreListItem } from "@/types/store";
 import { usePathname } from 'next/navigation';
-import ErrorMessage from '@/components/common/ErrorMessage';
 
 export default function HomePage() {
   const [selectedStore, setSelectedStore] = useState<StoreListItem | null>(null);
@@ -21,7 +21,6 @@ export default function HomePage() {
 
   const { data: storeList = [], loading, error, reload } =
     useApi<StoreListItem[]>(getStoreList, [pathname]);
-  console.log(storeList);
   return (
     <main
       className={`relative max-w-md px-4 py-6 transition-all ${

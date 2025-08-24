@@ -1,8 +1,8 @@
 // components/admin/menu/MenuWeekEditor.tsx
 'use client';
 
-import { ChevronRight, Trash2 } from 'lucide-react';
 import clsx from 'clsx';
+import { ChevronRight, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export type DayMenu = {

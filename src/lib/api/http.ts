@@ -1,6 +1,6 @@
 // src/lib/api/http.ts
 import { DEFAULT_HEADERS, DEFAULT_TIMEOUT_MS } from "./config";
-import { ApiError, extractServerMessage } from "./errors";
+import { ApiError } from "./errors";
 
 export interface HttpInit extends RequestInit {
   timeoutMs?: number;

@@ -1,8 +1,8 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { Bell, User, Repeat } from 'lucide-react';
 import { getSession } from '@/lib/auth/session.client';
+import { Bell, User } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function HeaderButtons() {
   const router = useRouter();
