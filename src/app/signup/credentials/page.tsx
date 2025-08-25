@@ -1,7 +1,7 @@
 'use client';
 
 import Header from '@/components/common/Header';
-import { signUp } from '@/lib/api/auth/endpoints';
+import { signUpUser } from '@/lib/api/auth/endpoints';
 import { ApiError } from '@/lib/api/errors';
 import { useSignupDraft } from '@/lib/hooks/useSignupDraft';
 import { useRouter } from 'next/navigation';
@@ -64,7 +64,8 @@ export default function SignupCredentialsPage() {
       }
 
       set({ name, email, password: pw, agreeTos, agreePrivacy });
-      await signUp({ userId: id, name, email, password: pw });
+      // Add the new required 'role' field to match SignUpRequest type
+      await signUpUser({ role: 'STUDENT', userId: id, name, email, password: pw });
 
       clear();
       router.replace('/login');

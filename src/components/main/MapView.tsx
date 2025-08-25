@@ -13,6 +13,7 @@ interface MapViewProps {
 export default function MapView({stores} : MapViewProps) {
   const [loaded, setLoaded] = useState(false);
   const router = useRouter();
+  console.log(stores);
 
   useEffect(() => {
     if (!window.kakao?.maps) return;

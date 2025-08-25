@@ -2,23 +2,38 @@
 
 import Header from '@/components/common/Header';
 import { getMe } from '@/lib/api/users/endpoints';
-import type { User } from '@/types/user';
+import { getCookie } from '@/lib/auth/cookies';
+import { MeResponse } from '@/types/user';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function MyPage() {
   const router = useRouter();
-  const [me, setMe] = useState<User | null>(null);
+  const [me, setMe] = useState<MeResponse | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const clearCookiesAndLogout = () => {
+    document.cookie = 'accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    document.cookie = 'role=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    router.replace('/login');
+  };
 
   useEffect(() => {
     (async () => {
-      try {
-        const user = await getMe();
-        setMe(user);
-      } catch (e) {
-        console.error(e);
+      const accessToken = getCookie('accessToken');
+      if (!accessToken) {
         router.replace('/login');
+        return;
+      }
+      try {
+        const user = await getMe(accessToken);
+        setMe(user);
+      } catch (e: any) {
+        if (e?.response?.status === 401) {
+          router.replace('/login');
+        } else {
+          console.error(e);
+        }
       } finally {
         setLoading(false);
       }
@@ -32,14 +47,19 @@ export default function MyPage() {
     <div className="flex flex-col pt-[56px]">
       <Header title="마이페이지" />
 
-      <div className="p-5 flex flex-col gap-6">
-        <div>
-          <h1 className="text-xl font-bold">내 정보</h1>
-          <p className="text-sm text-gray-600">아이디: {me.userId}</p>
-          <p className="text-sm text-gray-600">이름: {me.name}</p>
-          <p className="text-sm text-gray-600">이메일: {me.email}</p>
-          <p className="text-sm text-gray-600">전화번호: {me.phoneNumber}</p>
-          <p className="text-sm text-gray-600">역할: {me.role}</p>
+      <div className="p-5 flex flex-col gap-8">
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h1 className="text-2xl font-bold mb-6">내 정보</h1>
+          <p className="text-base text-gray-700 mb-3">아이디: {me.accountId}</p>
+          <p className="text-base text-gray-700 mb-3">이름: {me.username}</p>
+          <p className="text-base text-gray-700 mb-3">이메일: {me.email}</p>
+          <p className="text-base text-gray-700 mb-6">역할: {me.role}</p>
+          <button
+            className="bg-red-500 text-white rounded-lg px-4 py-2"
+            onClick={clearCookiesAndLogout}
+          >
+            로그아웃
+          </button>
         </div>
       </div>
     </div>

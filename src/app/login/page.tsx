@@ -2,10 +2,14 @@
 
 import LoginForm, { type LoginRole } from '@/components/auth/LoginForm';
 import Header from '@/components/common/Header';
-import { loginAdmin, loginUser } from '@/lib/api/auth/endpoints';
-import { setSession } from '@/lib/auth/session.client';
+import { loginUser } from '@/lib/api/auth/endpoints';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+
+function setCookie(name: string, value: string, days = 7) {
+  const expires = new Date(Date.now() + days * 864e5).toUTCString();
+  document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + expires + '; path=/';
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,22 +20,18 @@ export default function LoginPage() {
     if (loading) return;
     setErrMsg(null);
     setLoading(true);
-    console.log(role, id, pw);
     try {
-      const body = { userId: id.trim(), password: pw };
-      const res =
-        role === 'admin'
-          ? await loginAdmin(body) // { accessToken }
-          : await loginUser(body); // { accessToken }
-      console.log(res.accessToken, role);
-      setSession(res.accessToken, role);
+      const body = { usernameOrEmail: id.trim(), password: pw, role };
+      const res = await loginUser(body); // { accessToken, role }
+      setCookie('accessToken', res.accessToken);
+      setCookie('role', res.role.toUpperCase());
 
       // 역할별 이동
-      if (role === 'admin') {
+      const normalizedRole = res.role.toUpperCase();
+      if (normalizedRole === 'ADMIN') {
         router.replace('/admin');
       } else {
         router.replace('/');
-        console.log(res);
       }
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : '로그인에 실패했습니다.';

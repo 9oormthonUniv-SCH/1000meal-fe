@@ -2,8 +2,8 @@
 
 import {
   getSignupEmailStatus,
-  sendSignupEmail,
-  verifySignupEmail,
+  sendEmailVerification,
+  verifyEmail,
 } from '@/lib/api/auth/endpoints';
 import { ApiError } from '@/lib/api/errors';
 import { AlertCircle, Loader2 } from 'lucide-react';
@@ -34,19 +34,17 @@ export default function InputEmail({
   const handleSendEmail = async () => {
     setSending(true);
     try {
-      // ✅ 이메일 가입 여부 확인
       const alreadyRegistered = await getSignupEmailStatus(email);
       if (alreadyRegistered) {
         setError("이미 가입된 이메일입니다.");
         return;
       }
-  
-      // 🔥 새 요청 시 기존 인증 코드 입력 UI 초기화
+
       setEmailSent(false);
       setCode('');
       setVerified(false);
-  
-      await sendSignupEmail(email);
+
+      await sendEmailVerification(email); // ✅ 수정
       setEmailSent(true);
       setError(null);
     } catch (e: unknown) {
@@ -60,7 +58,7 @@ export default function InputEmail({
   const handleVerifyEmail = async () => {
     setVerifying(true);
     try {
-      await verifySignupEmail(email, code);
+      await verifyEmail(email, code); // ✅ 수정
       setVerified(true);
       setError(null);
     } catch (e: unknown) {
@@ -73,7 +71,9 @@ export default function InputEmail({
 
   return (
     <div>
-      <label className="block text-sm text-gray-700">이메일 주소 <span className="text-orange-500">*</span></label>
+      <label className="block text-sm text-gray-700">
+        이메일 주소 <span className="text-orange-500">*</span>
+      </label>
       <div className="flex gap-2">
         <input
           type="email"
@@ -112,8 +112,6 @@ export default function InputEmail({
             </button>
           </div>
           {verified && <p className="mt-2 text-xs text-green-600">✅ 인증 완료</p>}
-
-          {/* 📌 메일 사이트 바로가기 버튼 */}
           {email.includes('@') && (
             <a
               href={`https://mail.${email.split('@')[1]}`}
@@ -127,7 +125,6 @@ export default function InputEmail({
         </div>
       )}
 
-      {/* 필드 에러 메시지 */}
       {error && (
         <p className="mt-2 text-xs text-red-600 flex items-center gap-1">
           <AlertCircle className="w-4 h-4" /> {error}

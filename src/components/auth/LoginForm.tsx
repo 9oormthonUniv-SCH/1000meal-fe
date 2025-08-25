@@ -63,7 +63,13 @@ export default function LoginForm({
       </h1>
 
       <div className="w-28 h-8 rounded mb-6 flex items-center justify-center">
-        <Image src="/logo.png" alt="오늘 순밥" className="h-8 object-contain" />
+        <Image
+          src="/logo.png"
+          alt="오늘 순밥"
+          width={112}   // 예: 28 * 4 = 112px
+          height={32}   // 예: h-8 = 32px
+          className="h-8 object-contain"
+        />
       </div>
 
       {/* 역할 토글 */}

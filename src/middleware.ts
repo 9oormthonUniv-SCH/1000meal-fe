@@ -14,7 +14,7 @@ export function middleware(req: NextRequest) {
   }
 
   // 관리자만 접근
-  if (req.nextUrl.pathname.startsWith('/admin') && role !== 'admin') {
+  if (req.nextUrl.pathname.startsWith('/admin') && role !== 'ADMIN') {
     return NextResponse.redirect(new URL('/', req.url));
   }
 

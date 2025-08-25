@@ -1,10 +1,12 @@
-import type { User } from "@/types/user";
+import type { MeResponse } from "@/types/user";
 import { API_BASE } from "../config";
 import { http } from "../http";
 
-export async function getMe(signal?: AbortSignal): Promise<User> {
-  return http<User>(`${API_BASE}/users/me`, {
-    method: "GET",
-    signal,
+/** 내 정보 조회 */
+export async function getMe(token: string) {
+  return http<MeResponse>(`${API_BASE}/auth/me`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
 }
