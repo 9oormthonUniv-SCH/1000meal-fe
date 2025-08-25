@@ -28,8 +28,8 @@ export default function MyPage() {
       try {
         const user = await getMe(accessToken);
         setMe(user);
-      } catch (e: any) {
-        if (e?.response?.status === 401) {
+      } catch (e: unknown) {
+        if (e instanceof Error && (e as any).response?.status === 401) {
           router.replace('/login');
         } else {
           console.error(e);

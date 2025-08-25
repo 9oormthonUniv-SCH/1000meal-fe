@@ -13,6 +13,7 @@ import { notices } from '@/constants/mockStores'; // 공지 목업 유지 시
 import { getStoreList } from '@/lib/api/stores/endpoints';
 import { useApi } from '@/lib/hooks/useApi';
 import type { StoreListItem } from "@/types/store";
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 
 export default function HomePage() {
@@ -29,9 +30,11 @@ export default function HomePage() {
     >
       <div className="relative mb-12">
         <HeaderButtons />
-        <img
+        <Image
           src="/logo.png"
           alt="오늘 순밥"
+          width={120}   // 필수
+          height={32}   // 필수
           className="h-8 absolute top-0 left-0 object-contain"
         />
       </div>
