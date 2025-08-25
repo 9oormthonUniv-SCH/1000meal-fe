@@ -1,6 +1,7 @@
 'use client';
 
 import Header from '@/components/common/Header';
+import { ApiError } from '@/lib/api/errors';
 import { getMe } from '@/lib/api/users/endpoints';
 import { getCookie } from '@/lib/auth/cookies';
 import { MeResponse } from '@/types/user';
@@ -29,7 +30,7 @@ export default function MyPage() {
         const user = await getMe(accessToken);
         setMe(user);
       } catch (e: unknown) {
-        if (e instanceof Error && (e as any).response?.status === 401) {
+        if (e instanceof ApiError && e.status === 401) {
           router.replace('/login');
         } else {
           console.error(e);
