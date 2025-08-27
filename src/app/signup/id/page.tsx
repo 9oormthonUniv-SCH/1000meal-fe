@@ -1,11 +1,11 @@
-// app/signup/id/page.tsx
 'use client';
 
 import Header from '@/components/common/Header';
+import { verifyId } from '@/lib/api/auth/endpoints';
 import { useSignupDraft } from '@/lib/hooks/useSignupDraft';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function SignupIdPage() {
   const router = useRouter();
@@ -13,36 +13,37 @@ export default function SignupIdPage() {
 
   const [id, setId] = useState('');
   const [checking, setChecking] = useState(false);
-  const [ok, setOk] = useState<boolean | null>(null); // null=초기, true=사용가능, false=중복
+  const [ok, setOk] = useState<boolean | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // 기존 드래프트 표시
+  // 기존 드래프트 불러오기
   useEffect(() => {
     const d = get();
     if (d.id) setId(d.id);
   }, [get]);
 
-  // 가짜 중복 체크 (debounce)
-  const debounceCheck = useMemo(() => {
-    let t: NodeJS.Timeout;
-    return (value: string) => {
-      clearTimeout(t);
-      setChecking(true);
-      setOk(null);
-      t = setTimeout(() => {
-        // TODO: 실제 API로 교체
-        const taken = ['admin', 'test', 'cheonbab'].includes(value.toLowerCase());
-        setOk(!taken);
-        setChecking(false);
-      }, 450);
-    };
-  }, []);
-
-  const onChange = (v: string) => {
+  // 아이디 변경 처리
+  const onChange = async (v: string) => {
     setId(v);
-    if (v.trim().length >= 4) debounceCheck(v.trim());
-    else {
-      setOk(null);
-      setChecking(false);
+    setOk(null);
+    setErrorMsg(null);
+
+    if (/^.{8}$/.test(v)) {  // 숫자 8자리 체크
+      setChecking(true);
+      try {
+        const res = await verifyId(v);
+        if (res.valid) {
+          setOk(true);
+        } else {
+          setOk(false);
+          setErrorMsg(res.message); // 서버에서 내려준 메시지 출력
+        }
+      } catch (e) {
+        setOk(false);
+        setErrorMsg("아이디 확인 중 오류가 발생했습니다.");
+      } finally {
+        setChecking(false);
+      }
     }
   };
 
@@ -77,7 +78,7 @@ export default function SignupIdPage() {
             value={id}
             onChange={(e) => onChange(e.target.value)}
             className="w-full border-b border-gray-300 outline-none py-2 focus:border-gray-900"
-            placeholder="4자 이상 입력해주세요"
+            placeholder="숫자 8자리를 입력해주세요"
             autoCapitalize="none"
             autoComplete="username"
             required
@@ -87,9 +88,9 @@ export default function SignupIdPage() {
           {checking && (
             <p className="mt-2 text-xs text-gray-500">중복 확인 중…</p>
           )}
-          {ok === false && (
+          {ok === false && errorMsg && (
             <p className="mt-2 text-xs text-red-600 flex items-center gap-1">
-              <AlertCircle className="w-4 h-4" /> 이미 사용 중인 아이디입니다
+              <AlertCircle className="w-4 h-4" /> {errorMsg}
             </p>
           )}
           {ok === true && (

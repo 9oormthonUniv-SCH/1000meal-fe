@@ -5,6 +5,8 @@ export interface MeResponse {
   email: string;
   accessToken: string;
   refreshToken: string;
+  storeId: number;
+  storeName: string;
 }
 
 export interface ApiResponse<T> {

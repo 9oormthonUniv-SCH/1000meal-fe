@@ -1,19 +1,50 @@
 'use client';
 
+import { getStoreDetail } from '@/lib/api/stores';
+import { getMe } from '@/lib/api/users';
+import { getCookie } from '@/lib/auth/cookies';
 import { clearSession } from '@/lib/auth/session.client';
+import { MeResponse } from '@/types/user';
 import clsx from 'clsx';
 import { ChevronRight, LogOut, Settings } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Header from '../common/Header';
 
 export default function AdminMyPage() {
   const router = useRouter();
+  const [me, setMe] = useState<MeResponse | null>(null);
+  const [store, setStore] = useState<any>(null);
   const [isOpen, setIsOpen] = useState(false); // 영업중 여부
+
+  useEffect(() => {
+    (async () => {
+      const accessToken = getCookie('accessToken');
+      if (!accessToken) {
+        router.replace('/login');
+        return;
+      }
+      try {
+        const user = await getMe(accessToken); // 로그인한 유저 정보
+        console.log(user);
+        setMe(user);
+
+        if (user.role === 'ADMIN' && user.storeId) {
+          const storeData = await getStoreDetail(user.storeId);
+          setStore(storeData);
+          setIsOpen(storeData.open);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+      console.log(me);
+      console.log(store);
+    })();
+  }, []);
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
-    // TODO: 서버에 상태 반영
+    // TODO: 서버에 영업 상태 업데이트 API 호출
   };
 
   const handleLogout = () => {
@@ -32,7 +63,7 @@ export default function AdminMyPage() {
           </button>
           <div className="flex items-center space-x-4">
             <div className="w-12 h-12 rounded-full bg-gray-300" />
-            <p className="font-bold text-xl">김순밥</p>
+            <p className="font-bold text-xl">{store?.name ?? '가게명 불러오는 중...'}</p>
             <span className="text-sm text-white bg-blue-300 px-2 py-1 rounded-xl">
               관리자
             </span>

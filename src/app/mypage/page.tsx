@@ -27,6 +27,7 @@ export default function MyPage() {
         return;
       }
       try {
+        console.log("token:", accessToken);
         const user = await getMe(accessToken);
         setMe(user);
       } catch (e: unknown) {

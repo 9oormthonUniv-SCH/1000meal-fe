@@ -28,8 +28,8 @@ export async function http<T>(url: string, init: HttpInit = {}): Promise<T> {
       headers: { ...DEFAULT_HEADERS, ...(headers ?? {}) },
       signal,
       cache,
-      credentials: "include", // ✅ 세션 쿠키 포함
     });
+    console.log(res);
 
     // 공통 body 파서
     const parseBody = async (): Promise<unknown> => {

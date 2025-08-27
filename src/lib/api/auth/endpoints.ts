@@ -11,6 +11,13 @@ export async function loginUser(payload: LoginRequest) {
   });
 }
 
+export async function verifyId(userId: string) {
+  return http<{ valid: boolean; status: string; message: string }>(
+    `${API_BASE}/signup/user/validate-id`,{
+      method: "POST",
+      body: JSON.stringify({ userId }), // ✅ 키 이름 userId로 맞춤
+  });
+}
 /** 회원가입 */
 export async function signUpUser(payload: SignUpRequest) {
   return http<SignUpResponse>(`${API_BASE}/auth/signup`, {

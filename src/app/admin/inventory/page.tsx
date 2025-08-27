@@ -1,26 +1,64 @@
 'use client';
 
+import { storeIdAtom } from '@/atoms/user';
 import Header from '@/components/common/Header';
+import { getWeeklyMenu, updateDailyStock } from '@/lib/api/menus/endpoints';
+import { WeeklyMenuResponse } from '@/types/menu';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
-import { useState } from 'react';
+import { useAtomValue } from 'jotai';
+import { useEffect, useState } from 'react';
 
 dayjs.locale('ko');
 
 export default function InventoryPage() {
-  const [stock, setStock] = useState(100);
+  const storeId = useAtomValue(storeIdAtom);
+
+  const [menuId, setMenuId] = useState<number | null>(null);
+  const [stock, setStock] = useState<number>(0);
   const [open, setOpen] = useState(false); // 영업 상태
   const [isModalOpen, setIsModalOpen] = useState(false); // 팝업
 
-  const now = dayjs();
-  const formattedDate = `${now.month() + 1}월 ${now.date()}일 ${now.format('dddd')}`;
+  const today = dayjs().format('YYYY-MM-DD');
+  const formattedDate = `${dayjs().month() + 1}월 ${dayjs().date()}일 ${dayjs().format('dddd')}`;
 
-  const handleAdjustStock = (value: number) => {
+  // ✅ 오늘 메뉴 불러오기
+  useEffect(() => {
+    if (!storeId) return;
+    (async () => {
+      try {
+        const res: WeeklyMenuResponse = await getWeeklyMenu(storeId);
+        const todayMenu = res.dailyMenus.find(d => d.date === today);
+        if (todayMenu) {
+          setMenuId(todayMenu.id);   // ✅ menuId 저장
+          setStock(todayMenu.stock ?? 0);
+          setOpen(todayMenu.open ?? false);
+        }
+        console.log(todayMenu?.stock);
+      } catch (err) {
+        console.error("오늘 재고 불러오기 실패:", err);
+      }
+    })();
+  }, [storeId, today]);
+
+  // ✅ 수량 조절
+  const handleAdjustStock = async (value: number) => {
     if (!open) {
       setIsModalOpen(true);
       return;
     }
-    setStock((prev) => Math.max(0, prev + value));
+    const newStock = Math.max(0, stock + value);
+    setStock(newStock);
+    console.log(menuId);
+
+    if (menuId) {
+      try {
+        await updateDailyStock(menuId, newStock);
+        console.log("재고 업데이트 성공:", newStock);
+      } catch (err) {
+        console.error("재고 업데이트 실패:", err);
+      }
+    }
   };
 
   return (
@@ -38,30 +76,16 @@ export default function InventoryPage() {
         <div className="bg-white rounded-2xl px-4 py-5 flex items-center justify-between shadow">
           <span className="text-gray-500 text-md">현재 재고</span>
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => handleAdjustStock(-1)}
-              className="w-8 h-8 rounded-full border border-gray-300 text-gray-500 text-sm"
-            >
-              -
-            </button>
+            <button onClick={() => handleAdjustStock(-1)} className="w-8 h-8 rounded-full border border-gray-300 text-gray-500 text-sm">-</button>
             <div className="w-16 text-center text-base font-semibold text-gray-800">{stock}</div>
-            <button
-              onClick={() => handleAdjustStock(1)}
-              className="w-8 h-8 rounded-full border border-gray-300 text-gray-500 text-sm"
-            >
-              +
-            </button>
+            <button onClick={() => handleAdjustStock(1)} className="w-8 h-8 rounded-full border border-gray-300 text-gray-500 text-sm">+</button>
           </div>
         </div>
 
         {/* 수량 조절 버튼 */}
         <div className="bg-white mt-4 rounded-2xl px-4 py-5 flex shadow text-gray-400 text-sm font-medium">
           {[10, 5, 1].map((value, idx) => (
-            <div
-              key={value}
-              onClick={() => handleAdjustStock(-value)}
-              className="flex-1 flex items-center justify-center gap-1 relative"
-            >
+            <div key={value} onClick={() => handleAdjustStock(-value)} className="flex-1 flex items-center justify-center gap-1 relative">
               <button className="w-5 h-5 rounded-full border border-gray-300 text-xs flex items-center justify-center">–</button>
               <span>{value}개</span>
               {idx < 2 && (
@@ -82,12 +106,7 @@ export default function InventoryPage() {
             </p>
 
             <div className="flex justify-between gap-3">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="flex-1 rounded-xl py-2 bg-gray-100 text-sm text-gray-600 font-medium"
-              >
-                아니요
-              </button>
+              <button onClick={() => setIsModalOpen(false)} className="flex-1 rounded-xl py-2 bg-gray-100 text-sm text-gray-600 font-medium">아니요</button>
               <button
                 onClick={() => {
                   setOpen(true);

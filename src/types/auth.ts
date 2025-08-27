@@ -2,7 +2,8 @@ export type Role = 'ADMIN' | 'STUDENT';
 
 /** 로그인 요청 */
 export interface LoginRequest {
-  usernameOrEmail: string;
+  role: string;
+  user_id: string;
   password: string;
 }
 
@@ -14,6 +15,8 @@ export interface LoginResponse {
   email: string;
   accessToken: string;
   refreshToken: string;
+  storeId: number;
+  storeName: string;
 }
 
 /** 회원가입 요청 */

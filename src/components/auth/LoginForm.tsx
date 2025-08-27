@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-export type LoginRole = 'user' | 'admin';
+export type LoginRole = 'STUDENT' | 'ADMIN';
 
 type Props = {
   /** 기본 선택 역할 (기본 user) */
@@ -21,7 +21,7 @@ type Props = {
 };
 
 export default function LoginForm({
-  defaultRole = 'user',
+  defaultRole = 'STUDENT',
   onSubmit,
   externalLoading,
   errorMessage = null,
@@ -75,7 +75,7 @@ export default function LoginForm({
       {/* 역할 토글 */}
       <div className="mb-6">
         <div className="inline-flex items-center bg-gray-100 rounded-full p-1">
-          {(['user', 'admin'] as const).map((r) => (
+          {(['STUDENT', 'ADMIN'] as const).map((r) => (
             <button
               key={r}
               type="button"
@@ -86,12 +86,12 @@ export default function LoginForm({
               )}
               aria-pressed={role === r}
             >
-              {r === 'user' ? '사용자' : '관리자'}
+              {r === 'STUDENT' ? '사용자' : '관리자'}
             </button>
           ))}
         </div>
         <p className="mt-2 text-xs text-gray-500">
-          현재 선택: <span className="font-medium">{role === 'user' ? '사용자' : '관리자'}</span>
+          현재 선택: <span className="font-medium">{role === 'STUDENT' ? '사용자' : '관리자'}</span>
         </p>
       </div>
 

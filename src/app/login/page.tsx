@@ -1,8 +1,11 @@
 'use client';
 
+import { meAtom, storeIdAtom } from '@/atoms/user';
 import LoginForm, { type LoginRole } from '@/components/auth/LoginForm';
 import Header from '@/components/common/Header';
 import { loginUser } from '@/lib/api/auth/endpoints';
+import { getMe } from '@/lib/api/users';
+import { useSetAtom } from 'jotai';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -13,6 +16,8 @@ function setCookie(name: string, value: string, days = 7) {
 
 export default function LoginPage() {
   const router = useRouter();
+  const setMe = useSetAtom(meAtom);
+  const setStoreId = useSetAtom(storeIdAtom);
   const [loading, setLoading] = useState(false);
   const [errMsg, setErrMsg] = useState<string | null>(null);
 
@@ -21,10 +26,17 @@ export default function LoginPage() {
     setErrMsg(null);
     setLoading(true);
     try {
-      const body = { usernameOrEmail: id.trim(), password: pw, role };
+      const body = { user_id: id.trim(), password: pw, role };
       const res = await loginUser(body); // { accessToken, role }
       setCookie('accessToken', res.accessToken);
       setCookie('role', res.role.toUpperCase());
+      const me = await getMe(res.accessToken);
+      setMe(me);
+      if (me.role === 'ADMIN' && me.storeId) {
+        setStoreId(me.storeId);
+      } else {
+        setStoreId(null);
+      }
 
       // 역할별 이동
       const normalizedRole = res.role.toUpperCase();
@@ -45,7 +57,7 @@ export default function LoginPage() {
     <div className="flex flex-col pt-[56px]">
       <Header title="" />
       <LoginForm
-        defaultRole="user"
+        defaultRole="STUDENT"
         onSubmit={handleSubmit}
         externalLoading={loading}
         errorMessage={errMsg}
