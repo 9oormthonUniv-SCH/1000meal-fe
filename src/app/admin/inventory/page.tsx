@@ -75,14 +75,19 @@ export default function InventoryPage() {
         setErrorMsg(null);
       } catch (e: unknown) {
         if (e instanceof ApiError) {
+          const details: ServerErrorBody | undefined = e.details;
+      
           const reason =
-            Array.isArray((e.details as any)?.errors) &&
-            (e.details as any).errors[0]?.reason;
+            Array.isArray(details?.errors) && typeof details.errors[0]?.reason === "string"
+              ? details.errors[0]!.reason
+              : undefined;
+      
           const msg =
             reason ||
-            (e.details as any)?.result?.message ||
+            (typeof details?.result === "string" ? details.result : undefined) ||
             e.message ||
             "재고 업데이트 실패";
+      
           setErrorMsg(msg);
         } else {
           setErrorMsg("재고 업데이트 실패");
