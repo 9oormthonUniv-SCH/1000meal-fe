@@ -4,6 +4,7 @@ import { meAtom, storeIdAtom } from '@/atoms/user';
 import LoginForm, { type LoginRole } from '@/components/auth/LoginForm';
 import Header from '@/components/common/Header';
 import { loginUser } from '@/lib/api/auth/endpoints';
+import { ApiError } from '@/lib/api/errors';
 import { getMe } from '@/lib/api/users';
 import { useSetAtom } from 'jotai';
 import { useRouter } from 'next/navigation';
@@ -25,13 +26,16 @@ export default function LoginPage() {
     if (loading) return;
     setErrMsg(null);
     setLoading(true);
+
     try {
       const body = { user_id: id.trim(), password: pw, role };
       const res = await loginUser(body); // { accessToken, role }
       setCookie('accessToken', res.accessToken);
       setCookie('role', res.role.toUpperCase());
+
       const me = await getMe(res.accessToken);
       setMe(me);
+
       if (me.role === 'ADMIN' && me.storeId) {
         setStoreId(me.storeId);
       } else {
@@ -46,8 +50,22 @@ export default function LoginPage() {
         router.replace('/');
       }
     } catch (e: unknown) {
-      const message = e instanceof Error ? e.message : '로그인에 실패했습니다.';
-      setErrMsg(message);
+      if (e instanceof ApiError) {
+        // 서버에서 내려준 errors[0].reason → result.message → fallback
+        const reason =
+          Array.isArray((e.details as any)?.errors) &&
+          (e.details as any).errors[0]?.reason;
+    
+        const message =
+          reason ||
+          (e.details as any)?.result?.message ||
+          e.message ||
+          "로그인에 실패했습니다.";
+    
+        setErrMsg(message);
+      } else {
+        setErrMsg("로그인에 실패했습니다.");
+      }
     } finally {
       setLoading(false);
     }
@@ -60,7 +78,7 @@ export default function LoginPage() {
         defaultRole="STUDENT"
         onSubmit={handleSubmit}
         externalLoading={loading}
-        errorMessage={errMsg}
+        errorMessage={errMsg} // ✅ 여기에 그대로 표시됨
       />
     </div>
   );

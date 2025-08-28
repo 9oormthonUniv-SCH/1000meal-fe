@@ -1,4 +1,3 @@
-// src/lib/api/errors.ts
 /** 서버/네트워크 에러를 정규화한 타입 */
 export class ApiError extends Error {
   status?: number; // HTTP status code
@@ -20,8 +19,10 @@ export type ServerErrorBody =
       message?: string;
       code?: string;
       result?: { code?: string; message?: string };
+      errors?: { field?: string | null; rejectedValue?: unknown; reason?: string }[];
       statusCode?: number;
       error?: string;
+      data?: unknown;
     }
   | Record<string, unknown>;
 
@@ -50,8 +51,11 @@ export async function extractServerMessage(
           ? result.code
           : undefined;
 
-      // ✅ message도 string으로만 제한
+      // ✅ message 후보: errors[0].reason → result.message → body.message
       const message =
+        (Array.isArray(body?.errors) &&
+          typeof body.errors[0]?.reason === "string" &&
+          body.errors[0]!.reason) ||
         (typeof result?.message === "string" ? result.message : undefined) ||
         (typeof body?.message === "string" ? body.message : undefined) ||
         "요청 처리 중 오류가 발생했습니다.";

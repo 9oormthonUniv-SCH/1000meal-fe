@@ -69,10 +69,23 @@ export default function SignupCredentialsPage() {
 
       clear();
       router.replace('/login');
-    } catch (e) {
-      console.log(e);
-      const err = e instanceof ApiError ? e.message : '회원가입 실패';
-      setErrMsg(err);
+    } catch (e: unknown) {
+      if (e instanceof ApiError) {
+        // 서버에서 내려준 에러 body 디테일
+        const reason =
+          Array.isArray((e.details as any)?.errors) &&
+          (e.details as any).errors[0]?.reason;
+    
+        const message =
+          reason ||
+          (e.details as any)?.result?.message ||
+          e.message ||
+          "회원가입 실패";
+    
+        setErrMsg(message);
+      } else {
+        setErrMsg("회원가입 실패");
+      }
     } finally {
       setSubmitting(false);
     }

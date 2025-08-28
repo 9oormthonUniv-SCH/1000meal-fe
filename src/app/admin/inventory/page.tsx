@@ -1,7 +1,9 @@
 'use client';
 
 import { storeIdAtom } from '@/atoms/user';
+import ErrorMessage from '@/components/common/ErrorMessage';
 import Header from '@/components/common/Header';
+import { ApiError } from '@/lib/api/errors';
 import { getWeeklyMenu, updateDailyStock } from '@/lib/api/menus/endpoints';
 import { WeeklyMenuResponse } from '@/types/menu';
 import dayjs from 'dayjs';
@@ -16,13 +18,13 @@ export default function InventoryPage() {
 
   const [menuId, setMenuId] = useState<number | null>(null);
   const [stock, setStock] = useState<number>(0);
-  const [open, setOpen] = useState(false); // 영업 상태
-  const [isModalOpen, setIsModalOpen] = useState(false); // 팝업
+  const [open, setOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null); // ✅ 에러 메시지 상태
 
   const today = dayjs().format('YYYY-MM-DD');
   const formattedDate = `${dayjs().month() + 1}월 ${dayjs().date()}일 ${dayjs().format('dddd')}`;
 
-  // ✅ 오늘 메뉴 불러오기
   useEffect(() => {
     if (!storeId) return;
     (async () => {
@@ -30,13 +32,27 @@ export default function InventoryPage() {
         const res: WeeklyMenuResponse = await getWeeklyMenu(storeId);
         const todayMenu = res.dailyMenus.find(d => d.date === today);
         if (todayMenu) {
-          setMenuId(todayMenu.id);   // ✅ menuId 저장
+          setMenuId(todayMenu.id);
           setStock(todayMenu.stock ?? 0);
           setOpen(todayMenu.open ?? false);
         }
-        console.log(todayMenu?.stock);
-      } catch (err) {
-        console.error("오늘 재고 불러오기 실패:", err);
+        setErrorMsg(null);
+      } catch (e: unknown) {
+        console.error("오늘 재고 불러오기 실패:", e);
+        if (e instanceof ApiError) {
+          // ✅ 서버에서 내려준 에러 메시지 우선
+          const reason =
+            Array.isArray((e.details as any)?.errors) &&
+            (e.details as any).errors[0]?.reason;
+          const msg =
+            reason ||
+            (e.details as any)?.result?.message ||
+            e.message ||
+            "오늘 재고 불러오기 실패";
+          setErrorMsg(msg);
+        } else {
+          setErrorMsg("오늘 재고 불러오기 실패");
+        }
       }
     })();
   }, [storeId, today]);
@@ -49,14 +65,25 @@ export default function InventoryPage() {
     }
     const newStock = Math.max(0, stock + value);
     setStock(newStock);
-    console.log(menuId);
 
     if (menuId) {
       try {
         await updateDailyStock(menuId, newStock);
-        console.log("재고 업데이트 성공:", newStock);
-      } catch (err) {
-        console.error("재고 업데이트 실패:", err);
+        setErrorMsg(null);
+      } catch (e: unknown) {
+        if (e instanceof ApiError) {
+          const reason =
+            Array.isArray((e.details as any)?.errors) &&
+            (e.details as any).errors[0]?.reason;
+          const msg =
+            reason ||
+            (e.details as any)?.result?.message ||
+            e.message ||
+            "재고 업데이트 실패";
+          setErrorMsg(msg);
+        } else {
+          setErrorMsg("재고 업데이트 실패");
+        }
       }
     }
   };
@@ -73,12 +100,55 @@ export default function InventoryPage() {
 
       {/* 재고 패널 */}
       <div className="px-4 py-6">
-        <div className="bg-white rounded-2xl px-4 py-5 flex items-center justify-between shadow">
-          <span className="text-gray-500 text-md">현재 재고</span>
-          <div className="flex items-center gap-2">
-            <button onClick={() => handleAdjustStock(-1)} className="w-8 h-8 rounded-full border border-gray-300 text-gray-500 text-sm">-</button>
-            <div className="w-16 text-center text-base font-semibold text-gray-800">{stock}</div>
-            <button onClick={() => handleAdjustStock(1)} className="w-8 h-8 rounded-full border border-gray-300 text-gray-500 text-sm">+</button>
+        <div>
+          <div className="bg-white rounded-2xl px-4 py-5 flex items-center justify-between shadow">
+            <span className="text-gray-500 text-md">현재 재고</span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handleAdjustStock(-1)}
+                className="w-8 h-8 rounded-full border border-gray-300 text-gray-500 text-sm"
+              >
+                -
+              </button>
+
+              {/* ✅ 입력 가능 */}
+              <input
+                type="number"
+                value={stock}
+                onChange={(e) => setStock(Math.max(0, Number(e.target.value)))}
+                onBlur={async () => {
+                  if (menuId) {
+                    try {
+                      await updateDailyStock(menuId, stock);
+                      setErrorMsg(null);
+                    } catch (err) {
+                      console.error("재고 업데이트 실패:", err);
+                      setErrorMsg("재고 업데이트 실패");
+                    }
+                  }
+                }}
+                onKeyDown={async (e) => {
+                  if (e.key === "Enter" && menuId) {
+                    try {
+                      await updateDailyStock(menuId, stock);
+                      setErrorMsg(null);
+                      (e.target as HTMLInputElement).blur();
+                    } catch (err) {
+                      console.error("재고 업데이트 실패:", err);
+                      setErrorMsg("재고 업데이트 실패");
+                    }
+                  }
+                }}
+                className="w-16 text-center text-base font-semibold text-gray-800 border rounded"
+              />
+
+              <button
+                onClick={() => handleAdjustStock(1)}
+                className="w-8 h-8 rounded-full border border-gray-300 text-gray-500 text-sm"
+              >
+                +
+              </button>
+            </div>
           </div>
         </div>
 
@@ -94,9 +164,16 @@ export default function InventoryPage() {
             </div>
           ))}
         </div>
+
+      {/* ✅ 에러 메시지 출력 */}
+      {errorMsg && (
+        <div className='mt-4'>
+          <ErrorMessage msg={errorMsg}/>
+        </div>
+      )}
       </div>
 
-      {/* ✅ 팝업 모달 */}
+      {/* 팝업 모달 */}
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
           <div className="bg-white w-72 rounded-2xl p-5 shadow-lg text-center">
