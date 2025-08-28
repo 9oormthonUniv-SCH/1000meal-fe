@@ -15,7 +15,7 @@ import Header from '../common/Header';
 
 export default function AdminMyPage() {
   const router = useRouter();
-  const [me, setMe] = useState<MeResponse | null>(null);
+  const [, setMe] = useState<MeResponse | null>(null);
   const [store, setStore] = useState<StoreDetail | null>(null);
   const [isOpen, setIsOpen] = useState(false); // 영업중 여부
 

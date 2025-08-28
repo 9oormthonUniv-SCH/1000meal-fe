@@ -41,6 +41,7 @@ export default function SignupIdPage() {
       } catch (e) {
         setOk(false);
         setErrorMsg("아이디 확인 중 오류가 발생했습니다.");
+        console.log(e);
       } finally {
         setChecking(false);
       }

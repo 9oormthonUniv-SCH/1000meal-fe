@@ -3,7 +3,7 @@
 import { storeIdAtom } from '@/atoms/user';
 import ErrorMessage from '@/components/common/ErrorMessage';
 import Header from '@/components/common/Header';
-import { ApiError } from '@/lib/api/errors';
+import { ApiError, ServerErrorBody } from '@/lib/api/errors';
 import { getWeeklyMenu, updateDailyStock } from '@/lib/api/menus/endpoints';
 import { WeeklyMenuResponse } from '@/types/menu';
 import dayjs from 'dayjs';
@@ -38,17 +38,20 @@ export default function InventoryPage() {
         }
         setErrorMsg(null);
       } catch (e: unknown) {
-        console.error("오늘 재고 불러오기 실패:", e);
         if (e instanceof ApiError) {
-          // ✅ 서버에서 내려준 에러 메시지 우선
+          const details: ServerErrorBody | undefined = e.details;
+      
           const reason =
-            Array.isArray((e.details as any)?.errors) &&
-            (e.details as any).errors[0]?.reason;
+            Array.isArray(details?.errors) && typeof details.errors[0]?.reason === "string"
+              ? details.errors[0]!.reason
+              : undefined;
+      
           const msg =
             reason ||
-            (e.details as any)?.result?.message ||
+            (typeof details?.result === "string" ? details.result : undefined) ||
             e.message ||
             "오늘 재고 불러오기 실패";
+      
           setErrorMsg(msg);
         } else {
           setErrorMsg("오늘 재고 불러오기 실패");
