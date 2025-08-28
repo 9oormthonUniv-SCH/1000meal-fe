@@ -1,6 +1,6 @@
 // src/lib/api/http.ts
 import { DEFAULT_HEADERS, DEFAULT_TIMEOUT_MS } from "./config";
-import { ApiError } from "./errors";
+import { ApiError, ServerErrorBody } from "./errors";
 
 export interface HttpInit extends RequestInit {
   timeoutMs?: number;
@@ -35,7 +35,7 @@ export async function http<T>(url: string, init: HttpInit = {}): Promise<T> {
       throw new ApiError("요청 실패", {
         status: res.status,
         code: body?.result?.code || body?.code,
-        details: body,
+        details: body as ServerErrorBody,
       });
     }
 

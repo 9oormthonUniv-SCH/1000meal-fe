@@ -2,7 +2,7 @@
 export class ApiError extends Error {
   status?: number; // HTTP status code
   code?: string;   // 서버에서 내려준 에러 코드
-  details?: unknown;
+  details?: ServerErrorBody;
   isNetwork?: boolean;
   isTimeout?: boolean;
   isAbort?: boolean;

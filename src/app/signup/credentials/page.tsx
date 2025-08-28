@@ -2,7 +2,7 @@
 
 import Header from '@/components/common/Header';
 import { signUpUser } from '@/lib/api/auth/endpoints';
-import { ApiError } from '@/lib/api/errors';
+import { ApiError, ServerErrorBody } from '@/lib/api/errors';
 import { useSignupDraft } from '@/lib/hooks/useSignupDraft';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
@@ -71,14 +71,13 @@ export default function SignupCredentialsPage() {
       router.replace('/login');
     } catch (e: unknown) {
       if (e instanceof ApiError) {
-        // 서버에서 내려준 에러 body 디테일
-        const reason =
-          Array.isArray((e.details as any)?.errors) &&
-          (e.details as any).errors[0]?.reason;
+        const details: ServerErrorBody | undefined = e.details;
     
+        const reason =
+          Array.isArray(details?.errors) && details.errors[0]?.reason;
         const message =
           reason ||
-          (e.details as any)?.result?.message ||
+          details?.result ||
           e.message ||
           "회원가입 실패";
     

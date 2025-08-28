@@ -49,8 +49,8 @@ export default function SignupIdPage() {
 
   const canNext = ok === true && !checking;
 
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = (_e: React.FormEvent) => {
+    _e.preventDefault();
     if (!canNext) return;
     set({ id });
     router.push('/signup/credentials');

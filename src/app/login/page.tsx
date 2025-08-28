@@ -4,7 +4,7 @@ import { meAtom, storeIdAtom } from '@/atoms/user';
 import LoginForm, { type LoginRole } from '@/components/auth/LoginForm';
 import Header from '@/components/common/Header';
 import { loginUser } from '@/lib/api/auth/endpoints';
-import { ApiError } from '@/lib/api/errors';
+import { ApiError, ServerErrorBody } from '@/lib/api/errors';
 import { getMe } from '@/lib/api/users';
 import { useSetAtom } from 'jotai';
 import { useRouter } from 'next/navigation';
@@ -51,14 +51,13 @@ export default function LoginPage() {
       }
     } catch (e: unknown) {
       if (e instanceof ApiError) {
-        // 서버에서 내려준 errors[0].reason → result.message → fallback
-        const reason =
-          Array.isArray((e.details as any)?.errors) &&
-          (e.details as any).errors[0]?.reason;
+        const details: ServerErrorBody | undefined = e.details;
     
+        const reason =
+          Array.isArray(details?.errors) && details.errors[0]?.reason;
         const message =
           reason ||
-          (e.details as any)?.result?.message ||
+          details?.result ||
           e.message ||
           "로그인에 실패했습니다.";
     

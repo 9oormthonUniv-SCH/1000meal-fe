@@ -1,9 +1,11 @@
 'use client';
 
+import { ApiError } from '@/lib/api/errors';
 import { getStoreDetail } from '@/lib/api/stores';
 import { getMe } from '@/lib/api/users';
 import { getCookie } from '@/lib/auth/cookies';
 import { clearSession } from '@/lib/auth/session.client';
+import { StoreDetail } from '@/types/store';
 import { MeResponse } from '@/types/user';
 import clsx from 'clsx';
 import { ChevronRight, LogOut, Settings } from 'lucide-react';
@@ -14,7 +16,7 @@ import Header from '../common/Header';
 export default function AdminMyPage() {
   const router = useRouter();
   const [me, setMe] = useState<MeResponse | null>(null);
-  const [store, setStore] = useState<any>(null);
+  const [store, setStore] = useState<StoreDetail | null>(null);
   const [isOpen, setIsOpen] = useState(false); // 영업중 여부
 
   useEffect(() => {
@@ -25,22 +27,23 @@ export default function AdminMyPage() {
         return;
       }
       try {
-        const user = await getMe(accessToken); // 로그인한 유저 정보
-        console.log(user);
+        const user = await getMe(accessToken);
         setMe(user);
-
+  
         if (user.role === 'ADMIN' && user.storeId) {
           const storeData = await getStoreDetail(user.storeId);
           setStore(storeData);
           setIsOpen(storeData.open);
         }
-      } catch (err) {
+      } catch (err: unknown) {
         console.error(err);
+        if (err instanceof ApiError && err.status === 401) {
+          clearSession();
+          router.replace('/login');
+        }
       }
-      console.log(me);
-      console.log(store);
     })();
-  }, []);
+  }, [router]);
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
