@@ -38,6 +38,13 @@ jobs:
           echo "Adding host: ${{ secrets.EC2_HOST }}"
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
+      - name: Debug host
+        run: |
+          echo "HOST is: ${{ secrets.EC2_HOST }}"
+          nslookup ${{ secrets.EC2_HOST }} || true
+          ping -c 3 ${{ secrets.EC2_HOST }} || true
+          nc -zv ${{ secrets.EC2_HOST }} 22 || true
+          
       - name: Deploy build output
         run: |
           rsync -avz --delete \
