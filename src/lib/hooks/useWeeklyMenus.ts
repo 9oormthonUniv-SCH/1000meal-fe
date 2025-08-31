@@ -3,7 +3,7 @@ import { getWeeklyMenu } from "@/lib/api/menus/endpoints";
 import { WeeklyMenuResponse } from "@/types/menu";
 import { mondayOf } from "@/utils/week";
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // API → UI 변환
 function buildWeekFromApi(dailyMenus: WeeklyMenuResponse["dailyMenus"]): DayMenu[] {
@@ -36,58 +36,55 @@ function buildEmptyWeek(base: dayjs.Dayjs): DayMenu[] {
 
 export function useWeeklyMenus(storeId?: number, initialDate?: string) {
   const [weeks, setWeeks] = useState<DayMenu[][]>([]);
-  const [loadedWeeks, setLoadedWeeks] = useState<Set<string>>(new Set());
+  const loadedWeeksRef = useRef<Set<string>>(new Set()); // ✅ useRef로 변경 (state 아님)
 
-  const loadWeek = async (baseDate: string, direction: "prev" | "next", force = false) => {
-    if (!storeId) return;
-    try {
-      const mondayId = dayjs(baseDate).startOf("week").add(1, "day").format("YYYY-MM-DD");
-      if (!force && loadedWeeks.has(mondayId)) return;
+  const loadWeek = useCallback(
+    async (baseDate: string, direction: "prev" | "next", force = false) => {
+      if (!storeId) return;
+      try {
+        const mondayId = dayjs(baseDate).startOf("week").add(1, "day").format("YYYY-MM-DD");
+        if (!force && loadedWeeksRef.current.has(mondayId)) return;
 
-      const res = await getWeeklyMenu(storeId, baseDate);
+        const res = await getWeeklyMenu(storeId, baseDate);
 
-      // ✅ dailyMenus가 비어있으면 빈 주차 생성
-      const week =
-        res.dailyMenus.length > 0
-          ? buildWeekFromApi(res.dailyMenus)
-          : buildEmptyWeek(dayjs(baseDate));
+        const week =
+          res.dailyMenus.length > 0
+            ? buildWeekFromApi(res.dailyMenus)
+            : buildEmptyWeek(dayjs(baseDate));
 
-      setWeeks((prev) => {
-        if (direction === "next") return [...prev, week];
-        if (direction === "prev") return [week, ...prev];
-        return prev;
-      });
+        setWeeks((prev) => {
+          if (direction === "next") return [...prev, week];
+          if (direction === "prev") return [week, ...prev];
+          return prev;
+        });
 
-      setLoadedWeeks((prev) => new Set(prev).add(mondayId));
-    } catch (err) {
-      console.error("주차 불러오기 실패:", err);
-      // 에러 발생 시에도 빈 주차 표시
-      const emptyWeek = buildEmptyWeek(dayjs(baseDate));
-      setWeeks((prev) =>
-        direction === "next" ? [...prev, emptyWeek] : [emptyWeek, ...prev]
-      );
-    }
-  };
+        loadedWeeksRef.current.add(mondayId);
+      } catch (err) {
+        console.error("주차 불러오기 실패:", err);
+        const emptyWeek = buildEmptyWeek(dayjs(baseDate));
+        setWeeks((prev) =>
+          direction === "next" ? [...prev, emptyWeek] : [emptyWeek, ...prev]
+        );
+      }
+    },
+    [storeId] // ✅ loadedWeeks 제거
+  );
 
   useEffect(() => {
     if (!storeId) return;
     const start = initialDate ?? dayjs().format("YYYY-MM-DD");
-  
+
     setWeeks([]);
-    setLoadedWeeks(new Set());
-  
+    loadedWeeksRef.current = new Set(); // 초기화
+
     (async () => {
-      // ✅ 이번 주차
-      await loadWeek(start, "next", true);
-  
-      // ✅ 이후 3주차 미리 로딩
       let base = dayjs(start);
-      for (let i = 0; i < 3; i++) {
-        base = base.add(1, "week"); // ✅ 1주 단위로 이동
+      for (let i = 0; i < 4; i++) {
         await loadWeek(mondayOf(base).format("YYYY-MM-DD"), "next", true);
+        base = base.add(1, "week");
       }
     })();
-  }, [storeId, initialDate]);
+  }, [storeId, initialDate, loadWeek]);
 
   return { weeks, loadWeek };
 }

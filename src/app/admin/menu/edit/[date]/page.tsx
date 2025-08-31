@@ -65,8 +65,7 @@ export default function AdminMenuEditPage() {
       addMenu={addMenu} removeMenu={removeMenu}
       setMenusByWeek={() => {}} setDirty={setDirty}
       selectedId={selectedId} mondayId={monday.format("YYYY-MM-DD")}
-      onSave={save} onBack={() => router.push("/admin/menu")}
-      dirty={dirty} showConfirm={false}
+      onSave={save} showConfirm={false}
       setShowConfirm={() => {}} pendingAction={null} setPendingAction={() => {}}
       loading={loading}
       extraTop={

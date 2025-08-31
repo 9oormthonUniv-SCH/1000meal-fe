@@ -14,8 +14,7 @@ export default function MenuEditorLayout({
   addMenu, removeMenu,
   setMenusByWeek, setDirty,
   selectedId, mondayId,
-  onSave, onBack,
-  dirty, showConfirm, setShowConfirm,
+  onSave, showConfirm, setShowConfirm,
   pendingAction, setPendingAction,
   loading,
   extraTop,
@@ -30,8 +29,6 @@ export default function MenuEditorLayout({
   selectedId: string;
   mondayId: string;
   onSave: () => void;
-  onBack: () => void;
-  dirty: boolean;
   showConfirm: boolean;
   setShowConfirm: (v: boolean) => void;
   pendingAction: (() => void) | null;

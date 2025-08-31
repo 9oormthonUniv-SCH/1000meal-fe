@@ -7,7 +7,6 @@ import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import { useEffect, useRef } from "react";
 import MenuWeekEditor, { DayMenu } from "./MenuWeekEditor";
 
-// ✅ 플러그인 등록
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 
@@ -28,7 +27,6 @@ function getMonthWeekLabel(dateStr: string) {
 
 export default function WeekList({ weeks, onClickDay, loadWeek }: Props) {
   const today = dayjs();
-  const topRef = useRef<HTMLDivElement | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -37,8 +35,11 @@ export default function WeekList({ weeks, onClickDay, loadWeek }: Props) {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting && entry.target === bottomRef.current) {
+            // ✅ 이미 로딩된 주차는 loadWeek에서 걸러줌
             loadWeek(
-              mondayOf(dayjs(weeks[weeks.length - 1][0].id)).add(1, "week").format("YYYY-MM-DD"),
+              mondayOf(dayjs(weeks[weeks.length - 1][0].id))
+                .add(1, "week")
+                .format("YYYY-MM-DD"),
               "next"
             );
           }
@@ -48,41 +49,40 @@ export default function WeekList({ weeks, onClickDay, loadWeek }: Props) {
     );
     if (bottomRef.current) observer.observe(bottomRef.current);
     return () => observer.disconnect();
-  }, [weeks]);
+  }, [weeks, loadWeek]);
 
   return (
     <div className="px-4 space-y-6 pb-[calc(env(safe-area-inset-bottom)+96px)]">
-      <div ref={topRef} />
       {weeks
-      .filter((week, idx, arr) => {
-        const monday = dayjs(week[0].id).startOf("week").add(1, "day").format("YYYY-MM-DD");
-        return arr.findIndex(w =>
-          dayjs(w[0].id).startOf("week").add(1, "day").format("YYYY-MM-DD") === monday
-        ) === idx; // 첫 번째만 남김
-      })
-      .map((week, idx) => {
-        const firstDay = week[0].id;
-        const lastDay = week[week.length - 1].id;
+        .filter((week, idx, arr) => {
+          const monday = dayjs(week[0].id).startOf("week").add(1, "day").format("YYYY-MM-DD");
+          return (
+            arr.findIndex(
+              (w) =>
+                dayjs(w[0].id).startOf("week").add(1, "day").format("YYYY-MM-DD") === monday
+            ) === idx
+          );
+        })
+        .map((week, idx) => {
+          const firstDay = week[0].id;
+          const lastDay = week[week.length - 1].id;
 
-        // ✅ 오늘이 포함된 주차인지 판별
-        const isThisWeek =
-          today.isSameOrAfter(dayjs(firstDay), "day") &&
-          today.isSameOrBefore(dayjs(lastDay), "day");
+          const isThisWeek =
+            today.isSameOrAfter(dayjs(firstDay), "day") &&
+            today.isSameOrBefore(dayjs(lastDay), "day");
 
-        const title = isThisWeek
-          ? "이번 주"
-          : getMonthWeekLabel(firstDay);
+          const title = isThisWeek ? "이번 주" : getMonthWeekLabel(firstDay);
 
-        return (
-          <MenuWeekEditor
-            key={idx}
-            title={title}
-            week={week}
-            onClickDay={onClickDay}
-            readOnly={false}
-          />
-        );
-      })}
+          return (
+            <MenuWeekEditor
+              key={idx}
+              title={title}
+              week={week}
+              onClickDay={onClickDay}
+              readOnly={false}
+            />
+          );
+        })}
       <div ref={bottomRef} />
     </div>
   );

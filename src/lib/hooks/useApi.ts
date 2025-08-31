@@ -49,7 +49,7 @@ export function useApi<T>(
     if (!enabled) return;
     void load();
     return () => abortRef.current?.abort();
-    // deps는 바깥에서 주입받아 추적
+      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, load, ...deps]);
 
   return { data, loading, error, reload: load };
