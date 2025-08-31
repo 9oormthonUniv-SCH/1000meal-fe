@@ -33,6 +33,9 @@ jobs:
 
       - name: Add EC2 to known_hosts
         run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "Adding host: ${{ secrets.EC2_HOST }}"
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy build output
@@ -40,11 +43,11 @@ jobs:
           rsync -avz --delete \
             --exclude='.git' \
             --exclude='node_modules' \
-            ./ \
+            .next package.json package-lock.json public \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/apps/1000meal-fe/
 
           ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
           cd ~/apps/1000meal-fe
-          npm ci --omit=dev   # devDependencies는 안 깔아도 됨
+          npm ci --omit=dev
           pm2 restart 1000meal-fe || pm2 start npm --name "1000meal-fe" -- run start
           EOF
