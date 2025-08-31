@@ -3,7 +3,7 @@
 import Header from "@/components/common/Header";
 import { useRouter } from "next/navigation";
 
-export default function MenuEditorHeader({ onSave, onBack }: { onSave: () => void; onBack: () => void }) {
+export default function MenuEditorHeader({ onSave }: { onSave: () => void; }) {
   const router = useRouter();
   return (
     <Header

@@ -41,7 +41,7 @@ export default function MenuEditorLayout({
 }) {
   return (
     <div className="w-full min-h-dvh bg-white pt-[56px]">
-      <MenuEditorHeader onSave={onSave} onBack={onBack} />
+      <MenuEditorHeader onSave={onSave} />
 
       {extraTop}
 
