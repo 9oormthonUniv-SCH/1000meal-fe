@@ -29,7 +29,7 @@ jobs:
       - name: Prepare build artifact
         run: |
           mkdir -p deploy
-          cp -r .next package.json next.config.js public deploy/
+          cp -r .next package.json next.config.ts public deploy/
           npm prune --omit=dev
           cp -r node_modules deploy/
           cd deploy && tar -czf ../build.tar.gz .
