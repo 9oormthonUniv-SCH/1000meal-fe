@@ -9,9 +9,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # ======================
+      # 1. Checkout
+      # ======================
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # ======================
+      # 2. Node.js & Build
+      # ======================
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -26,21 +32,70 @@ jobs:
           NEXT_PUBLIC_KAKAO_MAP_KEY: ${{ secrets.NEXT_PUBLIC_KAKAO_MAP_KEY }}
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
 
+      # ======================
+      # 3. SSH Agent Setup
+      # ======================
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-      - name: Deploy build output
+      - name: Prepare known_hosts
         run: |
-          rsync -e "ssh -o StrictHostKeyChecking=no" -avz --delete \
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "🔍 Adding EC2 host to known_hosts: ${{ secrets.EC2_HOST }}"
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts 2>&1 || true
+          cat ~/.ssh/known_hosts
+
+      # ======================
+      # 4. Debugging Network
+      # ======================
+      - name: Debug network connectivity
+        run: |
+          echo "🌐 Testing DNS resolution"
+          nslookup ${{ secrets.EC2_HOST }} || true
+          echo "🌐 Testing ping"
+          ping -c 3 ${{ secrets.EC2_HOST }} || true
+          echo "🌐 Testing SSH port"
+          nc -zv ${{ secrets.EC2_HOST }} 22 || true
+
+      # ======================
+      # 5. SSH Connection Test
+      # ======================
+      - name: Test SSH connection
+        run: |
+          echo "🔑 Testing SSH connection to EC2..."
+          ssh -v -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "echo ✅ SSH Connected"
+
+      # ======================
+      # 6. Deploy with rsync
+      # ======================
+      - name: Rsync files to EC2
+        run: |
+          echo "🚀 Starting rsync..."
+          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" \
             --exclude='.git' \
             --exclude='node_modules' \
             ./ \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/apps/1000meal-fe/
 
+      # ======================
+      # 7. Remote Commands
+      # ======================
+      - name: Run remote commands
+        run: |
+          echo "🚀 Running remote deploy commands..."
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+          set -e
+          echo "📂 Entering project directory..."
           cd ~/apps/1000meal-fe
+
+          echo "📦 Installing production dependencies..."
           npm ci --omit=dev
+
+          echo "🔄 Restarting PM2..."
           pm2 restart 1000meal-fe || pm2 start npm --name "1000meal-fe" -- run start
+
+          echo "✅ Deploy finished successfully!"
           EOF
