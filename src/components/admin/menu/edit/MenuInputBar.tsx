@@ -3,6 +3,8 @@
 import { mockFrequentMenus } from "@/constants/mockStores";
 import { useState } from "react";
 
+type WeeklyMenusByWeek = Record<string, Record<string, string[]>>;
+
 export default function MenuInputBar({
   input,
   setInput,
@@ -15,7 +17,7 @@ export default function MenuInputBar({
   input: string;
   setInput: (v: string) => void;
   addMenu: () => void;
-  setMenusByWeek: any;
+  setMenusByWeek: React.Dispatch<React.SetStateAction<WeeklyMenusByWeek>>;
   setDirty: (v: boolean) => void;
   selectedId: string;
   mondayId: string;
@@ -50,7 +52,7 @@ export default function MenuInputBar({
               <li
                 key={i}
                 onClick={() => {
-                  setMenusByWeek((prev: any) => ({
+                  setMenusByWeek((prev) => ({
                     ...prev,
                     [mondayId]: {
                       ...(prev[mondayId] ?? {}),

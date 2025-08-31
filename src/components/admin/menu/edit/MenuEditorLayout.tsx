@@ -6,6 +6,8 @@ import MenuInputBar from "@/components/admin/menu/edit/MenuInputBar";
 import MenuList from "@/components/admin/menu/edit/MenuList";
 import { ReactNode } from "react";
 
+type WeeklyMenusByWeek = Record<string, Record<string, string[]>>;
+
 export default function MenuEditorLayout({
   stack,
   input, setInput,
@@ -16,14 +18,14 @@ export default function MenuEditorLayout({
   dirty, showConfirm, setShowConfirm,
   pendingAction, setPendingAction,
   loading,
-  extraTop, // WeekNavigator 같은 추가 UI 넣을 수 있음
+  extraTop,
 }: {
   stack: string[];
   input: string;
   setInput: (v: string) => void;
   addMenu: () => void;
   removeMenu: (i: number) => void;
-  setMenusByWeek: any;
+  setMenusByWeek: React.Dispatch<React.SetStateAction<WeeklyMenusByWeek>>;
   setDirty: (v: boolean) => void;
   selectedId: string;
   mondayId: string;
