@@ -24,6 +24,10 @@ export default function AdminMenuEditPage() {
   const [dirty, setDirty] = useState(false);
   const [input, setInput] = useState("");
 
+  // ✅ 모달 관련 상태
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
+
   // ✅ 날짜 변경시 API 호출
   useEffect(() => {
     if (!storeId) return;
@@ -32,6 +36,7 @@ export default function AdminMenuEditPage() {
       try {
         const res = await getDailyMenu(storeId, selectedId);
         setMenus(res?.menus ?? []);
+        setDirty(false);
       } finally {
         setLoading(false);
       }
@@ -56,7 +61,17 @@ export default function AdminMenuEditPage() {
     setDirty(false);
   };
 
-  const monday = mondayOf(dayjs(selectedId));console.log("선택된 날짜", selectedId);
+  const monday = mondayOf(dayjs(selectedId));
+
+  // ✅ 뒤로가기 wrapper
+  const handleBack = () => {
+    if (dirty) {
+      setPendingAction(() => () => router.back());
+      setShowConfirm(true);
+      return;
+    }
+    router.back();
+  };
 
   return (
     <MenuEditorLayout
@@ -65,8 +80,9 @@ export default function AdminMenuEditPage() {
       addMenu={addMenu} removeMenu={removeMenu}
       setMenusByWeek={() => {}} setDirty={setDirty}
       selectedId={selectedId} mondayId={monday.format("YYYY-MM-DD")}
-      onSave={save} showConfirm={false}
-      setShowConfirm={() => {}} pendingAction={null} setPendingAction={() => {}}
+      onSave={save}
+      showConfirm={showConfirm} setShowConfirm={setShowConfirm}
+      pendingAction={pendingAction} setPendingAction={setPendingAction}
       loading={loading}
       extraTop={
         <WeekNavigator
@@ -74,10 +90,27 @@ export default function AdminMenuEditPage() {
           selectedId={selectedId}
           onShiftWeek={(delta) => {
             const nextMonday = monday.add(delta, "week");
+            if (dirty) {
+              setPendingAction(() =>
+                () => router.push(`/admin/menu/edit/${nextMonday.format("YYYY-MM-DD")}`)
+              );
+              setShowConfirm(true);
+              return;
+            }
             router.push(`/admin/menu/edit/${nextMonday.format("YYYY-MM-DD")}`);
+          }}
+          onSelectDate={(id) => {
+            if (dirty) {
+              setPendingAction(() => () => router.push(`/admin/menu/edit/${id}`));
+              setShowConfirm(true);
+              return;
+            }
+            router.push(`/admin/menu/edit/${id}`);
           }}
         />
       }
+      // ✅ 뒤로가기 핸들러 내려줌
+      onBack={handleBack}
     />
   );
 }

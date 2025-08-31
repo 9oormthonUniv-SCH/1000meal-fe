@@ -8,6 +8,8 @@ import { ReactNode } from "react";
 
 type WeeklyMenusByWeek = Record<string, Record<string, string[]>>;
 
+// MenuEditorLayout.tsx
+
 export default function MenuEditorLayout({
   stack,
   input, setInput,
@@ -18,6 +20,7 @@ export default function MenuEditorLayout({
   pendingAction, setPendingAction,
   loading,
   extraTop,
+  onBack, // ✅ 추가
 }: {
   stack: string[];
   input: string;
@@ -35,10 +38,12 @@ export default function MenuEditorLayout({
   setPendingAction: (v: (() => void) | null) => void;
   loading: boolean;
   extraTop?: ReactNode;
+  onBack: () => void; // ✅ 타입 정의
 }) {
   return (
     <div className="w-full min-h-dvh bg-white pt-[56px]">
-      <MenuEditorHeader onSave={onSave} />
+      {/* ✅ 뒤로가기 핸들러 전달 */}
+      <MenuEditorHeader onSave={onSave} onBack={onBack} />
 
       {extraTop}
 

@@ -1,10 +1,14 @@
 'use client';
 
 import Header from "@/components/common/Header";
-import { useRouter } from "next/navigation";
 
-export default function MenuEditorHeader({ onSave }: { onSave: () => void; }) {
-  const router = useRouter();
+export default function MenuEditorHeader({
+  onSave,
+  onBack, // ✅ 새로 추가
+}: {
+  onSave: () => void;
+  onBack: () => void; // ✅ 타입 정의
+}) {
   return (
     <Header
       title="메뉴 수정"
@@ -16,7 +20,7 @@ export default function MenuEditorHeader({ onSave }: { onSave: () => void; }) {
           저장
         </button>
       }
-      onBack={() => router.push("/admin/menu")}
+      onBack={onBack} // ✅ 여기서 그대로 사용
     />
   );
 }

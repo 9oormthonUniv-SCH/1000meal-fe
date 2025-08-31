@@ -3,12 +3,12 @@
 import clsx from 'clsx';
 import { Dayjs } from 'dayjs';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 
 type Props = {
   monday: Dayjs;                  // 주의 월요일
   selectedId: string;             // YYYY-MM-DD
   onShiftWeek: (deltaWeeks: number) => void; // -1: 이전주, +1: 다음주
+  onSelectDate: (id: string) => void;
 };
 
 const dayNames = ['월','화','수','목','금','토','일'];
@@ -17,8 +17,8 @@ export default function WeekNavigator({
   monday,
   selectedId,
   onShiftWeek,
+  onSelectDate,
 }: Props) {
-  const router = useRouter();
   const days = Array.from({ length: 7 }).map((_, i) =>
     monday.clone().add(i, "day")
   );
@@ -43,7 +43,7 @@ export default function WeekNavigator({
             return (
               <button
                 key={id}
-                onClick={() => router.push(`/admin/menu/edit/${id}`)} // ✅ 이동
+                onClick={() => onSelectDate(id)} // ✅ 이동
                 className={clsx(
                   'flex flex-col items-center justify-center min-w-[44px] h-[56px] rounded-xl px-2 transition-colors',
                   isSelected
