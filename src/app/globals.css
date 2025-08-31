@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ✅ 커스텀 글로벌 스타일 추가 */
+html,
+body {
+  @apply bg-gray-100 text-gray-800;
+  font-family: 'Inter', sans-serif;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+a {
+  @apply text-blue-600 hover:underline;
+}
+
+button {
+  @apply cursor-pointer;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0%);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out forwards;
+}
+
+:root {
+  --safe-area-inset-bottom: env(safe-area-inset-bottom);
+}
+
+body {
+  padding-bottom: var(--safe-area-inset-bottom);
+}
+
+/* 스크롤바 숨기기 (크로스 브라우저) */
+.scrollbar-hide {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE, Edge */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.scroll-area {
+  height: 100dvh;             /* iOS 하단바 대응 */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* iOS 부드러운 스크롤 */
+  overscroll-behavior-y: contain;    /* 안드로이드 Chrome PTR 차단 */
+}
+
+#app-main {
+  overflow-y: auto;                  /* 이미 클래스에 있지만 안전하게 한 번 더 명시 가능 */
+  -webkit-overflow-scrolling: touch; /* iOS 부드러운 스크롤 */
+  overscroll-behavior-y: contain;    /* 바디/브라우저 네이티브 PTR 전파 방지 */
+  touch-action: pan-y;               /* 세로 스크롤 허용(가로 제스처는 가드) */
+}
