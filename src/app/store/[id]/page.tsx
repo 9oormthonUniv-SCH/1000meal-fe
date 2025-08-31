@@ -27,6 +27,7 @@ export default function StoreDetailPage(
 
   const { data: storeList = []} =
     useApi<StoreListItem[]>(getStoreList, []);
+  console.log(store);
 
   if (loading && !store) {
     return (

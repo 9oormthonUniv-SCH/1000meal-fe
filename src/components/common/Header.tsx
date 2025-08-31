@@ -3,10 +3,24 @@
 import { useRouter } from 'next/navigation';
 import { ReactNode } from 'react';
 
-interface Props { title: string; rightElement?: ReactNode; }
+interface Props {
+  title: string;
+  rightElement?: ReactNode;
+  onBack?: () => void; // ✅ 추가
+}
 
-export default function Header({ title, rightElement }: Props) {
+export default function Header({ title, rightElement, onBack }: Props) {
   const router = useRouter();
+
+  const handleBack = () => {
+    console.log(onBack);
+    if (onBack) {
+      onBack();       // ✅ 부모에서 제어
+    } else {
+      router.back();  // ✅ 기본 동작
+    }
+  };
+
   return (
     <div
       id="app-header"
@@ -17,7 +31,7 @@ export default function Header({ title, rightElement }: Props) {
       "
     >
       <button
-        onClick={() => router.back()}
+        onClick={handleBack}
         className="absolute left-4 text-2xl text-gray-700"
       >
         ←

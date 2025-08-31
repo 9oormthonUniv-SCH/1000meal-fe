@@ -1,3 +1,5 @@
+import { FrequentMenuGroup } from "@/types/menu";
+
 export const notices = [
   {
     id: '1',
@@ -48,5 +50,23 @@ export const mockNotifications = [
     message: '[향설1관] 수량이 빠르게 줄어들고 있어요!',
     time: '1분 전',
     read: true,
+  },
+];
+
+export const mockFrequentMenus: FrequentMenuGroup[] = [
+  {
+    id: "morning-set",
+    name: "아침 세트",
+    items: ["소보로빵", "아메리카노", "요거트", "과일"],
+  },
+  {
+    id: "lunch-special",
+    name: "점심 특선",
+    items: ["돈까스", "샐러드"],
+  },
+  {
+    id: "korean-basic",
+    name: "한식 기본",
+    items: ["김치찌개", "계란말이", "밥"],
   },
 ];

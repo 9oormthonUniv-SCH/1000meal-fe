@@ -4,8 +4,8 @@ import { storeIdAtom } from '@/atoms/user';
 import ErrorMessage from '@/components/common/ErrorMessage';
 import Header from '@/components/common/Header';
 import { ApiError, ServerErrorBody } from '@/lib/api/errors';
-import { getWeeklyMenu, updateDailyStock } from '@/lib/api/menus/endpoints';
-import { WeeklyMenuResponse } from '@/types/menu';
+import { getDailyMenu, updateDailyStock } from '@/lib/api/menus/endpoints';
+import { DailyMenuResponse } from '@/types/menu';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
 import { useAtomValue } from 'jotai';
@@ -29,12 +29,16 @@ export default function InventoryPage() {
     if (!storeId) return;
     (async () => {
       try {
-        const res: WeeklyMenuResponse = await getWeeklyMenu(storeId);
-        const todayMenu = res.dailyMenus.find(d => d.date === today);
-        if (todayMenu) {
-          setMenuId(todayMenu.id);
-          setStock(todayMenu.stock ?? 0);
-          setOpen(todayMenu.open ?? false);
+        const res: DailyMenuResponse | null = await getDailyMenu(storeId, today);
+        if (res) {
+          setMenuId(res.id);
+          setStock(res.stock ?? 0);
+          setOpen(res.open ?? false);
+        } else {
+          // 메뉴 없음 = 정상 (초기값 유지)
+          setMenuId(null);
+          setStock(0);
+          setOpen(false);
         }
         setErrorMsg(null);
       } catch (e: unknown) {

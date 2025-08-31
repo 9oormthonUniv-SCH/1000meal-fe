@@ -3,11 +3,11 @@
 import clsx from 'clsx';
 import { Dayjs } from 'dayjs';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 type Props = {
   monday: Dayjs;                  // 주의 월요일
   selectedId: string;             // YYYY-MM-DD
-  onSelect: (id: string) => void; // 하루 선택
   onShiftWeek: (deltaWeeks: number) => void; // -1: 이전주, +1: 다음주
 };
 
@@ -16,10 +16,12 @@ const dayNames = ['월','화','수','목','금','토','일'];
 export default function WeekNavigator({
   monday,
   selectedId,
-  onSelect,
   onShiftWeek,
 }: Props) {
-  const days = Array.from({ length: 7 }).map((_, i) => monday.add(i, 'day'));
+  const router = useRouter();
+  const days = Array.from({ length: 7 }).map((_, i) =>
+    monday.clone().add(i, "day")
+  );
 
   return (
     <div className="px-3 py-2 bg-white border-b">
@@ -41,18 +43,15 @@ export default function WeekNavigator({
             return (
               <button
                 key={id}
-                onClick={() => onSelect(id)}
+                onClick={() => router.push(`/admin/menu/edit/${id}`)} // ✅ 이동
                 className={clsx(
                   'flex flex-col items-center justify-center min-w-[44px] h-[56px] rounded-xl px-2 transition-colors',
                   isSelected
-                    ? 'border-2 border-orange-400 text-orange-500 bg-orange-50'
+                    ? 'border border-orange-400'
                     : 'text-gray-700 hover:bg-gray-50 border border-transparent'
                 )}
               >
-                <span className={clsx(
-                  'text-xs mb-0.5',
-                  isSelected ? 'text-orange-500' : 'text-gray-500'
-                )}>
+                <span className='text-xs mb-0.5 text-gray-500'>
                   {dayNames[idx]}
                 </span>
                 <span className="text-base font-semibold">
@@ -67,7 +66,7 @@ export default function WeekNavigator({
         <button
           aria-label="다음 주"
           onClick={() => onShiftWeek(1)}
-          className=" rounded-lg hover:bg-gray-100"
+          className="rounded-lg hover:bg-gray-100"
         >
           <ChevronRight className="w-5 h-5 text-gray-700" />
         </button>

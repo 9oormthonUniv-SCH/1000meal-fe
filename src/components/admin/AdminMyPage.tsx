@@ -57,7 +57,7 @@ export default function AdminMyPage() {
 
   return (
     <div className="w-full h-dvh pt-[56px]">
-      <Header title="" />
+      <Header title="" onBack={() => router.push("/")}/>
       <div className="bg-white-100 px-4">
         {/* 상단 영역 */}
         <div className="bg-white rounded-2xl p-4 mt-4 mb-4 relative shadow-even">

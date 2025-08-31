@@ -1,4 +1,3 @@
-// components/admin/menu/PullToAddMenu.tsx
 'use client';
 
 import React, { ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -7,6 +6,7 @@ import type { PullPhase } from './PullIndicator';
 type Props = {
   children: ReactNode;
   onRefresh: () => Promise<void> | void;
+  onReachEnd?: () => Promise<void> | void; // ✅ 아래 도달 이벤트
   rootId?: string;
   easeExp?: number; // 당김 감쇠
   renderIndicator: (ctx: { progress: number; phase: PullPhase }) => ReactNode;
@@ -15,6 +15,7 @@ type Props = {
 export default function PullToAddMenu({
   children,
   onRefresh,
+  onReachEnd,
   rootId = 'app-main',
   easeExp = 1,
   renderIndicator,
@@ -24,11 +25,12 @@ export default function PullToAddMenu({
   useEffect(() => { pullYRef.current = pullY; }, [pullY]);
 
   const [phase, setPhase] = useState<PullPhase>('idle');
-
   const [offsetTop, setOffsetTop] = useState(0);
-
   const [indicatorH, setIndicatorH] = useState(80);
   const measureRef = useRef<HTMLDivElement>(null);
+
+  // ✅ 하단 센티널 ref
+  const endRef = useRef<HTMLDivElement | null>(null);
 
   useLayoutEffect(() => {
     const header = document.getElementById('app-header');
@@ -42,18 +44,17 @@ export default function PullToAddMenu({
     updateTop();
 
     const roTop = new ResizeObserver(updateTop);
-    if (header) roTop.observe(header);            // ✅ if 문으로 변경
-    if (bar) roTop.observe(bar);                  // ✅ if 문으로 변경
+    if (header) roTop.observe(header);
+    if (bar) roTop.observe(bar);
     window.addEventListener('resize', updateTop);
 
-    // 인디케이터 높이 측정
     const updateH = () => {
       const h = measureRef.current?.getBoundingClientRect().height ?? 0;
       if (h > 0) setIndicatorH(h);
     };
     updateH();
     const roH = new ResizeObserver(updateH);
-    if (measureRef.current) roH.observe(measureRef.current); // ✅ if 문으로 변경
+    if (measureRef.current) roH.observe(measureRef.current);
 
     return () => {
       roTop.disconnect();
@@ -62,13 +63,28 @@ export default function PullToAddMenu({
     };
   }, []);
 
-  // 제스처 스냅샷
+  // ✅ 하단 감지 (무한 스크롤)
+  useEffect(() => {
+    if (!onReachEnd || !endRef.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          onReachEnd();
+        }
+      },
+      { threshold: 1.0 }
+    );
+    observer.observe(endRef.current);
+    return () => observer.disconnect();
+  }, [onReachEnd]);
+
+  // pull-to-refresh 로직 (생략 부분은 그대로)
   const startYRef = useRef(0);
   const isTouchRef = useRef(false);
   const pulledRef = useRef(false);
   const readyRef = useRef(false);
-
   const rafRef = useRef<number | null>(null);
+
   const setPullRaf = (v: number) => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(() => setPullY(v));
@@ -155,10 +171,9 @@ export default function PullToAddMenu({
         {renderIndicator({ progress: 1, phase: 'pull' })}
       </div>
 
-      {/* 레이아웃을 실제로 미는 스페이서 */}
+      {/* 당김 인디케이터 */}
       <div className="sticky top-0 z-20 bg-transparent">
         <div className="overflow-hidden" style={{ height: `${visible}px` }}>
-          {/* 인디케이터 내용: 위에서 아래로 슬라이드 */}
           <div style={{ transform: `translateY(${visible - indicatorH}px)` }}>
             {phase === 'loading'
               ? renderIndicator({ progress: 1, phase: 'loading' })
@@ -167,7 +182,7 @@ export default function PullToAddMenu({
         </div>
       </div>
 
-      {/* 제스처 영역 */}
+      {/* 제스처 + 컨텐츠 */}
       <div
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
@@ -177,6 +192,8 @@ export default function PullToAddMenu({
         onMouseUp={handleMouseUp}
       >
         {children}
+        {/* ✅ 무한 스크롤 센티널 */}
+        {onReachEnd && <div ref={endRef} className="h-1" />}
       </div>
     </div>
   );
