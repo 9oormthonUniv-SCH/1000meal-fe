@@ -12,6 +12,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Next.js
+        run: npm run build
+        env:
+          NEXT_PUBLIC_KAKAO_MAP_KEY: ${{ secrets.NEXT_PUBLIC_KAKAO_MAP_KEY }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.9.0
         with:
@@ -19,33 +33,18 @@ jobs:
 
       - name: Add EC2 to known_hosts
         run: |
-          echo "${{ secrets.EC2_HOST }}"
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} 2>/dev/null >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Test SSH Connection
+      - name: Deploy build output
         run: |
-          ssh -v ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} exit
-          
-      - name: Deploy to EC2
-        run: |
+          rsync -avz --delete \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            ./ \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/apps/1000meal-fe/
+
           ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-          set -e
-          mkdir -p ~/apps
-          cd ~/apps
-
-          if [ ! -d "1000meal-fe" ]; then
-            git clone https://x-access-token:${{ secrets.GH_PAT }}@github.com/9oormthonUniv-SCH/1000meal-fe.git 1000meal-fe
-          fi
-
-          cd 1000meal-fe
-          git fetch origin main
-          git reset --hard origin/main
-
-          echo "NEXT_PUBLIC_KAKAO_MAP_KEY=${{ secrets.NEXT_PUBLIC_KAKAO_MAP_KEY }}" > .env.local
-          echo "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" >> .env.local
-
-          npm ci
-          npm run build
-
+          cd ~/apps/1000meal-fe
+          npm ci --omit=dev   # devDependencies는 안 깔아도 됨
           pm2 restart 1000meal-fe || pm2 start npm --name "1000meal-fe" -- run start
           EOF
