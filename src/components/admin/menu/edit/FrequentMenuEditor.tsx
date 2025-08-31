@@ -7,7 +7,7 @@ export default function FrequentMenuEditor({ isNew, id }: { isNew: boolean; id?:
   const {
     items,
     input, setInput,
-    dirty, setDirty,
+    setDirty,
     showConfirm, setShowConfirm,
     pendingAction, setPendingAction,
     addMenu, removeMenu,
@@ -22,7 +22,7 @@ export default function FrequentMenuEditor({ isNew, id }: { isNew: boolean; id?:
       setMenusByWeek={() => {}} setDirty={setDirty}
       selectedId={id ?? "new"} mondayId="frequent"
       onSave={save} onBack={handleBack}
-      dirty={dirty} showConfirm={showConfirm}
+      showConfirm={showConfirm}
       setShowConfirm={setShowConfirm}
       pendingAction={pendingAction} setPendingAction={setPendingAction}
       loading={false}
