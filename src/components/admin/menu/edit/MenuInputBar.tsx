@@ -30,22 +30,25 @@ export default function MenuInputBar({
   const { lists } = useFavorites(storeId ?? undefined);
 
   return (
-    <div className="relative flex items-center gap-2 mt-2 px-4 pt-4 pb-1">
+    <div className="relative flex items-center gap-2 mt-2 px-4 pt-4 pb-1 w-full">
       <button
         onClick={() => setShowFrequent(!showFrequent)}
-        className="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-200"
+        className="min-w-[40px] h-10 flex items-center justify-center rounded-lg bg-gray-200"
       >
         ☰
       </button>
+
       <input
         value={input}
         onChange={(e) => setInput(e.target.value)}
         placeholder="메뉴 입력"
-        className="flex-1 px-3 py-2 border rounded-xl text-base sm:text-sm"
+        className="flex-1 px-3 py-2 border rounded-xl text-base sm:text-sm min-w-0"
+        // ✅ flex-1 + min-w-0 → 좁아져도 인풋이 자연스럽게 줄어듦
       />
+
       <button
         onClick={() => addMenu()}
-        className="px-3 py-2 bg-gray-200 text-black rounded-xl text-sm"
+        className="min-w-[60px] px-3 py-2 bg-gray-200 text-black rounded-xl text-sm shrink-0"
       >
         입력
       </button>

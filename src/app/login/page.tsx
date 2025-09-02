@@ -74,7 +74,6 @@ export default function LoginPage() {
     <div className="flex flex-col pt-[56px]">
       <Header title="" onBack={()=>{router.push('/')}}/>
       <LoginForm
-        defaultRole="STUDENT"
         onSubmit={handleSubmit}
         externalLoading={loading}
         errorMessage={errMsg} // ✅ 여기에 그대로 표시됨
