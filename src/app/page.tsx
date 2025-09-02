@@ -22,6 +22,7 @@ export default function HomePage() {
 
   const { data: storeList = [], loading, error, reload } =
     useApi<StoreListItem[]>(getStoreList, [pathname]);
+    console.log("storeList", storeList);
   return (
     <main
       className={`relative max-w-md px-4 py-6 transition-all ${

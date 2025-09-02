@@ -36,7 +36,7 @@ function buildEmptyWeek(base: dayjs.Dayjs): DayMenu[] {
 
 export function useWeeklyMenus(storeId?: number, initialDate?: string) {
   const [weeks, setWeeks] = useState<DayMenu[][]>([]);
-  const loadedWeeksRef = useRef<Set<string>>(new Set()); // ✅ useRef로 변경 (state 아님)
+  const loadedWeeksRef = useRef<Set<string>>(new Set());
 
   const loadWeek = useCallback(
     async (baseDate: string, direction: "prev" | "next", force = false) => {
@@ -67,23 +67,18 @@ export function useWeeklyMenus(storeId?: number, initialDate?: string) {
         );
       }
     },
-    [storeId] // ✅ loadedWeeks 제거
+    [storeId]
   );
 
   useEffect(() => {
     if (!storeId) return;
+  
     const start = initialDate ?? dayjs().format("YYYY-MM-DD");
-
-    setWeeks([]);
-    loadedWeeksRef.current = new Set(); // 초기화
-
-    (async () => {
-      let base = dayjs(start);
-      for (let i = 0; i < 4; i++) {
-        await loadWeek(mondayOf(base).format("YYYY-MM-DD"), "next", true);
-        base = base.add(1, "week");
-      }
-    })();
+    const mondayId = mondayOf(dayjs(start)).format("YYYY-MM-DD");
+  
+    if (loadedWeeksRef.current.size === 0) {
+      loadWeek(mondayId, "next", true);
+    }
   }, [storeId, initialDate, loadWeek]);
 
   return { weeks, loadWeek };

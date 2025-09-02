@@ -14,8 +14,10 @@ export default function MyPage() {
   const [loading, setLoading] = useState(true);
 
   const clearCookiesAndLogout = () => {
-    document.cookie = 'accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    document.cookie = 'role=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    document.cookie =
+      'accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    document.cookie =
+      'role=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     router.replace('/login');
   };
 
@@ -27,10 +29,10 @@ export default function MyPage() {
         return;
       }
       try {
-        console.log("token:", accessToken);
         const user = await getMe(accessToken);
         setMe(user);
       } catch (e: unknown) {
+        console.log(e);
         if (e instanceof ApiError && e.status === 401) {
           router.replace('/login');
         } else {
@@ -42,25 +44,51 @@ export default function MyPage() {
     })();
   }, [router]);
 
-  if (loading) return <div>불러오는 중...</div>;
+  if (loading) return <div className="p-6">불러오는 중...</div>;
   if (!me) return null;
 
   return (
-    <div className="flex flex-col pt-[56px]">
+    <div className="flex flex-col pt-[56px] bg-gray-100 min-h-dvh">
       <Header title="마이페이지" />
 
-      <div className="p-5 flex flex-col gap-8">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h1 className="text-2xl font-bold mb-6">내 정보</h1>
-          <p className="text-base text-gray-700 mb-3">아이디: {me.accountId}</p>
-          <p className="text-base text-gray-700 mb-3">이름: {me.username}</p>
-          <p className="text-base text-gray-700 mb-3">이메일: {me.email}</p>
-          <p className="text-base text-gray-700 mb-6">역할: {me.role}</p>
+      <div className="flex flex-col">
+        <div className="bg-white pb-6">
+          {/* 🔹 프로필 카드 */}
+          <div className="bg-white rounded-xl shadow-even mt-2 mx-4 p-4 flex items-center justify-between">
+            {/* 왼쪽: 프로필 사진 */}
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-2xl">
+                👤
+              </div>
+              <div className="flex flex-col">
+                <p className="text-md font-bold">{me.username}</p>
+                <p className="text-sm text-gray-500">{me.email}</p>
+              </div>
+            </div>
+
+            {/* 오른쪽: 역할 뱃지 */}
+            <span className="text-xs px-2 py-1 rounded-full bg-orange-100 text-orange-600">
+              {me.role === 'STUDENT' ? '학생' : me.role}
+            </span>
+          </div>
+        </div>
+
+        {/* 🔹 메뉴 리스트 */}
+        <div className="bg-white mt-6 divide-y">
+          <button className="w-full text-left px-5 py-4 text-gray-700 hover:bg-gray-50">
+            회원정보 수정
+          </button>
+          <button className="w-full text-left px-5 py-4 text-gray-700 hover:bg-gray-50">
+            비밀번호 변경
+          </button>
           <button
-            className="bg-red-500 text-white rounded-lg px-4 py-2"
+            className="w-full text-left px-5 py-4 text-gray-700 hover:bg-gray-50"
             onClick={clearCookiesAndLogout}
           >
             로그아웃
+          </button>
+          <button className="w-full text-left px-5 py-4 text-red-500 hover:bg-gray-50">
+            회원탈퇴
           </button>
         </div>
       </div>

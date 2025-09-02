@@ -1,6 +1,8 @@
 'use client';
 
-import { mockFrequentMenus } from "@/constants/mockStores";
+import { storeIdAtom } from "@/atoms/user";
+import { useFavorites } from "@/lib/hooks/useFavorites";
+import { useAtomValue } from "jotai";
 import { useState } from "react";
 
 type WeeklyMenusByWeek = Record<string, Record<string, string[]>>;
@@ -16,13 +18,16 @@ export default function MenuInputBar({
 }: {
   input: string;
   setInput: (v: string) => void;
-  addMenu: () => void;
+  addMenu: (menuText?: string) => void;
   setMenusByWeek: React.Dispatch<React.SetStateAction<WeeklyMenusByWeek>>;
   setDirty: (v: boolean) => void;
   selectedId: string;
   mondayId: string;
 }) {
   const [showFrequent, setShowFrequent] = useState(false);
+
+  const storeId = useAtomValue(storeIdAtom);
+  const { lists } = useFavorites(storeId ?? undefined);
 
   return (
     <div className="relative flex items-center gap-2 mt-2 px-4 pt-4 pb-1">
@@ -39,7 +44,7 @@ export default function MenuInputBar({
         className="flex-1 px-3 py-2 border rounded-xl text-sm"
       />
       <button
-        onClick={addMenu}
+        onClick={() => addMenu()}
         className="px-3 py-2 bg-gray-200 text-black rounded-xl text-sm"
       >
         입력
@@ -48,10 +53,13 @@ export default function MenuInputBar({
       {showFrequent && (
         <div className="absolute top-full left-5 w-[285px] bg-white rounded-xl shadow-lg border z-50">
           <ul className="divide-y">
-            {mockFrequentMenus.map((group, i) => (
+            {lists.map((group) => (
               <li
-                key={i}
+                key={group.id}
                 onClick={() => {
+                  group.items.forEach(item => addMenu(item));
+              
+                  // menusByWeek에도 반영
                   setMenusByWeek((prev) => ({
                     ...prev,
                     [mondayId]: {

@@ -1,4 +1,3 @@
-// src/lib/hooks/useApi.ts
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState, type DependencyList } from 'react';
@@ -22,34 +21,45 @@ export function useApi<T>(
   const [error, setError] = useState<string | null>(null);
 
   const abortRef = useRef<AbortController | null>(null);
+  const mountedRef = useRef<boolean>(false); // ✅ 누락된 부분 추가
 
   const load = useCallback(async () => {
+    // 이전 요청 취소
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
-  
+
     setLoading(true);
     setError(null);
-  
+
     try {
       const res = await fetcher(controller.signal);
+      if (!mountedRef.current) return; // 언마운트되면 무시
       setData(res);
     } catch (err: unknown) {
-      // ✅ AbortError는 에러로 표시하지 않고, return 하지 않음 (finally가 실행되도록)
-      if (!(err instanceof DOMException && err.name === 'AbortError')) {
+      const isAbort =
+        (err instanceof DOMException && err.name === 'AbortError') ||
+        (err instanceof Error && err.name === 'AbortError');
+
+      if (!isAbort) {
         const message = err instanceof Error ? err.message : '요청에 실패했습니다.';
-        setError(message);
+        if (mountedRef.current) setError(message);
       }
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   }, [fetcher]);
 
   useEffect(() => {
-    if (!enabled) return;
-    void load();
-    return () => abortRef.current?.abort();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+    mountedRef.current = true;
+    if (enabled) void load();
+
+    return () => {
+      // ✅ 순서: abort 먼저, flag false 나중에
+      abortRef.current?.abort();
+      mountedRef.current = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, load, ...deps]);
 
   return { data, loading, error, reload: load };
@@ -57,13 +67,9 @@ export function useApi<T>(
 
 /**
  * 파라미터 있는 fetcher 전용
- * - fetcher: (args, signal?) => Promise<T>
- * - args 변화에 따라 자동 재요청
  */
 type UseApiWithParamsOptions<T, A> = UseApiOptions<T> & {
-  /** args 변경 비교용 커스텀 직렬화 함수 (기본: JSON.stringify) */
   serializeArgs?: (args: A) => string;
-  /** 추가 의존성 (args 외) */
   deps?: DependencyList;
 };
 
@@ -79,10 +85,9 @@ export function useApiWithParams<T, A>(
     deps = [],
   } = options;
 
-  // args를 캡쳐한 fetcher 생성
   const memoized = useMemo(
     () => (signal?: AbortSignal) => fetcher(args, signal),
-    // fetcher 참조와 args 키가 변할 때만 갱신
+    // args 직렬화 결과가 바뀔 때만 새로운 fetcher 생성
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [fetcher, serializeArgs(args)]
   );

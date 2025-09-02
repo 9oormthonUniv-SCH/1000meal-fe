@@ -72,7 +72,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-col pt-[56px]">
-      <Header title="" />
+      <Header title="" onBack={()=>{router.push('/')}}/>
       <LoginForm
         defaultRole="STUDENT"
         onSubmit={handleSubmit}

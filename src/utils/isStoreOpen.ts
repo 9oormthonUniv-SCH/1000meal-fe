@@ -1,13 +1,19 @@
-// utils/isStoreOpen.ts
-export function isStoreOpen(hours: string, remain: number): boolean {
-  if (remain <= 0) return false;
+// src/utils/isStoreOpen.ts
+export function isStoreOpen(hours?: string): boolean {
+  if (!hours || typeof hours !== "string") {
+    return false; // ⬅️ hours 없으면 기본값 false
+  }
+
+  const [open, close] = hours.split("~").map((s) => s.trim());
+  if (!open || !close) return false;
 
   const now = new Date();
-  const [startTimeStr] = hours.split('~').map((s) => s.trim()); // "08:00"
+  const [openH, openM] = open.split(":").map(Number);
+  const [closeH, closeM] = close.split(":").map(Number);
 
-  const [startHour, startMinute] = startTimeStr.split(':').map(Number);
-  const startTime = new Date();
-  startTime.setHours(startHour, startMinute, 0, 0);
+  const openMinutes = openH * 60 + openM;
+  const closeMinutes = closeH * 60 + closeM;
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
 
-  return now >= startTime;
+  return nowMinutes >= openMinutes && nowMinutes <= closeMinutes;
 }

@@ -1,11 +1,14 @@
 'use client';
 
-import { mockFrequentMenus } from "@/constants/mockStores";
+import { storeIdAtom } from "@/atoms/user";
+import { getFavorites, saveFavorites } from "@/lib/api/favorites/endpoints";
+import { useAtomValue } from "jotai";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export function useFrequentMenuEditor(isNew: boolean, id?: string) {
   const router = useRouter();
+  const storeId = useAtomValue(storeIdAtom);
 
   const [items, setItems] = useState<string[]>([]);
   const [input, setInput] = useState("");
@@ -13,19 +16,22 @@ export function useFrequentMenuEditor(isNew: boolean, id?: string) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [pendingAction, setPendingAction] = useState<null | (() => void)>(null);
 
-  // ✅ id 있으면 mock 데이터 불러오기
+  // 그룹 불러오기
   useEffect(() => {
-    if (!isNew && id) {
-      const found = mockFrequentMenus.find(m => m.id === id);
-      if (found) setItems(found.items);
+    if (!isNew && storeId && id) {
+      (async () => {
+        const data = await getFavorites(storeId);
+        const found = data.groups.find(g => g.groupId.toString() === id);
+        if (found) setItems(found.menu);
+      })();
     }
-  }, [isNew, id]);
+  }, [isNew, id, storeId]);
 
-  const addMenu = () => {
-    const text = input.trim();
-    if (!text) return;
-    setItems(prev => [...prev, text]);
-    setInput("");
+  const addMenu = (text?: string) => {
+    const value = (text ?? input).trim();
+    if (!value) return;
+    setItems(prev => [...prev, value]);
+    if (!text) setInput(""); // 직접 입력일 때만 초기화
     setDirty(true);
   };
 
@@ -34,14 +40,15 @@ export function useFrequentMenuEditor(isNew: boolean, id?: string) {
     setDirty(true);
   };
 
-  const save = () => {
-    if (isNew) {
-      console.log("POST new frequent menu:", items);
-    } else {
-      console.log("PUT update frequent menu:", id, items);
+  const save = async () => {
+    if (!storeId) return;
+    try {
+      await saveFavorites(storeId, items); // 🔹 POST 호출
+      setDirty(false);
+      router.push("/admin/menu/frequent");
+    } catch (err) {
+      console.error("즐겨찾는 메뉴 저장 실패:", err);
     }
-    setDirty(false);
-    router.push("/admin/menu/frequent");
   };
 
   const handleBack = () => {

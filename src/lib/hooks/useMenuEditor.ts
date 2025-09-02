@@ -1,13 +1,8 @@
 // lib/hooks/useMenuEditor.ts
 import { getDailyMenu, saveDailyMenu } from "@/lib/api/menus/endpoints";
+import { mondayOf } from "@/utils/week";
 import { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
-
-export function mondayOf(d: Dayjs) {
-  const weekday = d.day();
-  const diff = (weekday + 6) % 7;
-  return d.subtract(diff, "day").startOf("day");
-}
 
 export function useMenuEditor(storeId: number | null, initialDate: Dayjs) {
   const [selectedId, setSelectedId] = useState(initialDate.format("YYYY-MM-DD"));

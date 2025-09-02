@@ -53,36 +53,28 @@ export default function WeekList({ weeks, onClickDay, loadWeek }: Props) {
 
   return (
     <div className="px-4 space-y-6 pb-[calc(env(safe-area-inset-bottom)+96px)]">
-      {weeks
-        .filter((week, idx, arr) => {
-          const monday = dayjs(week[0].id).startOf("week").add(1, "day").format("YYYY-MM-DD");
-          return (
-            arr.findIndex(
-              (w) =>
-                dayjs(w[0].id).startOf("week").add(1, "day").format("YYYY-MM-DD") === monday
-            ) === idx
-          );
-        })
-        .map((week, idx) => {
-          const firstDay = week[0].id;
-          const lastDay = week[week.length - 1].id;
+      {weeks.map((week, idx) => {
+        const firstDay = week[0].id;
+        const mondayId = mondayOf(dayjs(firstDay)).format("YYYY-MM-DD");
+        const lastDay = week[week.length - 1].id;
 
-          const isThisWeek =
-            today.isSameOrAfter(dayjs(firstDay), "day") &&
-            today.isSameOrBefore(dayjs(lastDay), "day");
+        const isThisWeek =
+          today.isSameOrAfter(dayjs(firstDay), "day") &&
+          today.isSameOrBefore(dayjs(lastDay), "day");
 
-          const title = isThisWeek ? "이번 주" : getMonthWeekLabel(firstDay);
+        const title = isThisWeek ? "이번 주" : getMonthWeekLabel(firstDay);
 
-          return (
+        return (
+          <div key={idx} id={`week-${mondayId}`}>
             <MenuWeekEditor
-              key={idx}
               title={title}
               week={week}
               onClickDay={onClickDay}
               readOnly={false}
             />
-          );
-        })}
+          </div>
+        );
+      })}
       <div ref={bottomRef} />
     </div>
   );

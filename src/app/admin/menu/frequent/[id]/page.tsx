@@ -1,6 +1,6 @@
 'use client';
 
-import FrequentMenuEditor from "@/components/admin/menu/edit/FrequentMenuEditor";
+import FrequentMenuEditor from "@/components/admin/menu/frequent/FrequentMenuEditor";
 import { useParams } from "next/navigation";
 
 export default function FrequentMenuEditPage() {

@@ -43,10 +43,11 @@ export default function AdminMenuEditPage() {
     })();
   }, [storeId, selectedId]);
 
-  const addMenu = () => {
-    if (!input.trim()) return;
-    setMenus(prev => [...prev, input.trim()]);
-    setInput("");
+  const addMenu = (menuText?: string) => {
+    const text = (menuText ?? input).trim();
+    if (!text) return;
+    setMenus(prev => [...prev, text]);
+    if (!menuText) setInput(""); // 직접 입력일 때만 input 초기화
     setDirty(true);
   };
 
@@ -66,11 +67,13 @@ export default function AdminMenuEditPage() {
   // ✅ 뒤로가기 wrapper
   const handleBack = () => {
     if (dirty) {
-      setPendingAction(() => () => router.back());
+      setPendingAction(() => () => {
+        window.location.href = "/admin/menu"; // ✅ 페이지 자체 이동
+      });
       setShowConfirm(true);
       return;
     }
-    router.back();
+    window.location.href = "/admin/menu";
   };
 
   return (

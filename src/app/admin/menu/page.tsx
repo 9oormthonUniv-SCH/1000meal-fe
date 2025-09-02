@@ -61,12 +61,41 @@ export default function AdminMenuPage() {
 
       {showCalendar && (
         <RangeCalendarModal
-          onClose={() => setShowCalendar(false)}
-          onConfirm={({ start }) => {
-            // 📌 선택된 날짜 기준으로 강제로 로딩
-            loadWeek(start, "next");
-          }}
-        />
+        onClose={() => setShowCalendar(false)}
+        onConfirm={async ({ start }) => {
+          const targetMonday = mondayOf(dayjs(start)).format("YYYY-MM-DD");
+      
+          let first = mondayOf(dayjs(weeks[0][0].id));
+          let last = mondayOf(dayjs(weeks[weeks.length - 1][0].id));
+          const target = dayjs(targetMonday);
+      
+          while (target.isBefore(first)) {
+            await loadWeek(first.format("YYYY-MM-DD"), "prev");
+            first = first.subtract(1, "week");
+          }
+      
+          while (target.isAfter(last)) {
+            await loadWeek(last.format("YYYY-MM-DD"), "next");
+            last = last.add(1, "week");
+          }
+
+          const exists = weeks.some(
+            (w) => mondayOf(dayjs(w[0].id)).format("YYYY-MM-DD") === targetMonday
+          );
+          if (!exists) {
+            await loadWeek(targetMonday, "prev", true);
+          }
+      
+          setTimeout(() => {
+            document.getElementById(`week-${targetMonday}`)?.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          }, 200);
+      
+          setShowCalendar(false);
+        }}
+      />
       )}
     </div>
   );
