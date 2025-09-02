@@ -3,6 +3,7 @@
 import { storeIdAtom } from "@/atoms/user";
 import MenuEditorLayout from "@/components/admin/menu/edit/MenuEditorLayout";
 import WeekNavigator from "@/components/admin/menu/WeekNavigator";
+import Toast from "@/components/common/Toast"; // ✅ 추가
 import { getDailyMenu, saveDailyMenu } from "@/lib/api/menus/endpoints";
 import { mondayOf } from "@/utils/week";
 import dayjs from "dayjs";
@@ -24,11 +25,14 @@ export default function AdminMenuEditPage() {
   const [dirty, setDirty] = useState(false);
   const [input, setInput] = useState("");
 
-  // ✅ 모달 관련 상태
+  // 모달 관련 상태
   const [showConfirm, setShowConfirm] = useState(false);
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
 
-  // ✅ 날짜 변경시 API 호출
+  // ✅ 토스트 상태
+  const [showToast, setShowToast] = useState(false);
+
+  // 날짜 변경시 API 호출
   useEffect(() => {
     if (!storeId) return;
     (async () => {
@@ -47,7 +51,7 @@ export default function AdminMenuEditPage() {
     const text = (menuText ?? input).trim();
     if (!text) return;
     setMenus(prev => [...prev, text]);
-    if (!menuText) setInput(""); // 직접 입력일 때만 input 초기화
+    if (!menuText) setInput("");
     setDirty(true);
   };
 
@@ -60,15 +64,19 @@ export default function AdminMenuEditPage() {
     if (!storeId) return;
     await saveDailyMenu(storeId, selectedId, menus);
     setDirty(false);
+
+    // ✅ 저장 완료 알림
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 700);
   };
 
   const monday = mondayOf(dayjs(selectedId));
 
-  // ✅ 뒤로가기 wrapper
+  // 뒤로가기 wrapper
   const handleBack = () => {
     if (dirty) {
       setPendingAction(() => () => {
-        window.location.href = "/admin/menu"; // ✅ 페이지 자체 이동
+        window.location.href = "/admin/menu";
       });
       setShowConfirm(true);
       return;
@@ -77,43 +85,47 @@ export default function AdminMenuEditPage() {
   };
 
   return (
-    <MenuEditorLayout
-      stack={menus}
-      input={input} setInput={setInput}
-      addMenu={addMenu} removeMenu={removeMenu}
-      setMenusByWeek={() => {}} setDirty={setDirty}
-      selectedId={selectedId} mondayId={monday.format("YYYY-MM-DD")}
-      onSave={save}
-      showConfirm={showConfirm} setShowConfirm={setShowConfirm}
-      pendingAction={pendingAction} setPendingAction={setPendingAction}
-      loading={loading}
-      extraTop={
-        <WeekNavigator
-          monday={monday}
-          selectedId={selectedId}
-          onShiftWeek={(delta) => {
-            const nextMonday = monday.add(delta, "week");
-            if (dirty) {
-              setPendingAction(() =>
-                () => router.push(`/admin/menu/edit/${nextMonday.format("YYYY-MM-DD")}`)
-              );
-              setShowConfirm(true);
-              return;
-            }
-            router.push(`/admin/menu/edit/${nextMonday.format("YYYY-MM-DD")}`);
-          }}
-          onSelectDate={(id) => {
-            if (dirty) {
-              setPendingAction(() => () => router.push(`/admin/menu/edit/${id}`));
-              setShowConfirm(true);
-              return;
-            }
-            router.push(`/admin/menu/edit/${id}`);
-          }}
-        />
-      }
-      // ✅ 뒤로가기 핸들러 내려줌
-      onBack={handleBack}
-    />
+    <>
+      <MenuEditorLayout
+        stack={menus}
+        input={input} setInput={setInput}
+        addMenu={addMenu} removeMenu={removeMenu}
+        setMenusByWeek={() => {}} setDirty={setDirty}
+        selectedId={selectedId} mondayId={monday.format("YYYY-MM-DD")}
+        onSave={save}
+        showConfirm={showConfirm} setShowConfirm={setShowConfirm}
+        pendingAction={pendingAction} setPendingAction={setPendingAction}
+        loading={loading}
+        extraTop={
+          <WeekNavigator
+            monday={monday}
+            selectedId={selectedId}
+            onShiftWeek={(delta) => {
+              const nextMonday = monday.add(delta, "week");
+              if (dirty) {
+                setPendingAction(() =>
+                  () => router.push(`/admin/menu/edit/${nextMonday.format("YYYY-MM-DD")}`)
+                );
+                setShowConfirm(true);
+                return;
+              }
+              router.push(`/admin/menu/edit/${nextMonday.format("YYYY-MM-DD")}`);
+            }}
+            onSelectDate={(id) => {
+              if (dirty) {
+                setPendingAction(() => () => router.push(`/admin/menu/edit/${id}`));
+                setShowConfirm(true);
+                return;
+              }
+              router.push(`/admin/menu/edit/${id}`);
+            }}
+          />
+        }
+        onBack={handleBack}
+      />
+
+      {/* ✅ 화면 중앙 Toast */}
+      <Toast show={showToast} message="저장되었습니다" />
+    </>
   );
 }

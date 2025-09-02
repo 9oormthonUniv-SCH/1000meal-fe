@@ -45,7 +45,6 @@ export function useFrequentMenuEditor(isNew: boolean, id?: string) {
     try {
       await saveFavorites(storeId, items); // 🔹 POST 호출
       setDirty(false);
-      router.push("/admin/menu/frequent");
     } catch (err) {
       console.error("즐겨찾는 메뉴 저장 실패:", err);
     }
