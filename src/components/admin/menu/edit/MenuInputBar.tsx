@@ -41,7 +41,7 @@ export default function MenuInputBar({
         value={input}
         onChange={(e) => setInput(e.target.value)}
         placeholder="메뉴 입력"
-        className="flex-1 px-3 py-2 border rounded-xl text-sm"
+        className="flex-1 px-3 py-2 border rounded-xl text-base sm:text-sm"
       />
       <button
         onClick={() => addMenu()}
