@@ -49,3 +49,24 @@ export async function getSignupEmailStatus(email: string) {
   );
   return res.data; // { email, verified }
 }
+
+/** 비밀번호 재설정 요청 (인증 코드 발송) */
+export async function resetPasswordRequest(email: string) {
+  return http<{ message: string }>(`${API_BASE}/auth/password/reset/request`, {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
+/** 비밀번호 재설정 완료 (코드 + 새 비밀번호) */
+export async function resetPasswordConfirm(payload: {
+  email: string;
+  token: string;
+  newPassword: string;
+  confirmPassword: string;
+}) {
+  return http<{ message: string }>(`${API_BASE}/auth/password/reset/confirm`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}

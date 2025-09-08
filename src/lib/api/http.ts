@@ -39,6 +39,7 @@ export async function http<T>(url: string, init: HttpInit = {}): Promise<T> {
     }
 
     const body = await res.json().catch(() => ({}));
+    console.log(body);
 
     if (res.status === 401) {
       throw new ApiError("Unauthorized", {

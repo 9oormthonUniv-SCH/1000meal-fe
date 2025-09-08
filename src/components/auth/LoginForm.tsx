@@ -154,15 +154,27 @@ export default function LoginForm({
           {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "로그인"}
         </motion.button>
         <div className="flex items-center justify-around text-xs text-gray-500 mx-5">
-          <button type="button" onClick={() => router.push('/find-id')} className="hover:underline">
+          <button
+            type="button"
+            onClick={() => router.push('/find-account?tab=id')}
+            className="hover:underline"
+          >
             아이디 찾기
           </button>
           <span className="text-gray-300">|</span>
-          <button type="button" onClick={() => router.push('/reset-password')} className="hover:underline">
+          <button
+            type="button"
+            onClick={() => router.push('/find-account?tab=pw')}
+            className="hover:underline"
+          >
             비밀번호 찾기
           </button>
           <span className="text-gray-300">|</span>
-          <button type="button" onClick={() => router.push('/signup/id')} className="hover:underline">
+          <button
+            type="button"
+            onClick={() => router.push('/signup/id')}
+            className="hover:underline"
+          >
             회원가입
           </button>
         </div>
