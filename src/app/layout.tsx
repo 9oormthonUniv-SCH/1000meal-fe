@@ -1,6 +1,7 @@
 import Footer from "@/components/common/Footer";
 import type { Metadata } from "next";
 import Script from "next/script";
+import { PwaHead } from "./_pwa-head";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -16,6 +17,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
+        <PwaHead />
         <Script
           src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_KEY}&autoload=false&libraries=services`}
           strategy="beforeInteractive"
