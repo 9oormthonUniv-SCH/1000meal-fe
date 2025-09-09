@@ -72,7 +72,7 @@ export default function StoreDetailPage(
       <StoreImage />
       <StoreInfo store={store} />
       <div className="h-3 bg-gray-200 mx-auto mb-3" />
-      <WeeklyMenu store={store} />
+      <WeeklyMenu store={store} onReload={reload} />
       <OtherStoresViewer stores={otherStores} />
     </div>
   );

@@ -6,7 +6,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "오늘 순밥",
-  description: "대학생을 위한 아침 식사 정보 서비스",
+  description: "순천향대학생을 위한 아침 식사 정보 서비스",
 };
 
 export default function RootLayout({
