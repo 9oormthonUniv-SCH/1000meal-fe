@@ -1,6 +1,6 @@
 {
-  "name": "천원의 아침밥",
-  "short_name": "1000Meal",
+  "name": "오늘 순밥",
+  "short_name": "오늘 순밥",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
