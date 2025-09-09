@@ -79,7 +79,7 @@ export default function SignupIdPage() {
             value={id}
             onChange={(e) => onChange(e.target.value)}
             className="w-full border-b border-gray-300 outline-none py-2 focus:border-gray-900"
-            placeholder="숫자 8자리를 입력해주세요"
+            placeholder="학번 8자리를 입력해주세요"
             autoCapitalize="none"
             autoComplete="username"
             required

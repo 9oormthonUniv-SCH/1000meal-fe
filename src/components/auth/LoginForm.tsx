@@ -122,6 +122,7 @@ export default function LoginForm({
             className="w-full border-b border-gray-300 outline-none py-2 focus:border-gray-800"
             value={id}
             onChange={(e) => setId(e.target.value)}
+            placeholder="학번 8자리를 입력해주세요"
             autoComplete="username"
             required
           />
