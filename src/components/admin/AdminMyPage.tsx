@@ -1,7 +1,7 @@
 'use client';
 
 import { ApiError } from '@/lib/api/errors';
-import { getStoreDetail } from '@/lib/api/stores';
+import { getStoreDetail, toggleStoreStatus } from '@/lib/api/stores';
 import { getMe } from '@/lib/api/users';
 import { getCookie } from '@/lib/auth/cookies';
 import { clearSession } from '@/lib/auth/session.client';
@@ -45,9 +45,16 @@ export default function AdminMyPage() {
     })();
   }, [router]);
 
-  const handleToggle = () => {
-    setIsOpen(!isOpen);
-    // TODO: 서버에 영업 상태 업데이트 API 호출
+  const handleToggle = async () => {
+    try {
+      if (!store) return;
+  
+      await toggleStoreStatus(store.id); // 서버에 상태 토글 요청
+      setIsOpen(!isOpen); // UI 갱신
+    } catch (err) {
+      console.error("영업 상태 변경 실패:", err);
+      alert("영업 상태 변경에 실패했습니다.");
+    }
   };
 
   const handleLogout = () => {

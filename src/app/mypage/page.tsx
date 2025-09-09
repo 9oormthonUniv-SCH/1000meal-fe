@@ -1,6 +1,7 @@
 'use client';
 
 import Header from '@/components/common/Header';
+import Toast from '@/components/common/Toast';
 import { ApiError } from '@/lib/api/errors';
 import { getMe } from '@/lib/api/users/endpoints';
 import { getCookie } from '@/lib/auth/cookies';
@@ -12,6 +13,8 @@ export default function MyPage() {
   const router = useRouter();
   const [me, setMe] = useState<MeResponse | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const [showToast, setShowToast] = useState(false);
 
   const clearCookiesAndLogout = () => {
     document.cookie =
@@ -44,6 +47,12 @@ export default function MyPage() {
     })();
   }, [router]);
 
+  const handleClick = () => {
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 1500); // 1초 후 사라짐
+  };
+
+
   if (loading) return <div className="p-6">불러오는 중...</div>;
   if (!me) return null;
 
@@ -75,10 +84,14 @@ export default function MyPage() {
 
         {/* 🔹 메뉴 리스트 */}
         <div className="bg-white mt-6 divide-y">
-          <button className="w-full text-left px-5 py-4 text-gray-700 hover:bg-gray-50">
+          <button className="w-full text-left px-5 py-4 text-gray-700 hover:bg-gray-50"
+            onClick={handleClick}
+          >
             회원정보 수정
           </button>
-          <button className="w-full text-left px-5 py-4 text-gray-700 hover:bg-gray-50">
+          <button className="w-full text-left px-5 py-4 text-gray-700 hover:bg-gray-50"
+            onClick={() => router.push('/find-account?tab=pw')}
+          >
             비밀번호 변경
           </button>
           <button
@@ -87,9 +100,13 @@ export default function MyPage() {
           >
             로그아웃
           </button>
-          <button className="w-full text-left px-5 py-4 text-red-500 hover:bg-gray-50">
+          <button className="w-full text-left px-5 py-4 text-red-500 hover:bg-gray-50"
+            onClick={handleClick}
+          >
             회원탈퇴
           </button>
+
+          <Toast show={showToast} message="🚧 준비중입니다" />
         </div>
       </div>
     </div>

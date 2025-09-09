@@ -105,27 +105,30 @@ export default function InventoryPage() {
       <Header title="재고 관리" />
 
       {/* 날짜 바 */}
-      <div className="bg-white px-4 py-3 text-sm font-medium text-gray-700 border-b">
-        <span className="text-black">{formattedDate.split(' ')[0]} {formattedDate.split(' ')[1]}</span>{' '}
-        <span className="text-red-500">{formattedDate.split(' ')[2]}</span>
+      <div className="bg-white px-4 py-3 text-lg font-medium text-gray-700 border-b">
+        <span className="text-neutral-500">{formattedDate.split(' ')[0]} {formattedDate.split(' ')[1]}</span>{' '}
+        <span className="text-orange-400">{formattedDate.split(' ')[2]}</span>
       </div>
 
       {/* 재고 패널 */}
       <div className="px-4 py-6">
         <div>
-          <div className="bg-white rounded-2xl px-4 py-5 flex items-center justify-between shadow">
-            <span className="text-gray-500 text-md">현재 재고</span>
+          <div className="bg-white rounded-2xl px-8 py-5 flex items-center justify-between shadow">
+            <span
+              className={`text-xl ${open ? "text-zinc-900" : "text-stone-300"}`}
+            >
+              현재 수량
+            </span>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => handleAdjustStock(-1)}
-                className="w-8 h-8 rounded-full border border-gray-300 text-gray-500 text-sm"
+                className="w-4 h-4 rounded-full bg-stone-300 text-white text-base flex items-center justify-center active:text-white transition"
               >
-                -
+                –
               </button>
 
               {/* ✅ 입력 가능 */}
               <input
-                type="number"
                 value={stock}
                 onChange={(e) => setStock(Math.max(0, Number(e.target.value)))}
                 onBlur={async () => {
@@ -151,12 +154,15 @@ export default function InventoryPage() {
                     }
                   }
                 }}
-                className="w-16 text-center text-base font-semibold text-gray-800 border rounded"
+                className={`w-16 text-center text-base font-semibold border rounded ${
+                  open ? "text-zinc-900" : "text-stone-300"
+                }`}
               />
 
+              
               <button
                 onClick={() => handleAdjustStock(1)}
-                className="w-8 h-8 rounded-full border border-gray-300 text-gray-500 text-sm"
+                className="w-4 h-4 rounded-full bg-stone-300 text-white text-base flex items-center justify-center active:bg-stone-500 transition"
               >
                 +
               </button>
@@ -165,15 +171,30 @@ export default function InventoryPage() {
         </div>
 
         {/* 수량 조절 버튼 */}
-        <div className="bg-white mt-4 rounded-2xl px-4 py-5 flex shadow text-gray-400 text-sm font-medium">
+        <div className="bg-white mt-4 rounded-2xl px-4 py-8 flex shadow text-gray-400 text-sm font-medium">
           {[10, 5, 1].map((value, idx) => (
-            <div key={value} onClick={() => handleAdjustStock(-value)} className="flex-1 flex items-center justify-center gap-1 relative">
-              <button className="w-5 h-5 rounded-full border border-gray-300 text-xs flex items-center justify-center">–</button>
-              <span>{value}개</span>
-              {idx < 2 && (
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 h-4 w-px bg-gray-200" />
-              )}
-            </div>
+            <div
+            key={value}
+            onClick={() => handleAdjustStock(-value)}
+            className="flex-1 flex items-center justify-center gap-2 relative cursor-pointer select-none group active:text-stone-500"
+          >
+            {/* 동그란 버튼 */}
+            <button
+              className="w-5 h-5 rounded-full bg-stone-300 text-white text-base flex items-center justify-center leading-none group-active:text-stone-500 transition"
+            >
+              –
+            </button>
+            <span className={`text-2xl font-['Pretendard'] transition ${
+                open ? "text-zinc-900" : "text-stone-300"
+              }`}>
+              {value}개
+            </span>
+          
+            {/* 구분선 */}
+            {idx < 2 && (
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 h-5 w-px bg-gray-200" />
+            )}
+          </div>
           ))}
         </div>
 

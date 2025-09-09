@@ -95,21 +95,23 @@ export default function MapDetail({ stores = [] }: MapViewProps) {
           </CustomOverlayMap>
         ))}
       </Map>
-
-      {/* 줌 버튼 (선택) */}
+      {/* 줌 버튼 */}
       {!selectedStore && (
-        <div className="absolute right-3 bottom-28 z-50 flex flex-col bg-white rounded-lg shadow">
+        <div className="absolute right-3 bottom-28 z-50 flex flex-col bg-white rounded-xl shadow-lg overflow-hidden">
+          {/* + 버튼 */}
           <button
-            className="p-2 border-b hover:bg-gray-100"
+            className="w-10 h-10 flex items-center justify-center border-b border-gray-200 hover:bg-gray-100"
             onClick={() => mapInstance && mapInstance.setLevel(mapInstance.getLevel() - 1)}
           >
-            +
+            <span className="text-xl">＋</span>
           </button>
+
+          {/* - 버튼 */}
           <button
-            className="p-2 hover:bg-gray-100"
+            className="w-10 h-10 flex items-center justify-center hover:bg-gray-100"
             onClick={() => mapInstance && mapInstance.setLevel(mapInstance.getLevel() + 1)}
           >
-            −
+            <span className="text-xl">－</span>
           </button>
         </div>
       )}
@@ -128,7 +130,12 @@ export default function MapDetail({ stores = [] }: MapViewProps) {
             transition={{ type: 'spring', stiffness: 400, damping: 40 }}
           >
             {/* MapStoreCard가 StoreListItem을 받도록 수정하거나, prop 이름을 맞춰주세요 */}
-            <MapStoreCard store={selectedStore} />
+            <MapStoreCard
+              store={selectedStore}
+              onReload={() => {
+                console.log("새로고침 실행");
+              }}
+            />
           </motion.div>
         )}
       </AnimatePresence>

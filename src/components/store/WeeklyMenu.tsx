@@ -2,11 +2,13 @@
 
 import type { DayOfWeek, StoreDetail } from "@/types/store";
 import { motion } from "framer-motion";
+import { RefreshCcw } from "lucide-react";
 import { useMemo } from "react";
 import MenuCard from "./MenuCard";
 
 interface WeeklyMenuProps {
   store: StoreDetail;
+  onReload?: () => void; // ✅ 새로고침 핸들러
 }
 
 const KOR_DAY_LABEL: Record<DayOfWeek, string> = {
@@ -21,7 +23,7 @@ const KOR_DAY_LABEL: Record<DayOfWeek, string> = {
 
 const WEEKDAYS: DayOfWeek[] = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY"];
 
-export default function WeeklyMenu({ store }: WeeklyMenuProps) {
+export default function WeeklyMenu({ store, onReload }: WeeklyMenuProps) {
   const todayISO = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
 
   // 1) 월~금만 골라 날짜 오름차순으로 정렬
@@ -34,7 +36,15 @@ export default function WeeklyMenu({ store }: WeeklyMenuProps) {
 
   return (
     <div className="px-4 pt-4">
-      <h2 className="text-2xl font-semibold mb-3">일주일 메뉴</h2>
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-2xl font-semibold">일주일 메뉴</h2>
+        <button
+          onClick={onReload}
+          className="p-2 text-gray-400 hover:text-orange-500 transition"
+        >
+          <RefreshCcw className="w-5 h-5" />
+        </button>
+      </div>
 
       <motion.div className="overflow-x-auto scrollbar-hide">
         <div className="flex gap-x-5 w-max px-1">

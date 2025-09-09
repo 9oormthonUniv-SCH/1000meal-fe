@@ -1,7 +1,6 @@
 'use client';
 
 import { StoreDetail } from "@/types/store";
-import { isStoreOpen } from "@/utils/isStoreOpen";
 
 interface Props {
   store: StoreDetail;
@@ -25,7 +24,7 @@ export default function StoreInfo({ store }: Props) {
       )}
 
       <p className="text-sm pt-4 text-red-400 font-semibold">
-        {isStoreOpen(store.hours, store.remain) ? '영업 중' : '영업 종료'}
+        {store.open ? '영업 중' : '영업 종료'}
       </p>
       <p className="text-sm pb-2 text-gray-400">
         천원의 아침밥 운영 시간: {store.hours}

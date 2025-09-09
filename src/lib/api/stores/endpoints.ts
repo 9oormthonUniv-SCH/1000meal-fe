@@ -11,3 +11,8 @@ export function getStoreList(signal?: AbortSignal) {
 export function getStoreDetail(id: number, signal?: AbortSignal) {
   return http<StoreDetail>(`${API_BASE}/stores/${id}`, { method: "GET", signal });
 }
+
+/** POST /stores/status/{id} → 영업 상태 토글 */
+export function toggleStoreStatus(id: number) {
+  return http<void>(`${API_BASE}/stores/status/${id}`, { method: "POST" });
+}

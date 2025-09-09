@@ -46,7 +46,7 @@ export default function HomePage() {
         <h1 className="text-xl font-bold">오늘의 천밥</h1>
         <button
           onClick={reload}
-          className="text-sm text-gray-600 hover:text-orange-500 transition flex items-center gap-1"
+          className="text-sm text-gray-300 hover:text-orange-500 transition flex items-center gap-1"
           aria-label="새로고침"
           disabled={loading}
           title="새로고침"

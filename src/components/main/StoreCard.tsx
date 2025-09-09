@@ -20,9 +20,7 @@ export default function StoreCard({ store, isSelected, onClick }: Props) {
   const menusText =
     Array.isArray(store.todayMenu?.menus) && store.todayMenu.menus.length > 0
       ? store.todayMenu.menus.join(', ')
-      : store.open
-        ? '메뉴 정보 없음'
-        : '오늘 휴무';
+      : '메뉴 정보 없음'
 
   return (
     <div
@@ -40,16 +38,16 @@ export default function StoreCard({ store, isSelected, onClick }: Props) {
         <h2 className="text-base font-semibold">{store.name}</h2>
         <p className="text-sm text-gray-600">{menusText}</p>
       </div>
-
-      {/* 우측: 수량 표시 */}
-      <div className="text-right">
-        <div className={clsx(
-          "text-base font-bold",
-          store.remain === 0 ? "text-red-500" : "text-orange-500"
-        )}>
+      <div className="flex flex-col items-center justify-center w-16">
+        <div
+          className={clsx(
+            "text-base font-bold",
+            store.remain === 0 ? "text-red-500" : "text-orange-500"
+          )}
+        >
           {store.remain}개
         </div>
-        <div className="text-sm text-gray-500">남았어요!</div>
+        <div className="text-xs text-gray-500">남았어요!</div>
       </div>
     </div>
   );

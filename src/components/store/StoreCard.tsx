@@ -20,7 +20,7 @@ export default function StoreCard({ id, imageUrl, storeName, isOpen }: StoreCard
   return (
     <div 
     onClick={handleClick}
-    className="m-3 rounded-xl shadow-md bg-white w-[140px] cursor-pointer">
+    className="my-3 rounded-xl shadow-md bg-white w-[140px] cursor-pointer">
       <div className="w-full h-24 rounded-lg overflow-hidden bg-gray-100 mb-2">
         {imageUrl ? (
           <Image

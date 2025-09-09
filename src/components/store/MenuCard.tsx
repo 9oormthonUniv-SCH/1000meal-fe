@@ -13,7 +13,7 @@ export default function MenuCard({ date, day, items, selected = false }: MenuCar
   return (
     <div
       className={clsx(
-        "p-3 m-3 rounded-xl text-center w-full transition-all duration-200 shadow-even",
+        "p-3 my-3 rounded-xl text-center w-full transition-all shadow-md",
         selected
           ? "border border-orange-500"
           : "border border-gray-200"
@@ -30,9 +30,13 @@ export default function MenuCard({ date, day, items, selected = false }: MenuCar
 
       {/* 메뉴 목록 */}
       <div className="flex flex-col gap-3 text-sm text-gray-700">
-        {items.map((item, index) => (
-          <div key={index}>{item}</div>
-        ))}
+        {items.length > 0 ? (
+          items.map((item, index) => (
+            <div key={index}>{item}</div>
+          ))
+        ) : (
+          <div className="text-gray-400 italic">메뉴가 없습니다</div>
+        )}
       </div>
     </div>
   );
