@@ -15,6 +15,7 @@ export type ApiEnvelope<T> = {
 /** 목록 아이템: /api/v1/stores */
 export type StoreListItem = {
   id: number;
+  imageUrl?: string;   // ✅ 추가
   name: string;
   address: string;
   phone: string;
@@ -25,7 +26,7 @@ export type StoreListItem = {
   lng: number;
   todayMenu: {
     id: number;
-    date: string;            // YYYY-MM-DD
+    date: string;
     dayOfWeek: DayOfWeek;
     menus: string[];
     open: boolean;
@@ -36,6 +37,7 @@ export type StoreListItem = {
 /** 상세: /api/v1/stores/{id} */
 export type StoreDetail = {
   id: number;
+  imageUrl?: string;   // ✅ 추가
   name: string;
   address: string;
   phone: string;
@@ -48,11 +50,11 @@ export type StoreDetail = {
   lng: number;
   weeklyMenuResponse: {
     storeId: number;
-    startDate: string;  // YYYY-MM-DD
-    endDate: string;    // YYYY-MM-DD
+    startDate: string;
+    endDate: string;
     dailyMenus: Array<{
       id: number;
-      date: string;     // YYYY-MM-DD
+      date: string;
       dayOfWeek: DayOfWeek;
       menus: string[];
       open: boolean;
@@ -60,4 +62,3 @@ export type StoreDetail = {
   };
   open: boolean;
 };
-

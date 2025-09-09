@@ -69,7 +69,7 @@ export default function StoreDetailPage(
   return (
     <div className="w-full pt-[56px]">
       <Header title="매장 상세페이지" />
-      <StoreImage />
+      <StoreImage store={store} />
       <StoreInfo store={store} />
       <div className="h-3 bg-gray-200 mx-auto mb-3" />
       <WeeklyMenu store={store} onReload={reload} />

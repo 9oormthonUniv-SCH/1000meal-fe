@@ -1,26 +1,27 @@
 'use client';
 
 import { StoreListItem } from "@/types/store";
-import clsx from 'clsx'; // 조건부 class를 쉽게 쓰기 위해 사용
+import clsx from 'clsx';
+import Image from "next/image";
 import { useRouter } from 'next/navigation';
 
 interface Props {
   store: StoreListItem;
-  isSelected?: boolean; // ✅ 외부에서 강조 여부 받음
-  onClick?: () => void; // ✅ 클릭 이벤트 외부 전달
+  isSelected?: boolean;
+  onClick?: () => void;
 }
 
 export default function StoreCard({ store, isSelected, onClick }: Props) {
   const router = useRouter();
   const handleClick = () => {
-    onClick?.(); // 외부에 클릭 알림
+    onClick?.();
     router.push(`/store/${store.id}`);
   };
 
   const menusText =
     Array.isArray(store.todayMenu?.menus) && store.todayMenu.menus.length > 0
       ? store.todayMenu.menus.join(', ')
-      : '메뉴 정보 없음'
+      : '메뉴 정보 없음';
 
   return (
     <div
@@ -30,14 +31,28 @@ export default function StoreCard({ store, isSelected, onClick }: Props) {
         isSelected ? "border-orange-400 bg-orange-50" : "border-gray-200 bg-white"
       )}
     >
-      {/* 좌측: 이미지 자리 */}
-      <div className="w-12 h-12 rounded-lg bg-gray-200 flex-shrink-0" />
+      {/* 좌측: 매장 이미지 */}
+      {store.imageUrl ? (
+        <Image
+          src={store.imageUrl}
+          alt={store.name}
+          width={48}
+          height={48}
+          className="w-12 h-12 rounded-lg object-contain flex-shrink-0"
+        />
+      ) : (
+        <div className="w-12 h-12 rounded-lg bg-gray-200 flex items-center justify-center text-xs text-gray-500 flex-shrink-0">
+          No Img
+        </div>
+      )}
 
       {/* 중앙: 텍스트 정보 */}
       <div className="flex-1">
         <h2 className="text-base font-semibold">{store.name}</h2>
         <p className="text-sm text-gray-600">{menusText}</p>
       </div>
+
+      {/* 우측: 남은 개수 */}
       <div className="flex flex-col items-center justify-center w-16">
         <div
           className={clsx(

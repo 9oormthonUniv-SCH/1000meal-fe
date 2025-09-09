@@ -1,5 +1,6 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
   reactStrictMode: true,
   async rewrites() {
     return [
@@ -9,6 +10,14 @@ const nextConfig = {
       },
     ];
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "1000mealsql.s3.ap-northeast-2.amazonaws.com",
+      },
+    ],
+  },
 };
 
-module.exports = nextConfig;
+export default nextConfig;

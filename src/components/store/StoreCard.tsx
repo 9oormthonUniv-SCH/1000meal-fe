@@ -20,8 +20,8 @@ export default function StoreCard({ id, imageUrl, storeName, isOpen }: StoreCard
   return (
     <div 
     onClick={handleClick}
-    className="my-3 rounded-xl shadow-md bg-white w-[140px] cursor-pointer">
-      <div className="w-full h-24 rounded-lg overflow-hidden bg-gray-100 mb-2">
+    className="my-3 rounded-xl shadow-md bg-white w-40 cursor-pointer">
+      <div className="w-full h32 rounded-lg overflow-hidden mb-2 relative bg-gradient-to-b from-white/0 to-orange-300/20">
         {imageUrl ? (
           <Image
             src={imageUrl}
@@ -36,12 +36,12 @@ export default function StoreCard({ id, imageUrl, storeName, isOpen }: StoreCard
           </div>
         )}
       </div>
-      <div className='px-3 py-1'>
+      <div className='px-3 py-1 pb-3'>
         <p className="text-sm font-medium text-gray-900">{storeName}</p>
         <p
           className={clsx(
             "text-xs mt-1",
-            isOpen ? "text-green-600" : "text-red-500"
+            isOpen ? "text-orange-400" : "text-red-500"
           )}
         >
           {isOpen ? "영업 중" : "영업 종료"}
