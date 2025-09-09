@@ -21,14 +21,13 @@ export default function StoreCard({ id, imageUrl, storeName, isOpen }: StoreCard
     <div 
     onClick={handleClick}
     className="my-3 rounded-xl shadow-md bg-white w-40 cursor-pointer">
-      <div className="w-full h32 rounded-lg overflow-hidden mb-2 relative bg-gradient-to-b from-white/0 to-orange-300/20">
+      <div className="w-full h-32 rounded-lg overflow-hidden mb-2 relative bg-gradient-to-b from-white/0 to-orange-300/20">
         {imageUrl ? (
           <Image
             src={imageUrl}
             alt={storeName}
-            width={140}
-            height={96}
-            className="w-full h-full object-cover"
+            fill
+            className="object-contain object-bottom scale-110"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
