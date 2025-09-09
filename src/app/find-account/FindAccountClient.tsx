@@ -1,16 +1,24 @@
 // app/find-account/FindAccountClient.tsx
 'use client';
 
+import FindAccountTabs from "@/components/auth/FindAccountTabs";
+import FindIdForm from "@/components/auth/FindIdForm";
+import ResetPasswordForm from "@/components/auth/ResetPasswordForm";
+import Header from "@/components/common/Header";
 import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 export default function FindAccountClient() {
   const searchParams = useSearchParams();
-  const token = searchParams.get("token");
+  const initialTab = (searchParams.get("tab") as "id" | "pw") || "id";
+
+  const [tab, setTab] = useState<"id" | "pw">(initialTab);
 
   return (
-    <div>
-      <h1>계정 찾기</h1>
-      {token ? <p>토큰: {token}</p> : <p>토큰이 없습니다.</p>}
+    <div className="pt-[56px] px-5">
+      <Header title=""/>
+      <FindAccountTabs tab={tab} setTab={setTab} />
+      {tab === "id" ? <FindIdForm /> : <ResetPasswordForm />}
     </div>
   );
 }

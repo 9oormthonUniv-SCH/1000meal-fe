@@ -70,3 +70,14 @@ export async function resetPasswordConfirm(payload: {
     body: JSON.stringify(payload),
   });
 }
+
+/** 아이디 찾기 */
+export async function findUserId(payload: { email: string }) {
+  return http<{ message: string; userId: string }>(
+    `${API_BASE}/auth/find-id`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }
+  );
+}
