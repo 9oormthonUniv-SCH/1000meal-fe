@@ -1,23 +1,23 @@
 'use client';
 
 import { getCookie } from '@/lib/auth/cookies'; // ✅ 여기서 import
+import { getRoleFromToken } from '@/lib/auth/jwt';
 import { Bell, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function HeaderButtons() {
   const router = useRouter();
   const token = getCookie('accessToken');
-  const role = getCookie('role');
-  console.log(role);
+  const role = getRoleFromToken(token); // ✅ JWT에서 role 꺼내기
+
   const goToMyPage = () => {
     if (!token) {
       router.push('/login');
       return;
     }
 
-    if (role?.toUpperCase() === 'ADMIN') {
+    if (role === 'ADMIN') {
       router.push('/admin');
-      console.log("!!");
     } else {
       router.push('/mypage');
     }

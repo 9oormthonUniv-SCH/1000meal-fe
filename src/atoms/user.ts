@@ -1,9 +1,13 @@
 // atoms/user.ts
+import { getRoleFromToken } from "@/lib/auth/jwt";
+import { getSession } from "@/lib/auth/session.client";
 import type { MeResponse } from "@/types/user";
 import { atom } from "jotai";
-import { atomWithStorage } from "jotai/utils";
 
 export const meAtom = atom<MeResponse | null>(null);
+export const storeIdAtom = atom<number | null>(null);
 
-// storeId만 따로 꺼내쓰고 싶으면 selector atom
-export const storeIdAtom = atomWithStorage<number | null>("storeId", null);
+export const userRoleAtom = atom<"STUDENT" | "ADMIN">(() => {
+  const { token } = getSession();
+  return getRoleFromToken(token); // 항상 토큰에서 role 추출
+});

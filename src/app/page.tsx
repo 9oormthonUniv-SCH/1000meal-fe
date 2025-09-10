@@ -9,9 +9,10 @@ import { RefreshCcw } from 'lucide-react';
 import { useState } from 'react';
 
 import ErrorMessage from '@/components/common/ErrorMessage';
-import { notices } from '@/constants/mockStores'; // 공지 목업 유지 시
+import { getNotices } from '@/lib/api/notices/endpoints';
 import { getStoreList } from '@/lib/api/stores/endpoints';
 import { useApi } from '@/lib/hooks/useApi';
+import { Notice } from '@/types/notice';
 import type { StoreListItem } from "@/types/store";
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -23,6 +24,9 @@ export default function HomePage() {
   const { data: storeList = [], loading, error, reload } =
     useApi<StoreListItem[]>(getStoreList, [pathname]);
     console.log("storeList", storeList);
+  
+  const { data: notices = [], loading: noticesLoading, error: noticesError } =
+    useApi<Notice[]>(getNotices, []);
   return (
     <main
       className={`relative max-w-md px-4 py-6 transition-all ${
@@ -82,7 +86,11 @@ export default function HomePage() {
       )}
       
 
-      <NoticePreview notices={notices} />
+      <div className="mt-10">
+        {noticesLoading && <p className="text-sm text-gray-500">공지 불러오는 중…</p>}
+        {noticesError && <p className="text-sm text-red-500">공지사항을 불러올 수 없습니다.</p>}
+        {<NoticePreview notices={notices} />}
+      </div>
     </main>
   );
 }

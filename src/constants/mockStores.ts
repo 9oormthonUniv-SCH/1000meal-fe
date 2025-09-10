@@ -1,25 +1,3 @@
-export const notices = [
-  {
-    id: '1',
-    title: '오류 수정 안내',
-    date: '2025. 08. 01',
-    content: '공지사항 상세내용입니다.',
-    isNew: true
-  },
-  {
-    id: '2',
-    title: '교내 식당 운영시간 업데이트',
-    date: '2025. 07. 30',
-    content: '운영시간이 변경되었습니다.',
-  },
-  {
-    id: '3',
-    title: '천원의 아침밥 서비스 시작',
-    date: '2025. 07. 28',
-    content: '드디어 시작합니다!',
-  }
-];
-
 export const mockNotifications = [
   {
     id: 1,

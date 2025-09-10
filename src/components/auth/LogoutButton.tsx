@@ -11,9 +11,8 @@ export function useLogout() {
   const setStoreId = useSetAtom(storeIdAtom);
 
   return () => {
-    // 쿠키 제거
+    // ✅ accessToken 쿠키 제거
     deleteCookie("accessToken");
-    deleteCookie("role");
 
     // ✅ Jotai 상태 초기화
     setMe(null);

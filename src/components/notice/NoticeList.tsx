@@ -1,12 +1,7 @@
 'use client';
 
+import { Notice } from '@/types/notice';
 import Link from 'next/link';
-
-interface Notice {
-  id: string;
-  title: string;
-  date: string;
-}
 
 interface Props {
   notices: Notice[];
@@ -19,7 +14,10 @@ export default function NoticeList({ notices }: Props) {
         <Link href={`/notice/${notice.id}`} key={notice.id}>
           <div className="hover:opacity-90">
             <div className="text-sm text-gray-800 font-medium">{notice.title}</div>
-            <div className="text-xs text-gray-400 mt-1">{notice.date}</div>
+            {/* createdAt 같은 필드를 변환해서 쓰는 게 좋아요 */}
+            <div className="text-xs text-gray-400 mt-1">
+              {new Date(notice.createdAt).toLocaleDateString('ko-KR')}
+            </div>
             <div className="border-b mt-2 border-gray-200" />
           </div>
         </Link>
