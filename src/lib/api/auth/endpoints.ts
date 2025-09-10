@@ -81,3 +81,13 @@ export async function findUserId(payload: { name: string, email: string }) {
     }
   );
 }
+
+export async function deleteAccount(payload: { currentPassword: string; agree: boolean }, token: string) {
+  return http<{ message: string }>(`${API_BASE}/auth/delete-account`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+}

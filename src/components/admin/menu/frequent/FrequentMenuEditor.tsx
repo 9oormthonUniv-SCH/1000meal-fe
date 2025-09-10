@@ -1,7 +1,7 @@
 'use client';
 
 import MenuEditorLayout from "@/components/admin/menu/edit/MenuEditorLayout";
-import Toast from "@/components/common/Toast"; // ✅ 추가
+import Toast from "@/components/common/Toast";
 import { useFrequentMenuEditor } from "@/lib/hooks/useFrequentMenuEditor";
 import { useState } from "react";
 
@@ -16,14 +16,12 @@ export default function FrequentMenuEditor({ isNew, id }: { isNew: boolean; id?:
     save, handleBack,
   } = useFrequentMenuEditor(isNew, id);
 
-  // ✅ 토스트 상태
   const [showToast, setShowToast] = useState(false);
 
-  // ✅ save 래핑
   const handleSave = async () => {
     await save();
     setShowToast(true);
-    setTimeout(() => setShowToast(false), 800); // 0.8초 뒤 자동 사라짐
+    setTimeout(() => setShowToast(false), 800);
   };
 
   return (
@@ -40,8 +38,6 @@ export default function FrequentMenuEditor({ isNew, id }: { isNew: boolean; id?:
         pendingAction={pendingAction} setPendingAction={setPendingAction}
         loading={false}
       />
-
-      {/* ✅ 저장 완료 토스트 */}
       <Toast show={showToast} message="저장되었습니다" />
     </>
   );

@@ -16,17 +16,7 @@ type Props = {
   loadWeek: (date: string, direction: "prev" | "next") => void;
 };
 
-function getMonthWeekLabel(dateStr: string) {
-  const d = dayjs(dateStr);
-  const month = d.month() + 1;
-  const firstDayOfMonth = d.startOf("month");
-  const firstMonday = firstDayOfMonth.startOf("week").add(1, "day");
-  const weekIndex = Math.floor(d.diff(firstMonday, "week")) + 1;
-  return `${month}월 ${weekIndex}주차`;
-}
-
 export default function WeekList({ weeks, onClickDay, loadWeek }: Props) {
-  const today = dayjs();
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -56,18 +46,10 @@ export default function WeekList({ weeks, onClickDay, loadWeek }: Props) {
       {weeks.map((week, idx) => {
         const firstDay = week[0].id;
         const mondayId = mondayOf(dayjs(firstDay)).format("YYYY-MM-DD");
-        const lastDay = week[week.length - 1].id;
-
-        const isThisWeek =
-          today.isSameOrAfter(dayjs(firstDay), "day") &&
-          today.isSameOrBefore(dayjs(lastDay), "day");
-
-        const title = isThisWeek ? "이번 주" : getMonthWeekLabel(firstDay);
 
         return (
           <div key={idx} id={`week-${mondayId}`}>
             <MenuWeekEditor
-              title={title}
               week={week}
               onClickDay={onClickDay}
               readOnly={false}

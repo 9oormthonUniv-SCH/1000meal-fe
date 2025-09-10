@@ -1,20 +1,21 @@
 'use client';
 
-import { storeIdAtom } from "@/atoms/user";
 import MenuEditorLayout from "@/components/admin/menu/edit/MenuEditorLayout";
 import WeekNavigator from "@/components/admin/menu/WeekNavigator";
-import Toast from "@/components/common/Toast"; // ✅ 추가
+import Toast from "@/components/common/Toast";
 import { getDailyMenu, saveDailyMenu } from "@/lib/api/menus/endpoints";
+import { getCookie } from "@/lib/auth/cookies";
+import { getStoreIdFromToken } from "@/lib/auth/jwt";
 import { mondayOf } from "@/utils/week";
 import dayjs from "dayjs";
-import { useAtomValue } from "jotai";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function AdminMenuEditPage() {
   const router = useRouter();
   const params = useParams<{ date: string }>();
-  const storeId = useAtomValue(storeIdAtom);
+  const token = getCookie("accessToken");
+  const storeId = getStoreIdFromToken(token);
 
   const selectedId = params?.date && dayjs(params.date).isValid()
     ? params.date
@@ -25,14 +26,11 @@ export default function AdminMenuEditPage() {
   const [dirty, setDirty] = useState(false);
   const [input, setInput] = useState("");
 
-  // 모달 관련 상태
   const [showConfirm, setShowConfirm] = useState(false);
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
 
-  // ✅ 토스트 상태
   const [showToast, setShowToast] = useState(false);
 
-  // 날짜 변경시 API 호출
   useEffect(() => {
     if (!storeId) return;
     (async () => {
@@ -64,15 +62,12 @@ export default function AdminMenuEditPage() {
     if (!storeId) return;
     await saveDailyMenu(storeId, selectedId, menus);
     setDirty(false);
-
-    // ✅ 저장 완료 알림
     setShowToast(true);
     setTimeout(() => setShowToast(false), 700);
   };
 
   const monday = mondayOf(dayjs(selectedId));
 
-  // 뒤로가기 wrapper
   const handleBack = () => {
     if (dirty) {
       setPendingAction(() => () => {
@@ -123,8 +118,6 @@ export default function AdminMenuEditPage() {
         }
         onBack={handleBack}
       />
-
-      {/* ✅ 화면 중앙 Toast */}
       <Toast show={showToast} message="저장되었습니다" />
     </>
   );

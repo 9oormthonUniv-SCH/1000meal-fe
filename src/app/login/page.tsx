@@ -1,6 +1,6 @@
 'use client';
 
-import { meAtom, storeIdAtom } from '@/atoms/user';
+import { meAtom } from '@/atoms/user';
 import LoginForm, { type LoginRole } from '@/components/auth/LoginForm';
 import Header from '@/components/common/Header';
 import { loginUser } from '@/lib/api/auth/endpoints';
@@ -14,7 +14,6 @@ import { useState } from 'react';
 export default function LoginPage() {
   const router = useRouter();
   const setMe = useSetAtom(meAtom);
-  const setStoreId = useSetAtom(storeIdAtom);
   const [loading, setLoading] = useState(false);
   const [errMsg, setErrMsg] = useState<string | null>(null);
 
@@ -30,14 +29,14 @@ export default function LoginPage() {
       // ✅ accessToken만 쿠키에 저장
       setSession(res.accessToken);
 
+      // 서버에서 유저 정보 가져오기
       const me = await getMe(res.accessToken);
       setMe(me);
 
-      if (me.role === 'ADMIN' && me.storeId) {
-        setStoreId(me.storeId);
+      // 역할별 이동 (role/storeId는 토큰에서 자동 복구됨)
+      if (me.role === 'ADMIN') {
         router.replace('/admin');
       } else {
-        setStoreId(null);
         router.replace('/');
       }
     } catch (e: unknown) {

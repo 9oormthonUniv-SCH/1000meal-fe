@@ -53,6 +53,13 @@ export function useWeeklyMenus(storeId?: number, initialDate?: string) {
             : buildEmptyWeek(dayjs(baseDate));
 
         setWeeks((prev) => {
+          const mondayIdStr = mondayOf(dayjs(baseDate)).format("YYYY-MM-DD");
+        
+          // 이미 존재하는 주차라면 추가하지 않음
+          if (prev.some(w => mondayOf(dayjs(w[0].id)).format("YYYY-MM-DD") === mondayIdStr)) {
+            return prev;
+          }
+        
           if (direction === "next") return [...prev, week];
           if (direction === "prev") return [week, ...prev];
           return prev;

@@ -2,7 +2,7 @@
 
 import clsx from 'clsx';
 import dayjs from 'dayjs';
-import { ChevronRight, Trash2 } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 
 export type DayMenu = {
   id: string;
@@ -13,7 +13,6 @@ export type DayMenu = {
 };
 
 type Props = {
-  title?: string;
   week: DayMenu[];
   onRemove?: () => void;
   onAddWeekend?: () => void;
@@ -22,28 +21,12 @@ type Props = {
 };
 
 export default function MenuWeekEditor({
-  title,
   week,
-  onRemove,
-  onAddWeekend,
   readOnly = false,
   onClickDay,
 }: Props) {
   return (
     <div className="bg-white rounded-2xl shadow-sm overflow-hidden mt-4">
-      <div className="px-4 py-3 border-b flex items-center justify-between">
-        <div className="text-sm font-semibold text-gray-800">{title}</div>
-        {!readOnly && (
-          <div className="flex items-center gap-2">
-            <button onClick={onAddWeekend} className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200">주말 추가하기</button>
-            {onRemove && (
-              <button onClick={onRemove} className="p-2 rounded-lg hover:bg-red-50" aria-label="주간 세트 삭제">
-                <Trash2 className="w-4 h-4 text-red-500" />
-              </button>
-            )}
-          </div>
-        )}
-      </div>
 
       <ul>
         {week.map(d => (

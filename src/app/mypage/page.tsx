@@ -3,7 +3,8 @@
 import { userRoleAtom } from '@/atoms/user';
 import { useLogout } from '@/components/auth/LogoutButton';
 import Header from '@/components/common/Header';
-import Toast from '@/components/common/Toast';
+import Modal from '@/components/common/Modal';
+import { deleteAccount } from '@/lib/api/auth/endpoints';
 import { ApiError } from '@/lib/api/errors';
 import { getMe } from '@/lib/api/users/endpoints';
 import { getCookie } from '@/lib/auth/cookies';
@@ -15,16 +16,12 @@ import { useEffect, useState } from 'react';
 export default function MyPage() {
   const router = useRouter();
   const [me, setMe] = useState<MeResponse | null>(null);
-  const [role] = useAtom(userRoleAtom); // ✅ role은 token decode 기준
+  const [role] = useAtom(userRoleAtom);
   const [loading, setLoading] = useState(true);
   const logout = useLogout();
 
-  const [showToast, setShowToast] = useState(false);
-
-  const handleClick = () => {
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 1500);
-  };
+  const [openModal, setOpenModal] = useState(false);
+  const [, setDeleting] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -36,8 +33,7 @@ export default function MyPage() {
       try {
         const user = await getMe(accessToken);
         setMe(user);
-  
-        // 서버 role vs token role 비교는 여기서 한 번만
+
         if (user.role !== role) {
           logout();
         }
@@ -51,8 +47,27 @@ export default function MyPage() {
         setLoading(false);
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [logout, role]);
+
+  const handleDelete = async () => {
+    const token = getCookie("accessToken");
+    if (!token) return logout();
+
+    try {
+      setDeleting(true);
+      await deleteAccount(
+        { currentPassword: "", agree: true }, // TODO: 비번 입력 UI 필요하면 여기에 반영
+        token
+      );
+      logout(); // 탈퇴 성공 → 세션 초기화 & 로그인 화면으로
+    } catch (err) {
+      console.error(err);
+      alert("회원 탈퇴에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setDeleting(false);
+      setOpenModal(false);
+    }
+  };
 
   if (loading) return <div className="p-6">불러오는 중...</div>;
   if (!me) return null;
@@ -62,8 +77,8 @@ export default function MyPage() {
       <Header title="마이페이지" />
 
       <div className="flex flex-col">
+        {/* 프로필 카드 */}
         <div className="bg-white pb-6">
-          {/* 프로필 카드 */}
           <div className="bg-white rounded-xl shadow-even mt-2 mx-4 p-4 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-2xl">
@@ -74,32 +89,76 @@ export default function MyPage() {
                 <p className="text-sm text-gray-500">{me.email}</p>
               </div>
             </div>
-
-            {/* 역할 뱃지 */}
             <span className="text-xs px-2 py-1 rounded-full bg-orange-100 text-orange-600">
               {me.role === 'STUDENT' ? '학생' : '관리자'}
             </span>
           </div>
         </div>
 
-        {/* 메뉴 리스트 */}
+        {/* 메뉴 */}
         <div className="bg-white mt-6 divide-y">
-          <button className="w-full text-left px-5 py-4 text-gray-700 hover:bg-gray-50" onClick={handleClick}>
-            회원정보 수정
-          </button>
-          <button className="w-full text-left px-5 py-4 text-gray-700 hover:bg-gray-50" onClick={() => router.push('/find-account?tab=pw')}>
+          <button className="w-full text-left px-5 py-4 text-gray-700 hover:bg-gray-50">회원정보 수정</button>
+          <button
+            className="w-full text-left px-5 py-4 text-gray-700 hover:bg-gray-50"
+            onClick={() => router.push('/find-account?tab=pw')}
+          >
             비밀번호 변경
           </button>
           <button className="w-full text-left px-5 py-4 text-gray-700 hover:bg-gray-50" onClick={logout}>
             로그아웃
           </button>
-          <button className="w-full text-left px-5 py-4 text-red-500 hover:bg-gray-50" onClick={handleClick}>
+          <button
+            className="w-full text-left px-5 py-4 text-red-500 hover:bg-gray-50"
+            onClick={() => setOpenModal(true)}
+          >
             회원탈퇴
           </button>
-
-          <Toast show={showToast} message="🚧 준비중입니다" />
         </div>
       </div>
+
+      {/* 🔹 탈퇴 확인 모달 */}
+      <DeleteAccountModal
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        onConfirm={handleDelete}
+      />
     </div>
+  );
+}
+
+function DeleteAccountModal({
+  open,
+  onClose,
+  onConfirm,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <Modal open={open} onClose={onClose}>
+      <div className="flex flex-col items-center justify-center text-center px-4 py-6">
+        <p className="text-gray-600 text-base font-medium leading-relaxed">
+          탈퇴하면 모든 기록이 사라집니다
+          <br />
+          정말 탈퇴하시겠습니까?
+        </p>
+
+        <div className="flex gap-3 mt-8 w-full">
+          <button
+            onClick={onConfirm}
+            className="flex-1 py-3 rounded-2xl bg-red-50 text-red-500 font-semibold shadow-md hover:bg-red-100"
+          >
+            탈퇴하기
+          </button>
+          <button
+            onClick={onClose}
+            className="flex-1 py-3 rounded-2xl bg-neutral-500 text-white font-semibold shadow-md hover:bg-neutral-600"
+          >
+            취소
+          </button>
+        </div>
+      </div>
+    </Modal>
   );
 }

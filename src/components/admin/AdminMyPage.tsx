@@ -4,6 +4,7 @@ import { ApiError } from '@/lib/api/errors';
 import { getStoreDetail, toggleStoreStatus } from '@/lib/api/stores';
 import { getMe } from '@/lib/api/users';
 import { getCookie } from '@/lib/auth/cookies';
+import { getStoreIdFromToken } from '@/lib/auth/jwt';
 import { clearSession } from '@/lib/auth/session.client';
 import { StoreDetail } from '@/types/store';
 import { MeResponse } from '@/types/user';
@@ -18,15 +19,14 @@ export default function AdminMyPage() {
   const router = useRouter();
   const [, setMe] = useState<MeResponse | null>(null);
   const [store, setStore] = useState<StoreDetail | null>(null);
-  const [isOpen, setIsOpen] = useState(false); // 영업중 여부
+  const [isOpen, setIsOpen] = useState(false);
 
   const [showToast, setShowToast] = useState(false);
 
   const handleClick = () => {
     setShowToast(true);
-    setTimeout(() => setShowToast(false), 1500); // 1초 후 사라짐
+    setTimeout(() => setShowToast(false), 1500);
   };
-
 
   useEffect(() => {
     (async () => {
@@ -38,9 +38,11 @@ export default function AdminMyPage() {
       try {
         const user = await getMe(accessToken);
         setMe(user);
-  
-        if (user.role === 'ADMIN' && user.storeId) {
-          const storeData = await getStoreDetail(user.storeId);
+
+        // ✅ 토큰에서 storeId 직접 추출
+        const storeId = getStoreIdFromToken(accessToken);
+        if (user.role === 'ADMIN' && storeId) {
+          const storeData = await getStoreDetail(storeId);
           setStore(storeData);
           setIsOpen(storeData.open);
         }
@@ -57,9 +59,8 @@ export default function AdminMyPage() {
   const handleToggle = async () => {
     try {
       if (!store) return;
-  
-      await toggleStoreStatus(store.id); // 서버에 상태 토글 요청
-      setIsOpen(!isOpen); // UI 갱신
+      await toggleStoreStatus(store.id);
+      setIsOpen(!isOpen);
     } catch (err) {
       console.error("영업 상태 변경 실패:", err);
       alert("영업 상태 변경에 실패했습니다.");
@@ -73,9 +74,8 @@ export default function AdminMyPage() {
 
   return (
     <div className="w-full h-dvh pt-[56px]">
-      <Header title="" onBack={() => router.push("/")}/>
+      <Header title="" onBack={() => router.push("/")} />
       <div className="bg-white-100 px-4">
-        {/* 상단 영역 */}
         <div className="bg-white rounded-2xl p-4 mt-4 mb-4 relative shadow-even">
           <button className="absolute right-4 top-4 text-gray-500" onClick={handleClick}>
             <Settings className="w-6 h-6" />
@@ -91,7 +91,6 @@ export default function AdminMyPage() {
       </div>
 
       <div className="min-h-screen bg-gray-100 px-4 py-6">
-        {/* 컨트롤 패널 */}
         <div className="grid grid-cols-2 gap-4">
           {/* 영업중 여부 */}
           <div
@@ -103,7 +102,6 @@ export default function AdminMyPage() {
             <div>
               <p className="text-lg font-semibold mb-2">{isOpen ? '영업 중' : '영업 종료'}</p>
             </div>
-            {/* ✅ 토글 버튼 */}
             <div className="absolute bottom-4 right-4">
               <label className="inline-flex items-center cursor-pointer">
                 <input
@@ -148,7 +146,6 @@ export default function AdminMyPage() {
           <ChevronRight className="w-9 h-9 text-gray-400" />
         </button>
 
-        {/* 로그아웃 버튼 */}
         <button
           onClick={handleLogout}
           className="w-full flex justify-center items-center mt-6 rounded-2xl p-4 bg-red-500 text-white font-semibold shadow hover:bg-red-600 transition"
