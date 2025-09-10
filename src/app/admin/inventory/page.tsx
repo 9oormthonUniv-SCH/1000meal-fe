@@ -6,6 +6,7 @@ import Header from '@/components/common/Header';
 import { ApiError, ServerErrorBody } from '@/lib/api/errors';
 import { getDailyMenu, updateDailyStock } from '@/lib/api/menus/endpoints';
 import { DailyMenuResponse } from '@/types/menu';
+import clsx from 'clsx';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
 import { useAtomValue } from 'jotai';
@@ -113,21 +114,27 @@ export default function InventoryPage() {
       {/* 재고 패널 */}
       <div className="px-4 py-6">
         <div>
-          <div className="bg-white rounded-2xl px-8 py-5 flex items-center justify-between shadow">
+          <div className="bg-white rounded-2xl px-8 py-7 flex items-center justify-between shadow">
+            {/* 현재 수량 텍스트 */}
             <span
-              className={`text-xl ${open ? "text-zinc-900" : "text-stone-300"}`}
+              className={clsx(
+                "text-xl font-semibold", // ✅ 굵게 + 크게
+                open ? "text-zinc-900" : "text-stone-300"
+              )}
             >
               현재 수량
             </span>
-            <div className="flex items-center gap-2">
+
+            {/* 수량 조절 */}
+            <div className="flex items-center gap-3">
               <button
                 onClick={() => handleAdjustStock(-1)}
-                className="w-4 h-4 rounded-full bg-stone-300 text-white text-base flex items-center justify-center active:text-white transition"
+                className="w-6 h-6 rounded-full bg-stone-300 text-white text-lg flex items-center justify-center active:bg-stone-400 transition"
               >
                 –
               </button>
 
-              {/* ✅ 입력 가능 */}
+              {/* 입력칸 */}
               <input
                 value={stock}
                 onChange={(e) => setStock(Math.max(0, Number(e.target.value)))}
@@ -136,8 +143,7 @@ export default function InventoryPage() {
                     try {
                       await updateDailyStock(menuId, stock);
                       setErrorMsg(null);
-                    } catch (err) {
-                      console.error("재고 업데이트 실패:", err);
+                    } catch {
                       setErrorMsg("재고 업데이트 실패");
                     }
                   }
@@ -148,21 +154,20 @@ export default function InventoryPage() {
                       await updateDailyStock(menuId, stock);
                       setErrorMsg(null);
                       (e.target as HTMLInputElement).blur();
-                    } catch (err) {
-                      console.error("재고 업데이트 실패:", err);
+                    } catch {
                       setErrorMsg("재고 업데이트 실패");
                     }
                   }
                 }}
-                className={`w-16 text-center text-base font-semibold border rounded ${
+                className={clsx(
+                  "h-12 w-24 text-center text-xl font-semibold border rounded", // ✅ 크기 + 굵기 확대
                   open ? "text-zinc-900" : "text-stone-300"
-                }`}
+                )}
               />
 
-              
               <button
                 onClick={() => handleAdjustStock(1)}
-                className="w-4 h-4 rounded-full bg-stone-300 text-white text-base flex items-center justify-center active:bg-stone-500 transition"
+                className="w-6 h-6 rounded-full bg-stone-300 text-white text-lg flex items-center justify-center active:bg-stone-400 transition"
               >
                 +
               </button>
@@ -170,31 +175,28 @@ export default function InventoryPage() {
           </div>
         </div>
 
-        {/* 수량 조절 버튼 */}
-        <div className="bg-white mt-4 rounded-2xl px-4 py-8 flex shadow text-gray-400 text-sm font-medium">
+        <div className="bg-white mt-4 rounded-2xl flex shadow text-gray-400 text-sm font-medium overflow-hidden">
           {[10, 5, 1].map((value, idx) => (
-            <div
-            key={value}
-            onClick={() => handleAdjustStock(-value)}
-            className="flex-1 flex items-center justify-center gap-2 relative cursor-pointer select-none group active:text-stone-500"
-          >
-            {/* 동그란 버튼 */}
             <button
-              className="w-5 h-5 rounded-full bg-stone-300 text-white text-base flex items-center justify-center leading-none group-active:text-stone-500 transition"
+              key={value}
+              onClick={() => handleAdjustStock(-value)}
+              className={clsx(
+                "flex-1 flex items-center justify-center gap-2 py-8 relative select-none transition",
+                "active:bg-orange-50 active:text-orange-500" // ✅ active 효과
+              )}
             >
-              –
+              <span className="w-5 h-5 rounded-full bg-stone-300 text-white text-sm flex items-center justify-center leading-none">
+                –
+              </span>
+              <span className="text-xl font-semibold text-zinc-900">
+                {value}개
+              </span>
+
+              {/* 구분선 */}
+              {idx < 2 && (
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 h-5 w-px bg-gray-200" />
+              )}
             </button>
-            <span className={`text-2xl font-['Pretendard'] transition ${
-                open ? "text-zinc-900" : "text-stone-300"
-              }`}>
-              {value}개
-            </span>
-          
-            {/* 구분선 */}
-            {idx < 2 && (
-              <div className="absolute right-0 top-1/2 -translate-y-1/2 h-5 w-px bg-gray-200" />
-            )}
-          </div>
           ))}
         </div>
 

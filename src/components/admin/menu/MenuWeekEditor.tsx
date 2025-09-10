@@ -1,6 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
+import dayjs from 'dayjs';
 import { ChevronRight, Trash2 } from 'lucide-react';
 
 export type DayMenu = {
@@ -46,8 +47,21 @@ export default function MenuWeekEditor({
 
       <ul>
         {week.map(d => (
-          <li key={d.id} className="grid grid-cols-[72px_56px_1fr_20px] items-center gap-2 px-4 py-3 border-b last:border-b-0">
-            <span className="text-gray-500 text-sm">{d.dateLabel}</span>
+          <li
+            key={d.id}
+            className={clsx(
+              "grid grid-cols-[72px_56px_1fr_20px] items-center gap-2 px-4 py-3 border-b last:border-b-0",
+              dayjs(d.id).isBefore(dayjs(), "day") && "opacity-40"
+            )}
+          >
+            <span
+              className={clsx(
+                "text-sm border-r",
+                d.id === dayjs().format("YYYY-MM-DD") ? "text-orange-500 font-semibold" : "text-gray-500"
+              )}
+            >
+              {d.dateLabel}
+            </span>
             <span className="text-gray-500 text-sm">{d.weekdayLabel}</span>
             <button
               onClick={() => !readOnly && onClickDay?.(d.id)}

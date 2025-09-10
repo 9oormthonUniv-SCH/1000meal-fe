@@ -12,12 +12,21 @@ import { ChevronRight, LogOut, Settings } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Header from '../common/Header';
+import Toast from '../common/Toast';
 
 export default function AdminMyPage() {
   const router = useRouter();
   const [, setMe] = useState<MeResponse | null>(null);
   const [store, setStore] = useState<StoreDetail | null>(null);
   const [isOpen, setIsOpen] = useState(false); // 영업중 여부
+
+  const [showToast, setShowToast] = useState(false);
+
+  const handleClick = () => {
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 1500); // 1초 후 사라짐
+  };
+
 
   useEffect(() => {
     (async () => {
@@ -68,7 +77,7 @@ export default function AdminMyPage() {
       <div className="bg-white-100 px-4">
         {/* 상단 영역 */}
         <div className="bg-white rounded-2xl p-4 mt-4 mb-4 relative shadow-even">
-          <button className="absolute right-4 top-4 text-gray-500">
+          <button className="absolute right-4 top-4 text-gray-500" onClick={handleClick}>
             <Settings className="w-6 h-6" />
           </button>
           <div className="flex items-center space-x-4">
@@ -148,6 +157,7 @@ export default function AdminMyPage() {
           로그아웃
         </button>
       </div>
+      <Toast show={showToast} message="🚧 준비중입니다" />
     </div>
   );
 }

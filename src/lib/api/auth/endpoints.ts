@@ -72,7 +72,7 @@ export async function resetPasswordConfirm(payload: {
 }
 
 /** 아이디 찾기 */
-export async function findUserId(payload: { email: string }) {
+export async function findUserId(payload: { name: string, email: string }) {
   return http<{ message: string; userId: string }>(
     `${API_BASE}/auth/find-id`,
     {

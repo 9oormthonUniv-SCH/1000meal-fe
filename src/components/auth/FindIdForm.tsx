@@ -4,12 +4,13 @@ import { findUserId } from "@/lib/api/auth/endpoints"; // 새 함수 만들어�
 import { useState } from "react";
 
 export default function FindIdForm() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [result, setResult] = useState<string | null>(null);
 
   const handleSubmit = async () => {
     try {
-      const res = await findUserId({ email });
+      const res = await findUserId({ name, email });
       setResult(res.userId); // 응답에서 userId 꺼내기
     } catch (err) {
       console.log(err);
@@ -19,6 +20,12 @@ export default function FindIdForm() {
 
   return (
     <div>
+      <input
+        className="w-full border-b py-2 mb-4"
+        placeholder="이름"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
       <input
         className="w-full border-b py-2 mb-4"
         placeholder="이메일"
