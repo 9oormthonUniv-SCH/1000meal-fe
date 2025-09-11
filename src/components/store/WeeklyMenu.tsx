@@ -3,7 +3,7 @@
 import type { DayOfWeek, StoreDetail } from "@/types/store";
 import { motion } from "framer-motion";
 import { RefreshCcw } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import MenuCard from "./MenuCard";
 
 interface WeeklyMenuProps {
@@ -25,7 +25,7 @@ const WEEKDAYS: DayOfWeek[] = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY
 
 export default function WeeklyMenu({ store, onReload }: WeeklyMenuProps) {
   const todayISO = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-
+  const todayRef = useRef<HTMLDivElement | null>(null);
   // 1) 월~금만 골라 날짜 오름차순으로 정렬
   const weekdayMenus = useMemo(() => {
     const list = store?.weeklyMenuResponse?.dailyMenus ?? [];
@@ -33,6 +33,16 @@ export default function WeeklyMenu({ store, onReload }: WeeklyMenuProps) {
       .filter(d => WEEKDAYS.includes(d.dayOfWeek))
       .sort((a, b) => (a.date > b.date ? 1 : -1));
   }, [store?.weeklyMenuResponse?.dailyMenus]);
+
+  useEffect(() => {
+    if (todayRef.current && weekdayMenus.length > 0) {
+      todayRef.current.scrollIntoView({
+        behavior: "smooth",
+        inline: "center",
+        block: "nearest",
+      });
+    }
+  }, [weekdayMenus]);
 
   return (
     <div className="px-4 pt-4">
@@ -53,11 +63,15 @@ export default function WeeklyMenu({ store, onReload }: WeeklyMenuProps) {
             const dateLabel = `${d.date.slice(5, 7)}월 ${d.date.slice(8, 10)}일`; // MM월 DD일
             const dayLabel = KOR_DAY_LABEL[d.dayOfWeek];
 
-            // 영업 안 하는 날 표시 커스터마이즈 가능
+            // 영업 안 하는 날 표시
             const items = d.open ? d.menus : ["휴무"];
 
             return (
-              <div key={d.id} className="flex-shrink-0 w-[140px]">
+              <div
+                key={d.id}
+                className="flex-shrink-0 w-[140px]"
+                ref={isToday ? todayRef : null}   // ✅ 오늘 날짜일 때만 ref 달기
+              >
                 <MenuCard
                   date={dateLabel}
                   day={dayLabel}
