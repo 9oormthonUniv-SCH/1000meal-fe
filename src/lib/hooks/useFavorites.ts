@@ -1,6 +1,6 @@
 'use client';
 
-import { getFavorites, saveFavorites } from "@/lib/api/favorites/endpoints";
+import { getFavoriteGroup, getFavorites, saveFavorites } from "@/lib/api/favorites/endpoints";
 import { useEffect, useState } from "react";
 
 export function useFavorites(storeId?: number) {
@@ -25,11 +25,23 @@ export function useFavorites(storeId?: number) {
     })();
   }, [storeId]);
 
+  // ✅ 그룹 상세조회
+  const loadGroup = async (groupId: string) => {
+    try {
+      const data = await getFavoriteGroup(Number(groupId));
+      return data.groups[0]?.menu ?? [];
+    } catch (err) {
+      console.error("그룹 상세조회 실패:", err);
+      return [];
+    }
+  };
+
+  // ✅ 저장
   const save = async (menus: string[]) => {
     if (!storeId) return;
     try {
       await saveFavorites(storeId, menus);
-      // 저장 후 목록 갱신
+      // 저장 후 전체 목록 갱신
       const data = await getFavorites(storeId);
       const mapped = (data.groups ?? []).map(g => ({
         id: g.groupId.toString(),
@@ -41,5 +53,5 @@ export function useFavorites(storeId?: number) {
     }
   };
 
-  return { lists, setLists, loading, save };
+  return { lists, setLists, loading, save, loadGroup };
 }

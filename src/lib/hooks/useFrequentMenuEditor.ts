@@ -1,71 +1,66 @@
+// src/lib/hooks/useFrequentMenuEditor.ts
 'use client';
 
 import { storeIdAtom } from "@/atoms/user";
-import { getFavorites, saveFavorites } from "@/lib/api/favorites/endpoints";
+import { useFavorites } from "@/lib/hooks/useFavorites";
 import { useAtomValue } from "jotai";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export function useFrequentMenuEditor(isNew: boolean, id?: string) {
-  const router = useRouter();
   const storeId = useAtomValue(storeIdAtom);
+  const { loadGroup, save } = useFavorites(storeId ?? undefined);
 
   const [items, setItems] = useState<string[]>([]);
   const [input, setInput] = useState("");
   const [dirty, setDirty] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [pendingAction, setPendingAction] = useState<null | (() => void)>(null);
+  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
 
-  // 그룹 불러오기
+  // ✅ 기존 그룹 상세조회
   useEffect(() => {
-    if (!isNew && storeId && id) {
+    if (!isNew && id) {
       (async () => {
-        const data = await getFavorites(storeId);
-        const found = data.groups.find(g => g.groupId.toString() === id);
-        if (found) setItems(found.menu);
+        const menus = await loadGroup(id);
+        setItems(menus);
       })();
     }
-  }, [isNew, id, storeId]);
+  }, [isNew, id, loadGroup]);
 
-  const addMenu = (text?: string) => {
-    const value = (text ?? input).trim();
-    if (!value) return;
-    setItems(prev => [...prev, value]);
-    if (!text) setInput(""); // 직접 입력일 때만 초기화
+  // 메뉴 추가
+  const addMenu = useCallback((menuText?: string) => {
+    const text = menuText ?? input.trim();
+    if (!text) return;
+    setItems(prev => [...prev, text]);
+    setInput("");
     setDirty(true);
-  };
+  }, [input]);
 
-  const removeMenu = (i: number) => {
-    setItems(prev => prev.filter((_, idx) => idx !== i));
+  // 메뉴 삭제
+  const removeMenu = useCallback((index: number) => {
+    setItems(prev => prev.filter((_, i) => i !== index));
     setDirty(true);
-  };
+  }, []);
 
-  const save = async () => {
-    if (!storeId) return;
-    try {
-      await saveFavorites(storeId, items); // 🔹 POST 호출
-      setDirty(false);
-    } catch (err) {
-      console.error("즐겨찾는 메뉴 저장 실패:", err);
-    }
-  };
+  // 저장
+  const handleSave = useCallback(async () => {
+    await save(items);
+    setDirty(false);
+  }, [items, save]);
 
-  const handleBack = () => {
-    if (dirty) {
-      setPendingAction(() => () => router.push("/admin/menu/frequent"));
-      setShowConfirm(true);
-    } else {
-      router.push("/admin/menu/frequent");
-    }
-  };
+  // 뒤로가기
+  const handleBack = useCallback(() => {
+    if (dirty) setShowConfirm(true);
+    else history.back();
+  }, [dirty]);
 
   return {
     items,
     input, setInput,
-    dirty, setDirty,
+    setDirty,
     showConfirm, setShowConfirm,
     pendingAction, setPendingAction,
     addMenu, removeMenu,
-    save, handleBack,
+    save: handleSave,
+    handleBack,
   };
 }
