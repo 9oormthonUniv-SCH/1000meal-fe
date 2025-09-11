@@ -47,7 +47,7 @@ export default function MyPage() {
         setLoading(false);
       }
     })();
-  }, [logout, role]);
+  }, [role]);
 
   const handleDelete = async () => {
     const token = getCookie("accessToken");
