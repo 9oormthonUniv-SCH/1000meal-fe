@@ -40,9 +40,11 @@ export async function http<T>(url: string, init: HttpInit = {}): Promise<T> {
 
     const body = await res.json().catch(() => ({}));
     console.log(body);
+    const serverMessage =
+      body?.result?.message || body?.message || "요청 실패";
 
     if (res.status === 401) {
-      throw new ApiError("Unauthorized", {
+      throw new ApiError(serverMessage, {
         status: 401,
         code: body?.result?.code || body?.code,
         details: body as ServerErrorBody,
@@ -65,6 +67,13 @@ export async function http<T>(url: string, init: HttpInit = {}): Promise<T> {
 
     if (res.ok) {
       return body as T;
+    }
+    if (!res.ok) {
+      throw new ApiError(serverMessage, {
+        status: res.status,
+        code: body?.result?.code || body?.code,
+        details: body as ServerErrorBody,
+      });
     }
 
     throw new ApiError("요청 실패", {
