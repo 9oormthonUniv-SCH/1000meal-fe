@@ -31,7 +31,6 @@ export default function InventoryPage() {
     (async () => {
       try {
         const res: DailyMenuResponse | null = await getDailyMenu(storeId, today);
-        console.log(res);
         if (res) {
           setMenuId(res.id);
           setStock(res.stock ?? 0);

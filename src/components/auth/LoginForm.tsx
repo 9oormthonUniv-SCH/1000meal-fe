@@ -103,7 +103,7 @@ export default function LoginForm({
               )}
             >
               <Image
-                src="/logo.png"
+                src="/Textlogo.png"
                 alt="오늘 순밥"
                 width={112}
                 height={32}

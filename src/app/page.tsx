@@ -36,7 +36,7 @@ export default function HomePage() {
       <div className="relative mb-12">
         <HeaderButtons />
         <Image
-          src="/logo.png"
+          src="/Textlogo.png"
           alt="오늘 순밥"
           width={120}   // 필수
           height={32}   // 필수
