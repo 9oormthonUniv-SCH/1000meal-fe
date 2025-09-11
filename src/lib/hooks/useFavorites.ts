@@ -1,6 +1,6 @@
 'use client';
 
-import { getFavoriteGroup, getFavorites, saveFavorites } from "@/lib/api/favorites/endpoints";
+import { deleteFavorites, getFavoriteGroup, getFavorites, saveFavorites } from "@/lib/api/favorites/endpoints";
 import { useEffect, useState } from "react";
 
 export function useFavorites(storeId?: number) {
@@ -52,6 +52,16 @@ export function useFavorites(storeId?: number) {
       console.error("즐겨찾기 저장 실패:", err);
     }
   };
+  
+  const remove = async (ids: string[]) => {
+    if (!storeId) return;
+    try {
+      await deleteFavorites(storeId, ids.map(id => Number(id)));
+      setLists(prev => prev.filter(l => !ids.includes(l.id)));
+    } catch (err) {
+      console.error("즐겨찾기 삭제 실패:", err);
+    }
+  };
 
-  return { lists, setLists, loading, save, loadGroup };
+  return { lists, loading, save, loadGroup, remove };
 }

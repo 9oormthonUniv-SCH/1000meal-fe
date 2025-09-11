@@ -33,3 +33,14 @@ export async function saveFavorites(storeId: number, menus: string[]) {
     }
   );
 }
+
+export async function deleteFavorites(storeId: number, groupIds: number[]) {
+  return http<void>(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/favorites/${storeId}/groups`,
+    {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(groupIds), // [0, 1, 2] 형태
+    }
+  );
+}

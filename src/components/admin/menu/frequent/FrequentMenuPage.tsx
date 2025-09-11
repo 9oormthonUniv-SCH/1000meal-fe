@@ -13,7 +13,8 @@ import { useState } from "react";
 export default function FrequentMenuPage() {
   const router = useRouter();
   const storeId = useAtomValue(storeIdAtom);
-  const { lists, setLists, loading } = useFavorites(storeId ?? undefined);
+  // ✅ remove 추가
+  const { lists, loading, remove } = useFavorites(storeId ?? undefined);
 
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -28,8 +29,9 @@ export default function FrequentMenuPage() {
     });
   };
 
-  const handleDelete = () => {
-    setLists(prev => prev.filter(l => !selectedIds.has(l.id)));
+  const handleDelete = async () => {
+    // ✅ 실제 API 호출
+    await remove(Array.from(selectedIds));  
     setSelectedIds(new Set());
     setSelectMode(false);
   };
