@@ -64,6 +64,7 @@ export default function InventoryPage() {
       }
     })();
   }, [storeId, today]);
+  console.log(storeId);
 
   // ✅ 수량 조절
   const handleAdjustStock = async (value: number) => {
