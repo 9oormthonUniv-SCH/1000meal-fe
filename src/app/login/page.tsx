@@ -31,9 +31,9 @@ export default function LoginPage() {
 
       // 서버에서 유저 정보 가져오기
       const me = await getMe(res.accessToken);
-      setMe(me);
+      setMe(me); // 여기만 호출하면 됨
 
-      // 역할별 이동 (role/storeId는 토큰에서 자동 복구됨)
+      // 역할별 이동
       if (me.role === 'ADMIN') {
         router.replace('/admin');
       } else {
