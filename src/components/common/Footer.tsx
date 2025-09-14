@@ -15,7 +15,7 @@ export default function Footer() {
           <SiGmail size={20} />
         </a>
         <a
-          href="https://instagram.com/goormthon_univ_schu"
+          href="https://instagram.com/9oormthon_univ_schu"
           target="_blank"
           rel="noopener noreferrer"
           className="text-pink-500 transition-colors"
