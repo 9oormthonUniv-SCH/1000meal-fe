@@ -1,4 +1,4 @@
-// src/lib/api/http.ts
+import { getCookie } from "@/lib/auth/cookies"; // ✅ 토큰 가져오기 추가
 import { DEFAULT_HEADERS, DEFAULT_TIMEOUT_MS } from "./config";
 import { ApiError, ServerErrorBody } from "./errors";
 
@@ -6,7 +6,6 @@ export interface HttpInit extends RequestInit {
   timeoutMs?: number;
 }
 
-// src/lib/api/http.ts
 export async function http<T>(url: string, init: HttpInit = {}): Promise<T> {
   const {
     timeoutMs = DEFAULT_TIMEOUT_MS,
@@ -23,15 +22,20 @@ export async function http<T>(url: string, init: HttpInit = {}): Promise<T> {
   try {
     let res: Response;
     try {
+      const token = getCookie("accessToken"); // ✅ 쿠키에서 토큰 읽기
+
       res = await fetch(url, {
         ...fetchInit,
-        headers: { ...DEFAULT_HEADERS, ...(headers ?? {}) },
+        headers: {
+          ...DEFAULT_HEADERS,
+          ...(headers ?? {}),
+          ...(token ? { Authorization: `Bearer ${token}` } : {}), // ✅ 있으면 Authorization 붙이기
+        },
         signal,
         cache,
       });
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") {
-        // ✅ 요청 취소 → 그냥 무시 (throw 하지 않고 조용히 return)
         return [] as T;
       }
       console.error("HTTP 요청 실패:", err);
@@ -39,9 +43,7 @@ export async function http<T>(url: string, init: HttpInit = {}): Promise<T> {
     }
 
     const body = await res.json().catch(() => ({}));
-    console.log(body);
-    const serverMessage =
-      body?.result?.message || body?.message || "요청 실패";
+    const serverMessage = body?.result?.message || body?.message || "요청 실패";
 
     if (res.status === 401) {
       throw new ApiError(serverMessage, {
@@ -57,26 +59,17 @@ export async function http<T>(url: string, init: HttpInit = {}): Promise<T> {
 
     if (body && typeof body === "object" && "data" in body) {
       if (body.data === null) {
-        return [] as T; // ✅ null → 빈 배열
+        return [] as T;
       }
       if (Array.isArray(body.data)) {
-        return body.data as T; // ✅ 배열인 경우
+        return body.data as T;
       }
       return body.data as T;
     }
 
-    if (res.ok) {
-      return body as T;
-    }
-    if (!res.ok) {
-      throw new ApiError(serverMessage, {
-        status: res.status,
-        code: body?.result?.code || body?.code,
-        details: body as ServerErrorBody,
-      });
-    }
+    if (res.ok) return body as T;
 
-    throw new ApiError("요청 실패", {
+    throw new ApiError(serverMessage, {
       status: res.status,
       code: body?.result?.code || body?.code,
       details: body as ServerErrorBody,
