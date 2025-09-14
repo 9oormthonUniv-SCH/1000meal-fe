@@ -91,3 +91,27 @@ export async function deleteAccount(payload: { currentPassword: string; agree: b
     body: JSON.stringify(payload),
   });
 }
+
+export async function startEmailChange(token: string, payload: { currentEmail: string; password: string }) {
+  return http<{ changeId: string; expiresInSec: number }>(`${API_BASE}/account/email/start`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function sendEmailChangeCode(token: string, payload: { changeId: string; newEmail: string }) {
+  return http<{ message: string }>(`${API_BASE}/account/email/code`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function verifyEmailChange(token: string, payload: { changeId: string; code: string }) {
+  return http<{ updatedEmail: string }>(`${API_BASE}/account/email/verify`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload),
+  });
+}

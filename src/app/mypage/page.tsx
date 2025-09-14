@@ -100,7 +100,7 @@ export default function MyPage() {
           <button className="w-full text-left px-5 py-4 text-gray-700 hover:bg-gray-50">회원정보 수정</button>
           <button
             className="w-full text-left px-5 py-4 text-gray-700 hover:bg-gray-50"
-            onClick={() => router.push('/find-account?tab=pw')}
+            onClick={() => router.push('/change-email')}
           >
             비밀번호 변경
           </button>
