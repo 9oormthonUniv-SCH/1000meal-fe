@@ -5,10 +5,11 @@ import { storeIdAtom } from "@/atoms/user";
 import { useFavorites } from "@/lib/hooks/useFavorites";
 import { useAtomValue } from "jotai";
 import { useCallback, useEffect, useState } from "react";
+import { createFavorite, updateFavorite } from "../api/favorites";
 
 export function useFrequentMenuEditor(isNew: boolean, id?: string) {
   const storeId = useAtomValue(storeIdAtom);
-  const { loadGroup, save } = useFavorites(storeId ?? undefined);
+  const { loadGroup } = useFavorites(storeId ?? undefined);
 
   const [items, setItems] = useState<string[]>([]);
   const [input, setInput] = useState("");
@@ -41,11 +42,14 @@ export function useFrequentMenuEditor(isNew: boolean, id?: string) {
     setDirty(true);
   }, []);
 
-  // 저장
   const handleSave = useCallback(async () => {
-    await save(items);
+    if (isNew && storeId) {
+      await createFavorite(storeId, items);
+    } else if (!isNew && id) {
+      await updateFavorite(Number(id), items);
+    }
     setDirty(false);
-  }, [items, save]);
+  }, [isNew, storeId, id, items]);
 
   // 뒤로가기
   const handleBack = useCallback(() => {

@@ -22,12 +22,24 @@ export async function getFavoriteGroup(groupId: number) {
   );
 }
 
-// 즐겨찾기 저장
-export async function saveFavorite(storeId: number, menus: string[]) {
+// 즐겨찾기 저장 (새 그룹 생성)
+export async function createFavorite(storeId: number, menus: string[]) {
   return http<void>(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/favorites/${storeId}`, // ✅ 수정된 엔드포인트
+    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/favorites/${storeId}`,
     {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(menus),
+    }
+  );
+}
+
+// 즐겨찾기 수정 (기존 그룹 갱신)
+export async function updateFavorite(groupId: number, menus: string[]) {
+  return http<void>(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/favorites/${groupId}`,
+    {
+      method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(menus),
     }
