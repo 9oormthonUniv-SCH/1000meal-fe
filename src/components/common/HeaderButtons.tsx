@@ -2,7 +2,7 @@
 
 import { getCookie } from '@/lib/auth/cookies'; // ✅ 여기서 import
 import { getRoleFromToken } from '@/lib/auth/jwt';
-import { Bell, User } from 'lucide-react';
+import { User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function HeaderButtons() {
@@ -25,13 +25,13 @@ export default function HeaderButtons() {
 
   return (
     <div className="absolute top-0 right-0 flex gap-3">
-      <button
+      {/* <button
         onClick={() => router.push('/notification')}
         className="p-2 rounded-full bg-gray-100 hover:bg-gray-200"
         aria-label="알림"
       >
         <Bell className="w-5 h-5 text-gray-700" />
-      </button>
+      </button> */}
 
       <button
         onClick={goToMyPage}
