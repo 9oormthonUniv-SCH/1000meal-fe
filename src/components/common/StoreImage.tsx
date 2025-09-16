@@ -13,8 +13,6 @@ export default function StoreImage({ store }: { store: StoreDetail }) {
           alt={store.name}
           fill
           className="object-contain object-bottom scale-100" 
-          // ✅ object-bottom: 하단 정렬
-          // ✅ scale-110: 이미지 살짝 확대 → 밑부분이 가려짐
         />
       ) : (
         <div className="w-full h-full bg-gray-300 flex items-center justify-center text-white text-lg">
