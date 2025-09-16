@@ -12,7 +12,7 @@ export default function StoreInfo({ store }: Props) {
       <h2 className="font-bold text-gray-900 py-1 text-xl">{store.name}</h2>
       <p className="text-sm text-gray-400">{store.address}</p>
 
-      {store.phone ? (
+      {store.phone && store.phone !== "010-0000-0000" ? (
         <a
           href={`tel:${store.phone}`}
           className="text-sm text-blue-500 underline hover:text-blue-700 transition-colors"

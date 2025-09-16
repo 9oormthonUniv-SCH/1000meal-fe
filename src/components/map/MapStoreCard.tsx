@@ -12,7 +12,7 @@ export default function MapStoreCard({ store, onReload }: { store: StoreListItem
   };
 
   return (
-    <div className="w-full bg-white rounded-t-2xl shadow-[0_-4px_4px_rgba(0,0,0,0.2)] pt-3 min-h-[215px]">
+    <div className="w-full bg-white rounded-t-2xl shadow-[0_-4px_4px_rgba(0,0,0,0.2)] pt-3 min-h-[320px]">
       {/* 드래그 핸들 */}
       <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-3" />
 
@@ -25,7 +25,7 @@ export default function MapStoreCard({ store, onReload }: { store: StoreListItem
           {store.name}
         </h2>
         <p className="text-sm mt-1 text-gray-600">{store.address}</p>
-        {store.phone ? (
+        {store.phone && store.phone !== "010-0000-0000" ? (
           <a
             href={`tel:${store.phone}`}
             className="text-sm text-gray-600 hover:underline block mt-1"
@@ -56,7 +56,7 @@ export default function MapStoreCard({ store, onReload }: { store: StoreListItem
       </div>
 
       {/* 오늘의 천밥 */}
-      <div className="mt-4 bg-orange-500 text-white px-4 py-3 flex justify-between items-center">
+      <div className="absolute bottom-0 left-0 w-full bg-orange-500 text-white px-4 py-3 flex justify-between items-center pb-[50px]">
         <div>
           <p className="font-semibold text-lg">오늘의 천밥</p>
           <p className="text-sm">
@@ -71,7 +71,6 @@ export default function MapStoreCard({ store, onReload }: { store: StoreListItem
         <div
           className={clsx(
             "text-base font-bold",
-            store.remain === 0 ? "text-red-500" : "text-white"
           )}
         >
           {store.remain}개
