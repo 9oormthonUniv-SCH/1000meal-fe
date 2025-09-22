@@ -1,21 +1,18 @@
 'use client';
 
-import { meAtom } from '@/atoms/user';
 import Header from '@/components/common/Header';
 import { sendEmailChangeCode, startEmailChange, verifyEmailChange } from '@/lib/api/auth';
 import { ApiError } from '@/lib/api/errors';
-import { getMe } from '@/lib/api/users'; // ✅ 여기 사용
-import { getCookie } from '@/lib/auth/cookies';
-import { useSetAtom } from 'jotai';
+import { getMe } from '@/lib/api/users';
+import { getSession } from '@/lib/auth/session.client';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function ChangeEmailPage() {
   const router = useRouter();
-  const setMe = useSetAtom(meAtom);
 
   // 단계별 상태
-  const [currentEmail, setCurrentEmail] = useState<string>(''); // 서버에서 받아온 본인 이메일
+  const [currentEmail, setCurrentEmail] = useState<string>('');
   const [password, setPassword] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [code, setCode] = useState('');
@@ -32,19 +29,16 @@ export default function ChangeEmailPage() {
   const [errMsg, setErrMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = getCookie('accessToken');
+    const { token } = getSession();
     if (!token) return;
     getMe(token)
       .then((me) => setCurrentEmail(me.email))
-      .catch((err) => {
-        console.error('Failed to fetch current email:', err);
-        // setErrMsg('이메일 정보를 불러오지 못했습니다.');
-      });
+      .catch(console.error);
   }, []);
 
   /** 1단계: 현재 이메일 + 비밀번호 확인 */
   const handleVerifyPassword = async () => {
-    const token = getCookie('accessToken');
+    const { token } = getSession();
     if (!token) return;
 
     try {
@@ -54,11 +48,7 @@ export default function ChangeEmailPage() {
       setChangeId(res.changeId);
       setStep1Done(true);
     } catch (err) {
-      if (err instanceof ApiError) {
-        setErrMsg(err.message);
-      } else {
-        setErrMsg('비밀번호 확인 실패');
-      }
+      setErrMsg(err instanceof ApiError ? err.message : '비밀번호 확인 실패');
     } finally {
       setLoading(false);
     }
@@ -67,8 +57,9 @@ export default function ChangeEmailPage() {
   /** 2단계: 새 이메일로 인증 코드 발송 */
   const handleSendCode = async () => {
     if (!changeId) return;
-    const token = getCookie('accessToken');
+    const { token } = getSession();
     if (!token) return;
+
     if (!newEmail.endsWith('@sch.ac.kr')) {
       setErrMsg('이메일은 반드시 @sch.ac.kr 형식이어야 합니다.');
       return;
@@ -80,11 +71,7 @@ export default function ChangeEmailPage() {
       await sendEmailChangeCode(token, { changeId, newEmail });
       setStep2Done(true);
     } catch (err) {
-      if (err instanceof ApiError) {
-        setErrMsg(err.message);
-      } else {
-        setErrMsg('인증 요청 실패');
-      }
+      setErrMsg(err instanceof ApiError ? err.message : '인증 요청 실패');
     } finally {
       setLoading(false);
     }
@@ -93,7 +80,7 @@ export default function ChangeEmailPage() {
   /** 3단계: 인증 코드 확인 */
   const handleVerifyCode = async () => {
     if (!changeId) return;
-    const token = getCookie('accessToken');
+    const { token } = getSession();
     if (!token) return;
 
     try {
@@ -102,11 +89,7 @@ export default function ChangeEmailPage() {
       await verifyEmailChange(token, { changeId, code });
       setVerified(true);
     } catch (err) {
-      if (err instanceof ApiError) {
-        setErrMsg(err.message);
-      } else {
-        setErrMsg('코드 검증 실패');
-      }
+      setErrMsg(err instanceof ApiError ? err.message : '코드 검증 실패');
     } finally {
       setLoading(false);
     }
@@ -114,15 +97,13 @@ export default function ChangeEmailPage() {
 
   /** 최종 이메일 변경 */
   const handleChangeEmail = async () => {
-    const token = getCookie('accessToken');
+    const { token } = getSession();
     if (!token) return;
 
     try {
-      const me = await getMe(token); // ✅ 기존 fetch('/api/me') 대신 getMe(token) 사용
-      setMe(me);
+      await getMe(token); // 갱신
       router.replace('/mypage');
-    } catch (err) {
-      console.error(err);
+    } catch {
       alert('이메일 변경은 성공했지만 정보 갱신에 실패했습니다. 다시 로그인해주세요.');
       router.replace('/login');
     }

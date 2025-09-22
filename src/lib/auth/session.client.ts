@@ -17,5 +17,7 @@ export function getSession() {
 }
 
 export function clearSession() {
-  Cookies.remove(TOKEN_KEY, { path: "/" });
+  Cookies.remove("accessToken", { path: "/" });
+  // document.cookie 직접 제거도 같이
+  document.cookie = "accessToken=; Max-Age=0; path=/";
 }

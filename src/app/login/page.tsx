@@ -1,6 +1,6 @@
 'use client';
 
-import { meAtom } from '@/atoms/user';
+import { tokenAtom } from '@/atoms/user';
 import LoginForm, { type LoginRole } from '@/components/auth/LoginForm';
 import Header from '@/components/common/Header';
 import { loginUser } from '@/lib/api/auth/endpoints';
@@ -13,9 +13,9 @@ import { useState } from 'react';
 
 export default function LoginPage() {
   const router = useRouter();
-  const setMe = useSetAtom(meAtom);
   const [loading, setLoading] = useState(false);
   const [errMsg, setErrMsg] = useState<string | null>(null);
+  const setToken = useSetAtom(tokenAtom);
 
   const handleSubmit = async ({ role, id, pw }: { role: LoginRole; id: string; pw: string }) => {
     if (loading) return;
@@ -26,28 +26,21 @@ export default function LoginPage() {
       const body = { user_id: id.trim(), password: pw, role };
       const res = await loginUser(body); // { accessToken }
 
-      // ✅ accessToken만 쿠키에 저장
+      // ✅ 세션에 저장
       setSession(res.accessToken);
+      setToken(res.accessToken);
 
-      // 서버에서 유저 정보 가져오기
+      // ✅ 서버에서 유저 정보 가져오기 → 단순 redirect 용도
       const me = await getMe(res.accessToken);
-      setMe(me); // 여기만 호출하면 됨
 
-      // 역할별 이동
-      if (me.role === 'ADMIN') {
-        router.replace('/admin');
-      } else {
-        router.replace('/');
-      }
+      router.replace(me.role === 'ADMIN' ? '/admin' : '/');
     } catch (e: unknown) {
       if (e instanceof ApiError) {
         const details: ServerErrorBody | undefined = e.details;
         const reason = Array.isArray(details?.errors) && details.errors[0]?.reason;
-        const message =
-          reason || details?.result || e.message || "로그인에 실패했습니다.";
-        setErrMsg(message);
+        setErrMsg(reason || details?.result || e.message || '로그인에 실패했습니다.');
       } else {
-        setErrMsg("로그인에 실패했습니다.");
+        setErrMsg('로그인에 실패했습니다.');
       }
     } finally {
       setLoading(false);

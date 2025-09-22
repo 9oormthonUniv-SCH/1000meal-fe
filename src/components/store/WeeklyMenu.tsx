@@ -25,6 +25,22 @@ const WEEKDAYS: DayOfWeek[] = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY
 
 export default function WeeklyMenu({ store, onReload }: WeeklyMenuProps) {
   const todayISO = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  console.log(todayISO);
+  useEffect(() => {
+    const now = new Date();
+  
+    console.log("=== 디버깅 ===");
+    console.log("로컬 시간:", now.toString()); // 브라우저 로컬 타임존 기준
+    console.log("ISO(UTC) 시간:", now.toISOString()); // UTC 기준
+    console.log(
+      "로컬 날짜(sv-SE):",
+      now.toLocaleDateString("sv-SE") // yyyy-mm-dd 형식
+    );
+    console.log(
+      "KST 날짜:",
+      new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Seoul" }).format(now)
+    );
+  }, []);
   const todayRef = useRef<HTMLDivElement | null>(null);
   // 1) 월~금만 골라 날짜 오름차순으로 정렬
   const weekdayMenus = useMemo(() => {
@@ -68,9 +84,9 @@ export default function WeeklyMenu({ store, onReload }: WeeklyMenuProps) {
 
             return (
               <div
-                key={d.id}
+                key={`${d.date}-${d.dayOfWeek}`}
                 className="flex-shrink-0 w-[140px]"
-                ref={isToday ? todayRef : null}   // ✅ 오늘 날짜일 때만 ref 달기
+                ref={isToday ? todayRef : null}
               >
                 <MenuCard
                   date={dateLabel}

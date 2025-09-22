@@ -9,7 +9,7 @@ export default function MapPage() {
   const { data: storeList = []} =
     useApi<StoreListItem[]>(getStoreList, []);
 
-  console.log(storeList);
+  //console.log(storeList);
   return (
     <div className="w-full h-dvh overflow-hidden">
       

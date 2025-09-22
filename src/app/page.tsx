@@ -23,7 +23,7 @@ export default function HomePage() {
 
   const { data: storeList = [], loading, error, reload } =
     useApi<StoreListItem[]>(getStoreList, [pathname]);
-    console.log("storeList", storeList);
+    //console.log("storeList", storeList);
   
   const { data: notices = [], loading: noticesLoading, error: noticesError } =
     useApi<Notice[]>(getNotices, []);

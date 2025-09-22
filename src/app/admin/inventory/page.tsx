@@ -9,6 +9,8 @@ import { DailyMenuResponse } from '@/types/menu';
 import clsx from 'clsx';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 import { useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
 
@@ -22,10 +24,11 @@ export default function InventoryPage() {
   const [open, setOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null); // ✅ 에러 메시지 상태
+  dayjs.extend(utc);
+  dayjs.extend(timezone);
 
-  const today = dayjs().format('YYYY-MM-DD');
-  const formattedDate = `${dayjs().month() + 1}월 ${dayjs().date()}일 ${dayjs().format('dddd')}`;
-
+  const today = dayjs().tz("Asia/Seoul").format("YYYY-MM-DD");
+  const formattedDate = `${dayjs().tz("Asia/Seoul").month() + 1}월 ${dayjs().tz("Asia/Seoul").date()}일 ${dayjs().tz("Asia/Seoul").format("dddd")}`;
   useEffect(() => {
     if (!storeId) return;
     (async () => {
@@ -64,7 +67,6 @@ export default function InventoryPage() {
       }
     })();
   }, [storeId, today]);
-  console.log(storeId);
 
   // ✅ 수량 조절
   const handleAdjustStock = async (value: number) => {
