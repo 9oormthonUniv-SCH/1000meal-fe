@@ -64,9 +64,7 @@ export default function WeeklyMenu({ store, onReload }: WeeklyMenuProps) {
             const isToday = d.date === todayISO;
             const dateLabel = `${d.date.slice(5, 7)}월 ${d.date.slice(8, 10)}일`; // MM월 DD일
             const dayLabel = KOR_DAY_LABEL[d.dayOfWeek];
-
-            // 영업 안 하는 날 표시
-            const items = d.open ? d.menus : ["휴무"];
+            const items = d.menus
 
             return (
               <div
