@@ -5,13 +5,21 @@
  * 문제 예시:
  * - https://1000mealsql.s3.ap-northeast-2.amazonaws.com/%2Fimage.png (잘못된 인코딩)
  * - https://1000mealsql.s3.ap-northeast-2.amazonaws.com/image.png (올바른 형식)
+ * - https%3A%2F%2F1000mealsql... (완전히 인코딩된 URL)
  */
 export function normalizeImageUrl(url: string | undefined | null): string | undefined {
   if (!url) return undefined;
 
   try {
+    // 완전히 인코딩된 URL인지 확인 (https%3A%2F%2F로 시작)
+    let decodedUrl = url;
+    if (url.startsWith('https%3A%2F%2F') || url.includes('%3A%2F%2F')) {
+      // URL 디코딩
+      decodedUrl = decodeURIComponent(url);
+    }
+    
     // URL이 이미 올바른 형식인지 확인
-    const parsedUrl = new URL(url);
+    const parsedUrl = new URL(decodedUrl);
     
     // pathname에서 이중 인코딩된 슬래시 제거
     // 예: /%2Fimage.png -> /image.png
