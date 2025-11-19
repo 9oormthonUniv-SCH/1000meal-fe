@@ -15,6 +15,7 @@ const nextConfig: NextConfig = {
     // 브라우저에서 S3 이미지를 직접 로드합니다.
     // 이렇게 하면 Vercel 서버가 S3에 접근할 필요가 없어서 CORS 문제를 피할 수 있습니다.
     unoptimized: true,
+    disableStaticImages: true,
     remotePatterns: [
       {
         protocol: "https",
