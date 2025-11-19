@@ -15,7 +15,7 @@ export function normalizeImageUrl(url: string | undefined | null): string | unde
     
     // pathname에서 이중 인코딩된 슬래시 제거
     // 예: /%2Fimage.png -> /image.png
-    let normalizedPathname = parsedUrl.pathname
+    const normalizedPathname = parsedUrl.pathname
       .replace(/%2F/g, '/')  // %2F를 /로 변환
       .replace(/\/+/g, '/')  // 연속된 슬래시를 하나로
       .replace(/^\/\//, '/'); // 시작 부분의 이중 슬래시 제거
