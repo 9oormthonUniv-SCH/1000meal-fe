@@ -3,7 +3,6 @@
 
 import { normalizeImageUrl } from "@/lib/utils/imageUrl";
 import clsx from 'clsx';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 interface StoreCardProps {
@@ -26,12 +25,10 @@ export default function StoreCard({ id, imageUrl, storeName, isOpen }: StoreCard
         {(() => {
           const normalizedImageUrl = normalizeImageUrl(imageUrl);
           return normalizedImageUrl ? (
-            <Image
+            <img
               src={normalizedImageUrl}
               alt={storeName}
-              fill
-              unoptimized
-              className="object-contain object-bottom scale-110"
+              className="absolute inset-0 w-full h-full object-contain object-bottom scale-110"
             />
           ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">

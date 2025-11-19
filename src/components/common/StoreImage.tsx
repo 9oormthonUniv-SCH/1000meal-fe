@@ -3,7 +3,6 @@
 
 import type { StoreDetail } from "@/types/store";
 import { normalizeImageUrl } from "@/lib/utils/imageUrl";
-import Image from "next/image";
 
 export default function StoreImage({ store }: { store: StoreDetail }) {
   const normalizedImageUrl = normalizeImageUrl(store.imageUrl);
@@ -11,12 +10,10 @@ export default function StoreImage({ store }: { store: StoreDetail }) {
   return (
     <div className="w-full h-56 relative overflow-hidden bg-gradient-to-b from-white/0 to-orange-300/20">
       {normalizedImageUrl ? (
-        <Image
+        <img
           src={normalizedImageUrl}
           alt={store.name}
-          fill
-          unoptimized
-          className="object-contain object-bottom scale-100" 
+          className="absolute inset-0 w-full h-full object-contain object-bottom scale-100" 
         />
       ) : (
         <div className="w-full h-full bg-gray-300 flex items-center justify-center text-white text-lg">

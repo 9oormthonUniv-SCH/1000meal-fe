@@ -3,7 +3,6 @@
 import { StoreListItem } from "@/types/store";
 import { normalizeImageUrl } from "@/lib/utils/imageUrl";
 import clsx from 'clsx';
-import Image from "next/image";
 import { useRouter } from 'next/navigation';
 
 interface Props {
@@ -36,12 +35,11 @@ export default function StoreCard({ store, isSelected, onClick }: Props) {
       {(() => {
         const normalizedImageUrl = normalizeImageUrl(store.imageUrl);
         return normalizedImageUrl ? (
-          <Image
+          <img
             src={normalizedImageUrl}
             alt={store.name}
             width={48}
             height={48}
-            unoptimized
             className="w-12 h-12 rounded-lg object-contain flex-shrink-0"
           />
         ) : (

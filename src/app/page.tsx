@@ -14,7 +14,6 @@ import { getStoreList } from '@/lib/api/stores/endpoints';
 import { useApi } from '@/lib/hooks/useApi';
 import { Notice } from '@/types/notice';
 import type { StoreListItem } from "@/types/store";
-import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 
 export default function HomePage() {
@@ -35,12 +34,11 @@ export default function HomePage() {
     >
       <div className="relative mb-12">
         <HeaderButtons />
-        <Image
+        <img
           src="/Textlogo.png"
           alt="오늘 순밥"
-          width={120}   // 필수
-          height={32}   // 필수
-          unoptimized
+          width={120}
+          height={32}
           className="h-8 absolute top-0 left-0 object-contain"
         />
       </div>

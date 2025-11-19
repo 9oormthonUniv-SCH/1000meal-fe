@@ -3,7 +3,6 @@
 import clsx from 'clsx';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -102,12 +101,11 @@ export default function LoginForm({
                 role === "ADMIN" ? "ml-auto justify-end" : "justify-start"
               )}
             >
-              <Image
+              <img
                 src="/Textlogo.png"
                 alt="오늘 순밥"
                 width={112}
                 height={32}
-                unoptimized
                 className="h-8 object-contain"
               />
             </div>
