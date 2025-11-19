@@ -40,6 +40,7 @@ export default function HomePage() {
           alt="오늘 순밥"
           width={120}   // 필수
           height={32}   // 필수
+          unoptimized
           className="h-8 absolute top-0 left-0 object-contain"
         />
       </div>

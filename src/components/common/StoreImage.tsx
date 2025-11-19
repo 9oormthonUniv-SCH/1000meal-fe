@@ -15,6 +15,7 @@ export default function StoreImage({ store }: { store: StoreDetail }) {
           src={normalizedImageUrl}
           alt={store.name}
           fill
+          unoptimized
           className="object-contain object-bottom scale-100" 
         />
       ) : (

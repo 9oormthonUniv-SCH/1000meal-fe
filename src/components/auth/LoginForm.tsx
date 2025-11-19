@@ -107,6 +107,7 @@ export default function LoginForm({
                 alt="오늘 순밥"
                 width={112}
                 height={32}
+                unoptimized
                 className="h-8 object-contain"
               />
             </div>

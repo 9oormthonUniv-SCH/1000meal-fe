@@ -30,6 +30,7 @@ export default function StoreCard({ id, imageUrl, storeName, isOpen }: StoreCard
               src={normalizedImageUrl}
               alt={storeName}
               fill
+              unoptimized
               className="object-contain object-bottom scale-110"
             />
           ) : (

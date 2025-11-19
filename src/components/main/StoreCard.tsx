@@ -41,6 +41,7 @@ export default function StoreCard({ store, isSelected, onClick }: Props) {
             alt={store.name}
             width={48}
             height={48}
+            unoptimized
             className="w-12 h-12 rounded-lg object-contain flex-shrink-0"
           />
         ) : (
