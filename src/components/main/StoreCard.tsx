@@ -1,6 +1,7 @@
 'use client';
 
 import { StoreListItem } from "@/types/store";
+import { normalizeImageUrl } from "@/lib/utils/imageUrl";
 import clsx from 'clsx';
 import Image from "next/image";
 import { useRouter } from 'next/navigation';
@@ -32,19 +33,22 @@ export default function StoreCard({ store, isSelected, onClick }: Props) {
       )}
     >
       {/* 좌측: 매장 이미지 */}
-      {store.imageUrl ? (
-        <Image
-          src={store.imageUrl}
-          alt={store.name}
-          width={48}
-          height={48}
-          className="w-12 h-12 rounded-lg object-contain flex-shrink-0"
-        />
-      ) : (
+      {(() => {
+        const normalizedImageUrl = normalizeImageUrl(store.imageUrl);
+        return normalizedImageUrl ? (
+          <Image
+            src={normalizedImageUrl}
+            alt={store.name}
+            width={48}
+            height={48}
+            className="w-12 h-12 rounded-lg object-contain flex-shrink-0"
+          />
+        ) : (
         <div className="w-12 h-12 rounded-lg bg-gray-200 flex items-center justify-center text-xs text-gray-500 flex-shrink-0">
           No Img
         </div>
-      )}
+        );
+      })()}
 
       {/* 중앙: 텍스트 정보 */}
       <div className="flex-1">
