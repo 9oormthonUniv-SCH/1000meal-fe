@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 /** 웹 서비스 앱 마이그레이션: 허용 경로만 열고 나머지는 메인으로 리다이렉트 */
-const ALLOWED_PATHS = ["/", "/appDownload", "/qa"];
+const ALLOWED_PATHS = ["/", "/appDownload", "/qa", "/mypage"];
 
 function isAllowedPath(pathname: string): boolean {
   if (ALLOWED_PATHS.includes(pathname)) return true;

@@ -1,168 +1,82 @@
 'use client';
 
-import { userRoleAtom } from '@/atoms/user';
-import { useLogout } from '@/components/auth/LogoutButton';
-import Header from '@/components/common/Header';
-import Modal from '@/components/common/Modal';
-import { deleteAccount } from '@/lib/api/auth/endpoints';
-import { ApiError } from '@/lib/api/errors';
-import { getMe } from '@/lib/api/users/endpoints';
-import { getCookie } from '@/lib/auth/cookies';
-import { MeResponse } from '@/types/user';
-import { useAtom } from 'jotai';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 
-export default function MyPage() {
-  const router = useRouter();
-  const [me, setMe] = useState<MeResponse | null>(null);
-  const [role] = useAtom(userRoleAtom);
-  const [loading, setLoading] = useState(true);
-  const logout = useLogout();
-
-  const [openModal, setOpenModal] = useState(false);
-  const [, setDeleting] = useState(false);
-
-  useEffect(() => {
-    (async () => {
-      const accessToken = getCookie('accessToken');
-      if (!accessToken) {
-        logout();
-        return;
-      }
-      try {
-        const user = await getMe(accessToken);
-        setMe(user);
-
-        // role(atom)이 아직 계산 전/null일 수 있으니, 값이 있을 때만 비교
-        if (role && user.role !== role) {
-          logout();
-        }
-      } catch (e: unknown) {
-        if (e instanceof ApiError && e.status === 401) {
-          logout();
-        } else {
-          console.error(e);
-        }
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [role, logout]);
-
-  const handleDelete = async () => {
-    const token = getCookie("accessToken");
-    if (!token) return logout();
-
-    try {
-      setDeleting(true);
-      await deleteAccount(
-        { currentPassword: "", agree: true }, // TODO: 비번 입력 UI 필요하면 여기에 반영
-        token
-      );
-      logout(); // 탈퇴 성공 → 세션 초기화 & 로그인 화면으로
-    } catch (err) {
-      console.error(err);
-      alert("회원 탈퇴에 실패했습니다. 다시 시도해주세요.");
-    } finally {
-      setDeleting(false);
-      setOpenModal(false);
-    }
-  };
-
-  if (loading) return <div className="p-6">불러오는 중...</div>;
-  if (!me) return null;
-
+export default function AccountDeletionPage() {
   return (
-    <div className="flex flex-col pt-[56px] bg-gray-100 min-h-dvh">
-      <Header title="마이페이지" />
+    <div className="h-dvh overflow-y-auto bg-white">
+      {/* 헤더 */}
+      <header className="flex items-center justify-between px-5 pt-4 sm:px-10 sm:pt-6">
+        <Link href="/">
+          <Image
+            src="/Textlogo.png"
+            alt="오늘순밥"
+            width={103}
+            height={25}
+            className="h-6 w-auto object-contain"
+          />
+        </Link>
+        <Link
+          href="/qa"
+          className="rounded-[10px] bg-[#FF6E3F] px-2.5 py-0.5 text-xs font-semibold text-white leading-5"
+        >
+          자주 묻는 질문
+        </Link>
+      </header>
 
-      <div className="flex flex-col">
-        {/* 프로필 카드 */}
-        <div className="bg-white pb-6">
-          <div className="bg-white rounded-xl shadow-even mt-2 mx-4 p-4 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-2xl">
-                👤
-              </div>
-              <div className="flex flex-col">
-                <p className="text-md font-bold">{me.username}</p>
-                <p className="text-sm text-gray-500">{me.email}</p>
-              </div>
-            </div>
-            <span className="text-xs px-2 py-1 rounded-full bg-orange-100 text-orange-600">
-              {me.role === 'STUDENT' ? '학생' : '관리자'}
-            </span>
-          </div>
+      <main className="mx-auto max-w-2xl px-5 pt-8 pb-16 sm:px-10 sm:pt-12">
+        <h1 className="text-xl font-semibold text-zinc-900 leading-8 sm:text-2xl">
+          계정 삭제 (회원 탈퇴) 안내
+        </h1>
+
+        <div className="mt-6 space-y-6">
+          {/* 앱 내 탈퇴 방법 */}
+          <section className="rounded-2xl bg-stone-50 p-6">
+            <h2 className="font-semibold text-zinc-900">앱에서 직접 탈퇴하기</h2>
+            <ol className="mt-3 list-decimal list-inside space-y-2 text-sm text-zinc-700 leading-6">
+              <li>오늘순밥 앱을 실행합니다.</li>
+              <li>하단 탭에서 <strong>마이페이지</strong>로 이동합니다.</li>
+              <li><strong>회원탈퇴</strong> 버튼을 누릅니다.</li>
+              <li>안내를 확인하고 <strong>탈퇴하기</strong>를 선택하면 즉시 처리됩니다.</li>
+            </ol>
+          </section>
+
+          {/* 삭제되는 데이터 */}
+          <section className="rounded-2xl bg-stone-50 p-6">
+            <h2 className="font-semibold text-zinc-900">삭제되는 정보</h2>
+            <ul className="mt-3 list-disc list-inside space-y-1 text-sm text-zinc-700 leading-6">
+              <li>계정 정보 (이메일, 비밀번호)</li>
+              <li>이용 기록 및 QR 스캔 이력</li>
+              <li>즐겨찾기, 알림 설정 등 개인 설정</li>
+            </ul>
+            <p className="mt-3 text-sm text-neutral-500">
+              탈퇴 즉시 모든 데이터가 삭제되며, 복구할 수 없습니다.
+            </p>
+          </section>
+
+          {/* 문의 */}
+          <section className="rounded-2xl bg-stone-50 p-6">
+            <h2 className="font-semibold text-zinc-900">직접 탈퇴가 어려운 경우</h2>
+            <p className="mt-3 text-sm text-zinc-700 leading-6">
+              앱 접속이 불가능하거나 기타 사유로 직접 탈퇴가 어려운 경우,
+              아래 이메일로 가입 시 사용한 이메일 주소와 함께 삭제를 요청해 주세요.
+            </p>
+            <p className="mt-2 text-sm font-semibold text-zinc-900">
+              📧 jeong01101095@gmail.com
+            </p>
+            <p className="mt-1 text-xs text-neutral-500">
+              요청 접수 후 영업일 기준 3일 이내에 처리됩니다.
+            </p>
+          </section>
         </div>
 
-        {/* 메뉴 */}
-        <div className="bg-white mt-6 divide-y">
-          <button 
-            className="w-full text-left px-5 py-4 text-gray-700 hover:bg-gray-5"
-            onClick={() => router.push('/change-email')}
-          >회원정보 수정</button>
-          <button
-            className="w-full text-left px-5 py-4 text-gray-700 hover:bg-gray-50"
-            onClick={() => router.push('/find-account?tab=pw')}
-          >
-            비밀번호 변경
-          </button>
-          <button className="w-full text-left px-5 py-4 text-gray-700 hover:bg-gray-50" onClick={logout}>
-            로그아웃
-          </button>
-          <button
-            className="w-full text-left px-5 py-4 text-red-500 hover:bg-gray-50"
-            onClick={() => setOpenModal(true)}
-          >
-            회원탈퇴
-          </button>
-        </div>
-      </div>
-
-      {/* 🔹 탈퇴 확인 모달 */}
-      <DeleteAccountModal
-        open={openModal}
-        onClose={() => setOpenModal(false)}
-        onConfirm={handleDelete}
-      />
-    </div>
-  );
-}
-
-function DeleteAccountModal({
-  open,
-  onClose,
-  onConfirm,
-}: {
-  open: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-}) {
-  return (
-    <Modal open={open} onClose={onClose}>
-      <div className="flex flex-col items-center justify-center text-center px-4 py-6">
-        <p className="text-gray-600 text-base font-medium leading-relaxed">
-          탈퇴하면 모든 기록이 사라집니다
-          <br />
-          정말 탈퇴하시겠습니까?
+        <p className="mt-10 text-center">
+          <Link href="/" className="text-[#FF6E3F] text-sm underline-offset-4 hover:underline">
+            ← 서비스 소개로 돌아가기
+          </Link>
         </p>
-
-        <div className="flex gap-3 mt-8 w-full">
-          <button
-            onClick={onConfirm}
-            className="flex-1 py-3 rounded-2xl bg-red-50 text-red-500 font-semibold shadow-md hover:bg-red-100"
-          >
-            탈퇴하기
-          </button>
-          <button
-            onClick={onClose}
-            className="flex-1 py-3 rounded-2xl bg-neutral-500 text-white font-semibold shadow-md hover:bg-neutral-600"
-          >
-            취소
-          </button>
-        </div>
-      </div>
-    </Modal>
+      </main>
+    </div>
   );
 }

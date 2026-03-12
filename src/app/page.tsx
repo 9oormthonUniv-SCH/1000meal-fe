@@ -145,7 +145,7 @@ export default function HomePage() {
             <article className="rounded-2xl bg-white p-6 sm:p-10 text-center">
               <p className="text-xs font-semibold text-[#FF6E3F] leading-5">홈 · 지도</p>
               <h2 className="mt-1 text-xl font-semibold text-zinc-900 leading-8 sm:text-2xl">
-                필요한 정보를 한 눈에
+                필요한 정보를 한눈에
               </h2>
               <div className="mt-4 flex justify-center">
                 <Image src="/Graphic1.png" alt="지도와 시계" width={160} height={140} className="h-28 w-auto sm:h-36 object-contain" />
