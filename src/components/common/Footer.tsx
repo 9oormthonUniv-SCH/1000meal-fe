@@ -1,9 +1,19 @@
+import Link from "next/link";
 import { FaGithub, FaInstagram } from "react-icons/fa";
 import { SiGmail } from "react-icons/si";
 
 export default function Footer() {
   return (
     <footer className="text-xs text-gray-400 px-4 py-3 text-center border-t border-gray-100">
+      {/* 서비스 링크 */}
+      <div className="flex justify-center gap-4 text-sm">
+        <Link href="/appDownload" className="text-amber-600 hover:text-amber-700 hover:underline">
+          앱 다운로드
+        </Link>
+        <Link href="/qa" className="text-gray-600 hover:text-gray-800 hover:underline">
+          Q&A
+        </Link>
+      </div>
       {/* 소셜 아이콘 */}
       <div className="mt-2 flex justify-center gap-4 text-lg text-gray-600">
         <a

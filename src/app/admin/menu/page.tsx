@@ -1,39 +1,82 @@
 'use client';
 
-import ActionBar from "@/components/admin/menu/ActionBar";
 import PullIndicator from "@/components/admin/menu/PullIndicator";
 import PullToAddMenu from "@/components/admin/menu/PullToAddMenu";
-import RangeCalendarModal from "@/components/admin/menu/RangeCalendarModal";
 import WeekList from "@/components/admin/menu/WeekList";
 import Header from "@/components/common/Header";
+import { getDailyMenu } from "@/lib/api/menus/endpoints";
 import { getCookie } from "@/lib/auth/cookies";
 import { getStoreIdFromToken } from "@/lib/auth/jwt";
 import { useWeeklyMenus } from "@/lib/hooks/useWeeklyMenus";
 import { mondayOf } from "@/utils/week";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function AdminMenuPage() {
   const token = getCookie("accessToken");
   const storeId = getStoreIdFromToken(token);
   const today = dayjs().format("YYYY-MM-DD");
-  const { weeks, loadWeek } = useWeeklyMenus(storeId ?? undefined, today);
 
-  const [showCalendar, setShowCalendar] = useState(false);
+  const [groups, setGroups] = useState<{ id: number; name: string }[]>([]);
+  const [selectedGroupId, setSelectedGroupId] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    if (!storeId) return;
+    (async () => {
+      const res = await getDailyMenu(storeId, today);
+      const list = res?.groups ?? [];
+      setGroups(list);
+      if (list.length > 0) {
+        setSelectedGroupId((prev) => {
+          if (prev == null || !list.some((g) => g.id === prev)) return list[0].id;
+          return prev;
+        });
+      } else {
+        setSelectedGroupId(undefined);
+      }
+    })();
+  }, [storeId, today]);
+
+  const { weeks, loadWeek } = useWeeklyMenus(storeId ?? undefined, today, selectedGroupId);
+
   const router = useRouter();
 
   const handleEdit = (date: string) => {
-    router.push(`/admin/menu/edit/${date}`);
+    if (selectedGroupId == null) return;
+    router.push(`/admin/menu/edit/${date}?groupId=${selectedGroupId}`);
   };
 
   return (
-    <div id="app-main" className="w-full min-h-dvh bg-[#F5F6F7] flex flex-col pt-[56px] overflow-y-auto">
-      <Header title="메뉴 관리" onBack={() => router.push("/admin")} />
-      <ActionBar
-        onClickCalendar={() => setShowCalendar(true)}
-        onClickFavorite={() => router.push("/admin/menu/frequent")}
+    <div className="w-full min-h-full bg-[#F5F6F7] flex flex-col pt-[56px]">
+      <Header
+        title="메뉴 관리"
+        onBack={() => router.push("/admin")}
+        rightElement={
+          <button
+            onClick={() => router.push("/admin/menu/frequent")}
+            className="text-xs px-3 py-1 rounded-full bg-orange-500 text-white shadow-sm"
+          >
+            자주 쓰는 메뉴
+          </button>
+        }
       />
+
+      {groups.length > 1 && (
+        <div className="px-4 pt-4 pb-2 flex gap-2 overflow-x-auto bg-[#F5F6F7]">
+          {groups.map((g) => (
+            <button
+              key={g.id}
+              onClick={() => setSelectedGroupId(g.id)}
+              className={selectedGroupId === g.id
+                ? "px-4 py-2 rounded-xl bg-orange-500 text-white text-sm font-medium whitespace-nowrap"
+                : "px-4 py-2 rounded-xl bg-white text-gray-600 text-sm font-medium whitespace-nowrap shadow-sm"}
+            >
+              {g.name}
+            </button>
+          ))}
+        </div>
+      )}
 
       <PullToAddMenu
         onRefresh={() => {
@@ -60,57 +103,7 @@ export default function AdminMenuPage() {
         <WeekList weeks={weeks} onClickDay={handleEdit} loadWeek={loadWeek} />
       </PullToAddMenu>
 
-      {showCalendar && (
-        <RangeCalendarModal
-          onClose={() => setShowCalendar(false)}
-          onConfirm={async ({ start }) => {
-            const targetMonday = mondayOf(dayjs(start)).format("YYYY-MM-DD");
-
-            let first = mondayOf(dayjs(weeks[0][0].id));
-            let last = mondayOf(dayjs(weeks[weeks.length - 1][0].id));
-            const target = dayjs(targetMonday);
-
-            const container = document.getElementById("app-main");
-
-            while (target.isBefore(first)) {
-              const prevScrollHeight = container?.scrollHeight ?? 0;
-            
-              // 📌 먼저 한 주 줄이고 나서 로딩
-              first = first.subtract(1, "week");
-              await loadWeek(first.format("YYYY-MM-DD"), "prev");
-            
-              if (container) {
-                const newScrollHeight = container.scrollHeight;
-                container.scrollTop += newScrollHeight - prevScrollHeight;
-              }
-            }
-
-            while (target.isAfter(last)) {
-              const prevScrollHeight = container?.scrollHeight ?? 0;
-            
-              // 기존 last 에서 새로운 객체 생성
-              last = last.add(1, "week");
-            
-              await loadWeek(last.format("YYYY-MM-DD"), "next");
-            
-              if (container) {
-                const newScrollHeight = container.scrollHeight;
-                container.scrollTop += newScrollHeight - prevScrollHeight;
-              }
-            }
-
-            // 📌 스크롤 이동
-            setTimeout(() => {
-              document.getElementById(`week-${targetMonday}`)?.scrollIntoView({
-                behavior: "smooth",
-                block: "start",
-              });
-            }, 200);
-
-            setShowCalendar(false);
-          }}
-        />
-      )}
+      
     </div>
   );
 }

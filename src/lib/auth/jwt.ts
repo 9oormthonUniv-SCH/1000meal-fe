@@ -11,6 +11,7 @@ export function getRoleFromToken(token: string | null): "STUDENT" | "ADMIN" {
   if (!token) return "STUDENT"; // 기본값
   try {
     const decoded = jwtDecode<JwtPayload>(token);
+    console.log(decoded);
     return decoded.role;
   } catch {
     return "STUDENT";
@@ -18,9 +19,11 @@ export function getRoleFromToken(token: string | null): "STUDENT" | "ADMIN" {
 }
 
 export function getStoreIdFromToken(token: string | null): number | null {
+
   if (!token) return null;
   try {
     const decoded = jwtDecode<JwtPayload>(token);
+    console.log(decoded);
     return decoded.storeId ?? null;
   } catch {
     return null;

@@ -2,34 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ✅ 커스텀 글로벌 스타일 추가 */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
+
 html,
 body {
-  @apply bg-gray-100 text-gray-800;
-  font-family: 'Inter', sans-serif;
+  @apply bg-white text-gray-800;
+  font-family: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   height: 100dvh;
   overflow: hidden;
 }
 
 a {
-  @apply text-blue-600 hover:underline;
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: none;
 }
 
 button {
   @apply cursor-pointer;
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(100%);
-  }
-  to {
-    transform: translateY(0%);
-  }
-}
-
-.animate-slide-up {
-  animation: slideUp 0.3s ease-out forwards;
 }
 
 :root {
@@ -40,25 +33,19 @@ body {
   padding-bottom: var(--safe-area-inset-bottom);
 }
 
-/* 스크롤바 숨기기 (크로스 브라우저) */
 .scrollbar-hide {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none;  /* IE, Edge */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 .scrollbar-hide::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
+  display: none;
 }
 
-.scroll-area {
-  height: 100dvh;             /* iOS 하단바 대응 */
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch; /* iOS 부드러운 스크롤 */
-  overscroll-behavior-y: contain;    /* 안드로이드 Chrome PTR 차단 */
+@keyframes bounce-down {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
 }
 
-#app-main {
-  overflow-y: auto;                  /* 이미 클래스에 있지만 안전하게 한 번 더 명시 가능 */
-  -webkit-overflow-scrolling: touch; /* iOS 부드러운 스크롤 */
-  overscroll-behavior-y: contain;    /* 바디/브라우저 네이티브 PTR 전파 방지 */
-  touch-action: pan-y;               /* 세로 스크롤 허용(가로 제스처는 가드) */
+.animate-bounce-down {
+  animation: bounce-down 1.6s ease-in-out infinite;
 }

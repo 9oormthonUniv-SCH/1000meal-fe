@@ -1,37 +1,31 @@
 // src/middleware.ts
-import { jwtDecode } from "jwt-decode";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
+/** 웹 서비스 앱 마이그레이션: 허용 경로만 열고 나머지는 메인으로 리다이렉트 */
+const ALLOWED_PATHS = ["/", "/appDownload", "/qa"];
+
+function isAllowedPath(pathname: string): boolean {
+  if (ALLOWED_PATHS.includes(pathname)) return true;
+  // 정적/API 경로
+  if (pathname.startsWith("/_next") || pathname.startsWith("/api") || pathname.startsWith("/icons") || pathname.startsWith("/firebase")) return true;
+  if (pathname === "/favicon.ico") return true;
+  // public 폴더 정적 파일 (확장자로 구분)
+  if (/\/[^/]+\.[a-z0-9]{2,4}$/i.test(pathname)) return true;
+  return false;
+}
+
 export function middleware(req: NextRequest) {
-  const token = req.cookies.get("accessToken")?.value;
-
-  const isProtected =
-    req.nextUrl.pathname.startsWith("/mypage") ||
-    req.nextUrl.pathname.startsWith("/admin");
-
-  // 로그인 안 된 사용자 보호 경로 접근 차단
-  if (!token && isProtected) {
-    return NextResponse.redirect(new URL("/login", req.url));
+  const pathname = req.nextUrl.pathname;
+  if (isAllowedPath(pathname)) {
+    return NextResponse.next();
   }
-
-  // 관리자 페이지 접근 제한
-  if (token) {
-    try {
-      const decoded = jwtDecode<{ role?: string }>(token);
-
-      if (req.nextUrl.pathname.startsWith("/admin") && decoded.role !== "ADMIN") {
-        return NextResponse.redirect(new URL("/", req.url));
-      }
-    } catch {
-      // 토큰 파싱 실패 → 로그인 페이지로
-      return NextResponse.redirect(new URL("/login", req.url));
-    }
-  }
-
-  return NextResponse.next();
+  // 기존 웹 앱 경로 접근 시 메인(서비스 소개)으로 이동
+  return NextResponse.redirect(new URL("/", req.url));
 }
 
 export const config = {
-  matcher: ["/mypage/:path*", "/admin/:path*"],
+  matcher: [
+    "/((?!_next/static|_next/image|icons|favicon.ico).*)",
+  ],
 };

@@ -1,20 +1,28 @@
 'use client';
 
+import { getStoreDisplayStock } from '@/lib/utils/store';
 import type { StoreListItem } from '@/types/store';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { RefreshCcw } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { CustomOverlayMap, Map } from 'react-kakao-maps-sdk';
 import Header from '../common/Header';
 import MapStoreCard from './MapStoreCard';
 
-interface MapViewProps {
-  stores?: StoreListItem[]; // optional: 로딩 전 안전
+interface MapDetailProps {
+  stores?: StoreListItem[];
+  onRefresh?: () => void;
 }
 
-export default function MapDetail({ stores = [] }: MapViewProps) {
+export default function MapDetail({ stores = [], onRefresh }: MapDetailProps) {
   const [selectedStore, setSelectedStore] = useState<StoreListItem | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [mapInstance, setMapInstance] = useState<kakao.maps.Map | null>(null);
+  const [modalHeight, setModalHeight] = useState(0);
+  const modalRef = useRef<HTMLDivElement | null>(null);
+
+  // 모달 높이에 맞춰 새로고침 버튼 위치 계산
+  const refreshBottom = selectedStore ? modalHeight + 20 : 68;
 
   // kakao sdk 준비
   useEffect(() => {
@@ -22,11 +30,30 @@ export default function MapDetail({ stores = [] }: MapViewProps) {
     window.kakao.maps.load(() => setLoaded(true));
   }, []);
 
-  // 마커 데이터
+  // 하단 모달 높이 관측 → 새로고침 버튼이 모달 위에 오도록
+  const setModalRef = useCallback((node: HTMLDivElement | null) => {
+    modalRef.current = node;
+  }, []);
+
+  useEffect(() => {
+    const el = modalRef.current;
+    if (!el || !selectedStore) {
+      setModalHeight(0);
+      return;
+    }
+    const ro = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) setModalHeight(entry.contentRect.height);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [selectedStore]);
+
+  // 마커 데이터 (재고 = 당일 메뉴 그룹별 재고 합계)
   const markers = stores.map(s => ({
     id: s.id,
     name: s.name,
-    remain: s.remain,
+    remain: getStoreDisplayStock(s),
     lat: Number(s.lat),
     lng: Number(s.lng),
   }));
@@ -98,15 +125,12 @@ export default function MapDetail({ stores = [] }: MapViewProps) {
       {/* 줌 버튼 */}
       {!selectedStore && (
         <div className="absolute right-3 bottom-28 z-50 flex flex-col bg-white rounded-xl shadow-lg overflow-hidden">
-          {/* + 버튼 */}
           <button
             className="w-10 h-10 flex items-center justify-center border-b border-gray-200 hover:bg-gray-100"
             onClick={() => mapInstance && mapInstance.setLevel(mapInstance.getLevel() - 1)}
           >
             <span className="text-xl">＋</span>
           </button>
-
-          {/* - 버튼 */}
           <button
             className="w-10 h-10 flex items-center justify-center hover:bg-gray-100"
             onClick={() => mapInstance && mapInstance.setLevel(mapInstance.getLevel() + 1)}
@@ -116,10 +140,27 @@ export default function MapDetail({ stores = [] }: MapViewProps) {
         </div>
       )}
 
+      {/* 새로고침 버튼: 하단 중앙, 모달이 올라오면 그 위에 고정 */}
+      <div
+        className="absolute left-1/2 -translate-x-1/2 z-20 flex justify-center pointer-events-none"
+        style={{ bottom: `${refreshBottom}px` }}
+      >
+        <button
+          type="button"
+          onClick={onRefresh}
+          aria-label="새로고침"
+          className="pointer-events-auto flex items-center gap-2 px-4 py-2.5 bg-white/95 border border-gray-200 rounded-full shadow-md hover:bg-gray-50 active:bg-gray-100 transition"
+        >
+          <RefreshCcw className="w-4 h-4 text-gray-600" />
+          <span className="text-sm font-medium text-gray-700">새로고침</span>
+        </button>
+      </div>
+
       {/* 슬라이드 카드 */}
       <AnimatePresence>
         {selectedStore && (
           <motion.div
+            ref={setModalRef}
             className="absolute bottom-0 w-full z-10 bg-white rounded-t-xl shadow-lg"
             drag="y"
             dragConstraints={{ top: 0, bottom: 0 }}
@@ -129,12 +170,9 @@ export default function MapDetail({ stores = [] }: MapViewProps) {
             exit={{ y: '100%' }}
             transition={{ type: 'spring', stiffness: 400, damping: 40 }}
           >
-            {/* MapStoreCard가 StoreListItem을 받도록 수정하거나, prop 이름을 맞춰주세요 */}
             <MapStoreCard
               store={selectedStore}
-              onReload={() => {
-                console.log("새로고침 실행");
-              }}
+              onReload={onRefresh}
             />
           </motion.div>
         )}

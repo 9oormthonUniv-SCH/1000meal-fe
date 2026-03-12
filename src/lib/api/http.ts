@@ -24,13 +24,22 @@ export async function http<T>(url: string, init: HttpInit = {}): Promise<T> {
     try {
       const token = getCookie("accessToken"); // ✅ 쿠키에서 토큰 읽기
 
+      const mergedHeaders: Record<string, string> = {
+        ...DEFAULT_HEADERS,
+        ...((headers ?? {}) as Record<string, string>),
+      };
+
+      // ✅ 호출 측에서 Authorization을 명시한 경우(대소문자 무관) 그 값을 우선합니다.
+      const hasAuthHeader =
+        Object.keys(mergedHeaders).some((k) => k.toLowerCase() === "authorization");
+
+      if (token && !hasAuthHeader) {
+        mergedHeaders.Authorization = `Bearer ${token}`;
+      }
+
       res = await fetch(url, {
         ...fetchInit,
-        headers: {
-          ...DEFAULT_HEADERS,
-          ...(headers ?? {}),
-          ...(token ? { Authorization: `Bearer ${token}` } : {}), // ✅ 있으면 Authorization 붙이기
-        },
+        headers: mergedHeaders,
         signal,
         cache,
       });

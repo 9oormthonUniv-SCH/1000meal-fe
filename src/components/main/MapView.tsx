@@ -1,6 +1,7 @@
 // components/main/MapView.tsx
 'use client';
 
+import { getStoreDisplayStock } from '@/lib/utils/store';
 import { StoreListItem } from '@/types/store';
 import { Loader2, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -27,7 +28,7 @@ export default function MapView({ stores }: MapViewProps) {
       (stores ?? []).map((s) => ({
         id: s.id,
         name: s.name,
-        remain: s.remain,
+        remain: getStoreDisplayStock(s),
         lat: Number(s.lat),
         lng: Number(s.lng),
       })),

@@ -1,18 +1,18 @@
 'use client';
 
-import clsx from 'clsx';
-import { Check, ChevronDown, Loader2 } from 'lucide-react';
-
 export type PullPhase = 'idle' | 'pull' | 'ready' | 'loading';
 
 type Props = {
-  progress: number;         // 0 ~ 1
+  progress: number;
   phase: PullPhase;
   labelIdle?: string;
   labelPull?: string;
   labelReady?: string;
   labelLoading?: string;
 };
+
+const R = 14;
+const C = 2 * Math.PI * R;
 
 export default function PullIndicator({
   progress,
@@ -29,34 +29,52 @@ export default function PullIndicator({
     return labelIdle;
   })();
 
-  return (
-    <div className="bg-white border-b px-4 py-3">
-      <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
-        {phase === 'loading' ? (
-          <Loader2 className="w-4 h-4 animate-spin" />
-        ) : phase === 'ready' ? (
-          <Check className="w-4 h-4" />
-        ) : (
-          <ChevronDown
-            className={clsx(
-              'w-4 h-4 transition-transform',
-              phase === 'pull' && progress > 0.7 ? 'rotate-180' : ''
-            )}
-          />
-        )}
-        <span>{label}</span>
-      </div>
+  // 당길 때: 빈 원 → 진행도에 따라 호가 채워짐
+  const strokeDashoffset = phase === 'loading' ? 0 : C * (1 - Math.max(0, Math.min(1, progress)));
 
-      {/* progress bar */}
-      <div className="mt-2 h-1 bg-gray-100 rounded overflow-hidden">
-        <div
-          className={clsx(
-            'h-1 rounded transition-[width]',
-            phase === 'ready' ? 'bg-orange-400' : 'bg-orange-300'
-          )}
-          style={{ width: `${Math.max(0, Math.min(100, progress * 100))}%` }}
-        />
+  return (
+    <div className="px-4 flex flex-col items-center justify-center gap-3">
+      <div className="relative w-8 h-8 flex items-center justify-center">
+        <svg
+          className="w-8 h-8 -rotate-90"
+          viewBox={`0 0 ${R * 2 + 4} ${R * 2 + 4}`}
+          style={{ overflow: 'visible' }}
+        >
+          {/* 배경 링 (연한 회색) */}
+          <circle
+            cx={R + 2}
+            cy={R + 2}
+            r={R}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className="text-gray-200"
+          />
+          {/* 진행 링 / 버퍼링 링 */}
+          <circle
+            cx={R + 2}
+            cy={R + 2}
+            r={R}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeDasharray={C}
+            strokeDashoffset={strokeDashoffset}
+            className="text-orange-400 transition-[stroke-dashoffset] duration-150"
+            style={
+              phase === 'loading'
+                ? {
+                    strokeDasharray: `${C * 0.25} ${C * 0.75}`,
+                    strokeDashoffset: 0,
+                    animation: 'pullIndicatorSpin 0.8s linear infinite',
+                  }
+                : undefined
+            }
+          />
+        </svg>
       </div>
+      <span className="text-sm text-gray-500">{label}</span>
     </div>
   );
 }

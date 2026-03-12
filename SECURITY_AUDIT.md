@@ -81,3 +81,5 @@ NEXT_PUBLIC_GA_ID=your_google_analytics_id_here
 다만, S3 버킷 이름을 환경 변수로 관리하는 것과 `.env.example` 파일 추가를 권장합니다.
 
 
+
+

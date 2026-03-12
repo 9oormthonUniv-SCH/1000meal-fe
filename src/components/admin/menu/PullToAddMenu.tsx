@@ -95,17 +95,10 @@ export default function PullToAddMenu({
     return !!root && root.scrollTop <= 0;
   };
 
-  useEffect(() => {
-    const onDocTouchMove = (e: TouchEvent) => {
-      if (isTouchRef.current && pulledRef.current && e.cancelable) e.preventDefault();
-    };
-    document.addEventListener('touchmove', onDocTouchMove, { passive: false });
-    return () => document.removeEventListener('touchmove', onDocTouchMove);
-  }, []);
-
   const reset = () => {
     pulledRef.current = false;
     readyRef.current = false;
+    pullYRef.current = 0;
     setPhase('idle');
     setPullRaf(0);
     document.body.style.overflow = '';
@@ -118,7 +111,7 @@ export default function PullToAddMenu({
     readyRef.current = false;
     startYRef.current = y;
     setPhase('pull');
-    document.body.style.overflow = 'hidden';
+    // body overflow는 아래로 당긴 뒤에만 숨김 (스크롤 방해 방지)
   };
 
   const onMove = (y: number) => {
@@ -139,7 +132,6 @@ export default function PullToAddMenu({
 
   const onEnd = async () => {
     if (!pulledRef.current) return;
-    document.body.style.overflow = '';
     if (readyRef.current) {
       setPhase('loading');
       try {

@@ -3,19 +3,23 @@
 import MenuEditorLayout from "@/components/admin/menu/edit/MenuEditorLayout";
 import WeekNavigator from "@/components/admin/menu/WeekNavigator";
 import Toast from "@/components/common/Toast";
-import { getDailyMenu, saveDailyMenu } from "@/lib/api/menus/endpoints";
+import { getDailyMenu, upsertMenuGroupMenus } from "@/lib/api/menus/endpoints";
 import { getCookie } from "@/lib/auth/cookies";
 import { getStoreIdFromToken } from "@/lib/auth/jwt";
 import { mondayOf } from "@/utils/week";
 import dayjs from "dayjs";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function AdminMenuEditPage() {
   const router = useRouter();
   const params = useParams<{ date: string }>();
+  const searchParams = useSearchParams();
   const token = getCookie("accessToken");
   const storeId = getStoreIdFromToken(token);
+
+  const groupIdParam = searchParams.get("groupId");
+  const groupId = groupIdParam != null && /^\d+$/.test(groupIdParam) ? Number(groupIdParam) : null;
 
   const selectedId = params?.date && dayjs(params.date).isValid()
     ? params.date
@@ -32,18 +36,19 @@ export default function AdminMenuEditPage() {
   const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
-    if (!storeId) return;
+    if (!storeId || groupId == null) return;
     (async () => {
       setLoading(true);
       try {
         const res = await getDailyMenu(storeId, selectedId);
-        setMenus(res?.menus ?? []);
+        const group = res?.groups?.find((g) => g.id === groupId);
+        setMenus(group?.menus ?? []);
         setDirty(false);
       } finally {
         setLoading(false);
       }
     })();
-  }, [storeId, selectedId]);
+  }, [storeId, selectedId, groupId]);
 
   const addMenu = (menuText?: string) => {
     const text = (menuText ?? input).trim();
@@ -59,8 +64,8 @@ export default function AdminMenuEditPage() {
   };
 
   const save = async () => {
-    if (!storeId) return;
-    await saveDailyMenu(storeId, selectedId, menus);
+    if (groupId == null) return;
+    await upsertMenuGroupMenus(groupId, selectedId, menus);
     setDirty(false);
     setShowToast(true);
     setTimeout(() => setShowToast(false), 700);
@@ -78,6 +83,21 @@ export default function AdminMenuEditPage() {
     }
     window.location.href = "/admin/menu";
   };
+
+  if (groupId == null) {
+    return (
+      <div className="w-full min-h-dvh bg-[#F5F6F7] pt-[56px] flex items-center justify-center">
+        <p className="text-gray-500">그룹을 선택해 주세요.</p>
+        <button
+          type="button"
+          onClick={() => router.push("/admin/menu")}
+          className="ml-2 text-orange-500 font-medium"
+        >
+          메뉴 관리로 이동
+        </button>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -97,22 +117,22 @@ export default function AdminMenuEditPage() {
             selectedId={selectedId}
             onShiftWeek={(delta) => {
               const nextMonday = monday.add(delta, "week");
+              const path = `/admin/menu/edit/${nextMonday.format("YYYY-MM-DD")}?groupId=${groupId}`;
               if (dirty) {
-                setPendingAction(() =>
-                  () => router.push(`/admin/menu/edit/${nextMonday.format("YYYY-MM-DD")}`)
-                );
+                setPendingAction(() => () => router.push(path));
                 setShowConfirm(true);
                 return;
               }
-              router.push(`/admin/menu/edit/${nextMonday.format("YYYY-MM-DD")}`);
+              router.push(path);
             }}
             onSelectDate={(id) => {
+              const path = `/admin/menu/edit/${id}?groupId=${groupId}`;
               if (dirty) {
-                setPendingAction(() => () => router.push(`/admin/menu/edit/${id}`));
+                setPendingAction(() => () => router.push(path));
                 setShowConfirm(true);
                 return;
               }
-              router.push(`/admin/menu/edit/${id}`);
+              router.push(path);
             }}
           />
         }

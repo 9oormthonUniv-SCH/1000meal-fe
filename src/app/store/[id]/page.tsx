@@ -4,6 +4,7 @@
 import Header from "@/components/common/Header";
 import StoreImage from "@/components/common/StoreImage";
 import StoreInfo from "@/components/common/StoreInfo";
+import FavoriteStarButton from "@/components/favorites/FavoriteStarButton";
 import OtherStoresViewer from "@/components/store/OtherStoresViewer";
 import WeeklyMenu from "@/components/store/WeeklyMenu";
 
@@ -68,7 +69,7 @@ export default function StoreDetailPage(
 
   return (
     <div className="w-full pt-[56px]">
-      <Header title="매장 상세페이지" />
+      <Header title="매장 상세페이지" rightElement={<FavoriteStarButton storeId={storeId} />} />
       <StoreImage store={store} />
       <StoreInfo store={store} />
       <div className="h-3 bg-gray-200 mx-auto mb-3" />

@@ -2,8 +2,8 @@ export type Role = 'ADMIN' | 'STUDENT';
 
 /** 로그인 요청 */
 export interface LoginRequest {
-  role: string;
   user_id: string;
+  role: string;
   password: string;
 }
 

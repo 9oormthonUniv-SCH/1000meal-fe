@@ -34,7 +34,8 @@ export default function MyPage() {
         const user = await getMe(accessToken);
         setMe(user);
 
-        if (user.role !== role) {
+        // role(atom)이 아직 계산 전/null일 수 있으니, 값이 있을 때만 비교
+        if (role && user.role !== role) {
           logout();
         }
       } catch (e: unknown) {

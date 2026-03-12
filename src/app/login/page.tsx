@@ -4,9 +4,11 @@ import { tokenAtom } from '@/atoms/user';
 import LoginForm, { type LoginRole } from '@/components/auth/LoginForm';
 import Header from '@/components/common/Header';
 import { loginUser } from '@/lib/api/auth/endpoints';
+import { registerFcmToken } from '@/lib/api/fcm/endpoints';
 import { ApiError, ServerErrorBody } from '@/lib/api/errors';
 import { getMe } from '@/lib/api/users';
 import { setSession } from '@/lib/auth/session.client';
+import { getOrCreateFcmToken, isFcmBrowserSupported } from '@/lib/fcm/client';
 import { useSetAtom } from 'jotai';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -32,6 +34,17 @@ export default function LoginPage() {
 
       // ✅ 서버에서 유저 정보 가져오기 → 단순 redirect 용도
       const me = await getMe(res.accessToken);
+
+      // ✅ 로그인 성공 시 FCM 토큰 등록/연결(실패해도 로그인 흐름은 유지)
+      if (isFcmBrowserSupported()) {
+        try {
+          // 권한이 default면 팝업이 뜹니다(요구사항: 로그인 시 자동 등록)
+          const fcmToken = await getOrCreateFcmToken();
+          await registerFcmToken({ token: fcmToken, platform: 'WEB' });
+        } catch (err) {
+          console.warn('[FCM] 토큰 등록 실패(무시하고 로그인 진행):', err);
+        }
+      }
 
       router.replace(me.role === 'ADMIN' ? '/admin' : '/');
     } catch (e: unknown) {

@@ -38,9 +38,10 @@ export default function AdminMyPage() {
       try {
         const user = await getMe(accessToken);
         setMe(user);
-
+        console.log(user);
         // ✅ 토큰에서 storeId 직접 추출
         const storeId = getStoreIdFromToken(accessToken);
+        console.log(storeId);
         if (user.role === 'ADMIN' && storeId) {
           const storeData = await getStoreDetail(storeId);
           setStore(storeData);
